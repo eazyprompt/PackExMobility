@@ -92,6 +92,9 @@
     }
     body.screen-flash::after{ opacity: 1; }
 
+    /* ✅ NEW: Screen lamp fallback (เปิดค้าง) */
+    body.screen-lamp::after{ opacity: 1; }
+
     /* --- App Frame Wrapper --- */
     .app-frame {
       width: calc(100vw - (var(--frame-gap) * 2));
@@ -175,6 +178,20 @@
       justify-content: center;
       cursor: pointer;
       transition: 0.2s;
+    }
+
+    /* ✅ NEW: ขวาของ dashboard (badge + reset) */
+    .dash-right{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      flex-shrink: 0;
+    }
+
+    /* ✅ NEW: ปรับปุ่ม icon ให้เข้ากับ dashboard */
+    .btn-icon-dash{
+      width: 38px;
+      height: 38px;
     }
 
     /* --- Viewport (Auto-fit) --- */
@@ -599,14 +616,19 @@
     <header>
       <div class="brand"><i data-lucide="scan-face"></i> ColEx <span>Mobility</span></div>
       <div class="header-controls">
+        <!-- ✅ Dropdown อยู่ที่เดิม -->
         <select id="algo-select" class="algo-selector" onchange="changeMode(this.value)">
           <option value="2000">DE 2000</option>
           <option value="94">DE 94</option>
           <option value="76">DE 76</option>
         </select>
-        <button class="btn-icon-header" onclick="resetAll()">
-          <i data-lucide="rotate-cw" style="width: 18px;"></i>
+
+        <!-- ✅ Torch hold button -->
+        <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
+          <i data-lucide="flashlight" style="width: 18px;"></i>
         </button>
+
+        <!-- ✅ Reset ถูกย้ายไปอยู่ใน Result Dashboard แล้ว -->
       </div>
     </header>
 
@@ -637,7 +659,14 @@
             <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
             <div class="res-value" id="delta-val">--</div>
           </div>
-          <div class="res-badge" id="delta-msg">READY</div>
+
+          <!-- ✅ NEW: ย้าย Reset มาอยู่ใน Dashboard -->
+          <div class="dash-right">
+            <div class="res-badge" id="delta-msg">READY</div>
+            <button class="btn-icon-header btn-icon-dash" onclick="resetAll()" title="Reset">
+              <i data-lucide="rotate-cw" style="width: 18px;"></i>
+            </button>
+          </div>
         </div>
 
         <div class="cards-container">
@@ -715,10 +744,13 @@
     let bgImageData = null;
     let deltaMode = "2000";
 
-    // ✅ Torch/Flash
+    // ✅ Torch
     let videoTrack = null;
     let torchSupported = false;
     let isTorchBusy = false;
+
+    // ✅ Torch hold state
+    let isTorchOn = false;
 
     // ✅ FIX: ความสูงจริงของ viewport บนมือถือ (แก้ปัญหาส่วนท้ายโดนตัด)
     function setRealAppHeight() {
@@ -750,6 +782,8 @@
           torchSupported = false;
         }
 
+        updateTorchUI();
+
         video.onloadedmetadata = () => {
           resizeGraph();
           window.addEventListener("resize", resizeGraph);
@@ -777,13 +811,11 @@
       const header = document.querySelector("header");
       if (!frame || !header) return;
 
-      // ✅ FIX: ใช้ bounding rect (นิ่งกว่าบนมือถือ)
       const H = frame.getBoundingClientRect().height;
       const headerH = header.offsetHeight;
 
       const remain = Math.max(0, H - headerH);
 
-      // ✅ ปรับให้ยืดหยุ่นขึ้นเล็กน้อย กันท้ายโดนบีบ
       const viewportH = Math.max(140, Math.min(270, Math.round(remain * 0.34)));
       const panelRemain = Math.max(0, remain - viewportH);
       const vizH = Math.max(90, Math.min(175, Math.round(panelRemain * 0.24)));
@@ -884,6 +916,50 @@
       }
     }
 
+    function updateTorchUI() {
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold() {
+      if (isTorchBusy) return;
+      isTorchBusy = true;
+
+      const next = !isTorchOn;
+
+      try {
+        if (torchSupported && videoTrack?.applyConstraints) {
+          const ok = await setTorch(next);
+          if (!ok && next) {
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+
+          isTorchOn = next;
+          if (!isTorchOn) document.body.classList.remove("screen-lamp");
+          updateTorchUI();
+          return;
+        }
+
+        isTorchOn = next;
+        document.body.classList.toggle("screen-lamp", isTorchOn);
+        updateTorchUI();
+      } finally {
+        isTorchBusy = false;
+      }
+    }
+
     function readOneSample() {
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
 
@@ -904,33 +980,14 @@
       return { rgb, lab };
     }
 
-    async function captureWithFlash(settleMs = 180) {
+    async function captureNoFlash(settleMs = 120) {
       if (isTorchBusy) return null;
-      isTorchBusy = true;
-
-      let usedTorch = false;
-      let usedScreen = false;
-
-      try {
-        usedTorch = await setTorch(true);
-        if (!usedTorch) {
-          document.body.classList.add("screen-flash");
-          usedScreen = true;
-        }
-
-        await wait(settleMs);
-
-        const sample = readOneSample();
-        return sample;
-      } finally {
-        if (usedTorch) await setTorch(false);
-        if (usedScreen) document.body.classList.remove("screen-flash");
-        isTorchBusy = false;
-      }
+      await wait(settleMs);
+      return readOneSample();
     }
 
     async function lockRef() {
-      const sample = await captureWithFlash();
+      const sample = await captureNoFlash();
       if (!sample) return;
 
       savedRefLab = { ...sample.lab };
@@ -945,7 +1002,7 @@
     }
 
     async function lockSam() {
-      const sample = await captureWithFlash();
+      const sample = await captureNoFlash();
       if (!sample) return;
 
       savedSamLab = { ...sample.lab };
@@ -1185,6 +1242,20 @@
     if (frameEl && "ResizeObserver" in window) {
       new ResizeObserver(() => applyAutoFitLayout()).observe(frameEl);
     }
+
+    // ✅ Safety: ปิดไฟค้างเมื่อสลับแอป/ออกจากหน้า
+    document.addEventListener("visibilitychange", async () => {
+      if (document.hidden && isTorchOn) {
+        if (torchSupported) await setTorch(false);
+        document.body.classList.remove("screen-lamp");
+        isTorchOn = false;
+        updateTorchUI();
+      }
+    });
+
+    window.addEventListener("beforeunload", async () => {
+      if (torchSupported) await setTorch(false);
+    });
 
     initCamera();
   </script>
