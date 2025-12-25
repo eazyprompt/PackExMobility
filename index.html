@@ -1,710 +1,1213 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>ColEx Mobility Split</title>
-    <!-- Tab icon -->
-<link rel="icon" type="image/png" href="./logo.png">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>ColEx Mobility Split</title>
 
-<!-- iOS Add to Home Screen icon -->
-<link rel="apple-touch-icon" href="./logo.png">
+  <!-- Tab icon -->
+  <link rel="icon" type="image/png" href="./logo.png" />
 
-<!-- Android/Chrome shortcut (ผ่าน manifest) -->
-<link rel="manifest" href="./manifest.webmanifest">
+  <!-- iOS Add to Home Screen icon -->
+  <link rel="apple-touch-icon" href="./logo.png" />
 
-<meta name="theme-color" content="#020617">
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+  <!-- Android/Chrome shortcut (PWA manifest) -->
+  <link rel="manifest" href="./manifest.webmanifest" />
 
-    <style>
-        :root {
-            /* --- INDIGO / NAVY / WHITE PALETTE --- */
-            --bg-body: #0f172a;       
-            --bg-card: #1e293b;       
-            --bg-sidebar: #172554;    
-            
-            --border-subtle: rgba(255, 255, 255, 0.12);
-            --text-main: #ffffff;     
-            --text-muted: #94a3b8;    
-            
-            --primary: #3b82f6;       
-            --primary-glow: rgba(59, 130, 246, 0.5);
-            --sample: #ffffff;        
-            
-            --success: #34d399;       
-            --warn: #fbbf24;          
-            --danger: #f87171;        
+  <meta name="theme-color" content="#020617" />
 
-            --radius-lg: 18px;
-            --font-ui: 'Inter', sans-serif;
-            --font-num: 'JetBrains Mono', monospace;
-            --gap-layout: 20px;
-        }
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+  <style>
+    :root {
+      /* --- INDIGO / NAVY / WHITE PALETTE --- */
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #172554;
 
-        body {
-            /* ปรับ background ด้านนอกสุดให้เป็นสีมืด */
-            background: #020617; 
-            color: var(--text-main);
-            font-family: var(--font-ui);
-            margin: 0;
-            height: 100vh;
-            width: 100vw;
-            /* จัดกึ่งกลางคอนเทนเนอร์ */
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            overflow: hidden;
-        }
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
 
-        /* --- NEW: App Frame Wrapper --- */
-        .app-frame {
-            /* กำหนดขนาดให้เว้นขอบ 20px รอบด้าน */
-            width: calc(100vw - 40px);
-            height: calc(100vh - 40px);
-            
-            /* จำกัดความกว้างสูงสุดเพื่อให้ดูดีบนจอคอม (ไม่ยืดจนน่าเกลียด) */
-            max-width: 500px; 
-            
-            background: var(--bg-body);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            position: relative;
-            
-            /* ตกแต่งกรอบ */
-            border-radius: 24px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.6), 0 0 0 1px var(--border-subtle);
-        }
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --sample: #ffffff;
 
-        /* --- Header --- */
-        header {
-            min-height: 64px; padding: 0 20px;
-            /* ลบ safe-area เพราะเรามี frame แล้ว */
-            padding-top: 12px; 
-            display: flex; justify-content: space-between; align-items: center;
-            background: var(--bg-body); 
-            border-bottom: 1px solid var(--border-subtle);
-            flex-shrink: 0; z-index: 50;
-        }
-        .brand { font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff; }
-        .brand i { color: var(--primary); }
-        .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em;}
-        
-        .header-controls { display: flex; align-items: center; gap: 10px; }
-        .algo-selector {
-            appearance: none; background: #334155; color: #fff; 
-            border: 1px solid var(--border-subtle); padding: 8px 14px; 
-            border-radius: 100px; font-size: 0.75rem; font-weight: 600; font-family: var(--font-num);
-            transition: 0.2s;
-        }
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #f87171;
 
-        .btn-icon-header {
-            background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: #fff;
-            width: 36px; height: 36px; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center; cursor: pointer;
-            transition: 0.2s;
-        }
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
+      --gap-layout: 20px;
 
-        /* --- 50:50 Viewport --- */
-        .viewport {
-            height: 35%; /* เปลี่ยนจาก vh เป็น % เพื่อให้อิงกับ container */
-            min-height: 220px; 
-            display: flex;
-            background: #020617; 
-            border-bottom: 1px solid var(--border-subtle); 
-            flex-shrink: 0;
-        }
-        
-        /* Left: Camera (50%) */
-        .vp-camera {
-            flex: 1; /* Takes 50% */
-            position: relative; overflow: hidden;
-            display: flex; align-items: center; justify-content: center;
-            border-right: 1px solid var(--border-subtle);
-        }
-        video { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
-        
-        /* Right: AI Sidebar (50%) */
-        .vp-advice {
-            flex: 1; /* Takes 50% */
-            background: var(--bg-sidebar);
-            display: flex; flex-direction: column; 
-            padding: 16px; 
-            overflow-y: auto; 
-            flex-shrink: 0;
-            box-shadow: inset 5px 0 15px rgba(0,0,0,0.2);
-        }
+      /*
+        ✅ Responsive "outer gap" (no hardcode per phone model)
+        - scales with screen size automatically
+        - safe-area is handled separately via env()
+      */
+      --frame-gap: clamp(18px, 6.5vw, 72px);
+    }
 
-        .hud-overlay { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; pointer-events: none; }
-        .target-box { 
-            width: 72px; height: 72px; position: relative;
-            box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6); 
-            border-radius: 18px; transition: transform 0.1s;
-        }
-        .target-box::before {
-            content: ''; position: absolute; inset: -1px;
-            border: 2px solid rgba(255,255,255,0.9); border-radius: 18px;
-        }
-        .target-box.flash { transform: scale(0.95); }
-        .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
-        .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
-        .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+      outline: none;
+    }
 
-        .vp-header { font-size: 0.7rem; font-weight: 800; color: #60a5fa; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
-        
-        .advice-item {
-            background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1);
-            border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
-        }
-        .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-        .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
-        .placeholder-state {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            height: 100%; opacity: 0.4; text-align: center; gap: 10px; color: #94a3b8;
-        }
-        @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    /* ✅ Robust viewport on mobile: dvh fixes address bar issues */
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
 
-        /* --- Panel --- */
-        .panel { 
-            flex: 1; background: var(--bg-body); 
-            display: flex; flex-direction: column; overflow-y: auto; 
-            padding-top: var(--gap-layout);
-            /* ปรับ padding bottom เพราะไม่ต้องหลบ safe area แล้ว */
-            padding-bottom: var(--gap-layout);
-        }
-        .panel-content {
-            padding: 0 20px; display: flex; flex-direction: column; gap: var(--gap-layout); 
-            margin: 0 auto; width: 100%;
-        }
+      width: 100vw;
+      height: 100dvh;
 
-        /* Result Dashboard */
-        .result-dashboard {
-            display: flex; gap: 12px; justify-content: space-between; align-items: center;
-            background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); 
-            border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); 
-            padding: 16px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
-        }
-        .res-left { display: flex; flex-direction: column; gap: 2px; }
-        .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-        .res-value { font-family: var(--font-num); font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1; }
-        .res-badge { padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255,255,255,0.1); }
-        
-        .status-match .res-value { color: var(--success); }
-        .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
-        .status-close .res-value { color: var(--warn); }
-        .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
-        .status-diff .res-value { color: var(--danger); }
-        .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-        /* Cards */
-        .cards-container { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-        
-        .data-card {
-            background: var(--bg-card); border: 1px solid var(--border-subtle);
-            border-radius: var(--radius-lg); padding: 12px; 
-            display: flex; flex-direction: column; gap: 10px; transition: 0.3s;
-        }
-        .card-top { display: flex; justify-content: space-between; align-items: center; }
-        .card-title { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
-        .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255,255,255,0.15); transition: 0.3s; }
-        
-        .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255,255,255,0.05); }
-        .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255,255,255,0.1); }
-        .l-item:last-child { border: none; }
-        .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px;}
-        .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; }
-        
-        .btn-act {
-            width: 100%; padding: 12px; border-radius: 10px; border: none;
-            background: rgba(255,255,255,0.05); color: #fff; font-size: 0.75rem; font-weight: 700;
-            cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-            transition: 0.2s; border: 1px solid transparent;
-        }
-        .btn-act:active { transform: scale(0.96); }
+      overflow: hidden;
+    }
 
-        .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
-        .data-card.active-ref .card-title { color: var(--primary); }
-        .data-card.active-ref .btn-act { background: var(--primary); color: #fff; box-shadow: 0 4px 15px var(--primary-glow); }
-        
-        .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255,255,255, 0.1), #1e293b 90%); }
-        .data-card.active-sam .card-title { color: #fff; }
-        .data-card.active-sam .btn-act { background: #fff; color: #0f172a; box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
+    /* --- App Frame Wrapper --- */
+    .app-frame {
+      /*
+        ✅ Uses dvh + clamp so it adapts to different phone sizes without per-model hardcoding
+        ✅ Includes safe-area insets so it won't clip on notch/home bar devices
+      */
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(100dvh - (var(--frame-gap) * 2));
 
-        /* Viz Section */
-        .viz-section { display: flex; gap: 12px; height: 160px; } 
-        
-        .graph-box { 
-            flex: 1; background: #020617; 
-            border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); 
-            position: relative; overflow: hidden;
-        }
-        
-        .plot-legend {
-            position: absolute; top: 10px; left: 10px; z-index: 10;
-            display: flex; gap: 8px; pointer-events: none;
-        }
-        .legend-item {
-            font-size: 0.6rem; color: #fff; font-weight: 700;
-            display: flex; align-items: center; gap: 5px;
-            background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px;
-            border: 1px solid rgba(255,255,255,0.1); backdrop-filter: blur(4px);
-        }
-        .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
-        .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
-        .di-sam { background: var(--sample); }
+      max-width: 500px;
+      max-height: calc(100dvh - (var(--frame-gap) * 2));
 
-        .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255,255,255,0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
-        .ax-t { top: 6px; left: 50%; transform: translateX(-50%); } 
-        .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
-        .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-        .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
 
-        .l-bar-box { 
-            width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; 
-            display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; 
-        }
-        .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
-        .l-mark { 
-            position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; 
-            border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-        }
-        .l-mark.ref { background: var(--primary); z-index: 1; }
-        .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px;}
-        .l-mark.visible { opacity: 1; }
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
 
-        canvas { display: block; }
-        #proc-canvas { display: none; }
-    </style>
+      /* ✅ iOS safe areas */
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+
+    /* --- Header --- */
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      font-weight: 800;
+      font-size: 1.25rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+    }
+    .brand i {
+      color: var(--primary);
+    }
+    .brand span {
+      color: var(--primary);
+      font-weight: 400;
+      opacity: 0.9;
+      font-size: 0.8em;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .algo-selector {
+      appearance: none;
+      background: #334155;
+      color: #fff;
+      border: 1px solid var(--border-subtle);
+      padding: 8px 14px;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      font-family: var(--font-num);
+      transition: 0.2s;
+    }
+
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    /* --- Viewport --- */
+    .viewport {
+      height: 35%;
+      min-height: 220px;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+    }
+
+    .vp-camera {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-right: 1px solid var(--border-subtle);
+    }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0.9;
+    }
+
+    .vp-advice {
+      flex: 1;
+      background: var(--bg-sidebar);
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2);
+    }
+
+    .hud-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .target-box {
+      width: 72px;
+      height: 72px;
+      position: relative;
+      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
+      border-radius: 18px;
+      transition: transform 0.1s;
+    }
+    .target-box::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 18px;
+    }
+    .target-box.flash {
+      transform: scale(0.95);
+    }
+    .target-box.flash::before {
+      border-color: var(--primary);
+      box-shadow: 0 0 25px var(--primary);
+    }
+
+    .crosshair {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0.8;
+    }
+    .ch-c {
+      width: 4px;
+      height: 4px;
+      background: #fff;
+      border-radius: 50%;
+      box-shadow: 0 0 2px #000;
+    }
+
+    .vp-header {
+      font-size: 0.7rem;
+      font-weight: 800;
+      color: #60a5fa;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .advice-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 10px;
+      animation: slideIn 0.3s ease;
+    }
+    .adv-icon-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .adv-detail {
+      font-size: 0.7rem;
+      color: var(--text-muted);
+      margin-left: 2px;
+    }
+    .placeholder-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      opacity: 0.4;
+      text-align: center;
+      gap: 10px;
+      color: #94a3b8;
+    }
+
+    @keyframes slideIn {
+      from {
+        opacity: 0;
+        transform: translateX(10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
+    }
+
+    /* --- Panel --- */
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      padding-top: var(--gap-layout);
+      padding-bottom: var(--gap-layout);
+    }
+
+    .panel-content {
+      padding: 0 20px;
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-layout);
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* Result Dashboard */
+    .result-dashboard {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 16px 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .res-left {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .res-label {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .res-value {
+      font-family: var(--font-num);
+      font-size: 2.5rem;
+      font-weight: 800;
+      color: var(--text-main);
+      line-height: 1;
+    }
+    .res-badge {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 800;
+      background: #334155;
+      color: #fff;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .status-match .res-value {
+      color: var(--success);
+    }
+    .status-match .res-badge {
+      background: rgba(52, 211, 153, 0.2);
+      color: var(--success);
+      border-color: rgba(52, 211, 153, 0.3);
+    }
+    .status-close .res-value {
+      color: var(--warn);
+    }
+    .status-close .res-badge {
+      background: rgba(251, 191, 36, 0.2);
+      color: var(--warn);
+      border-color: rgba(251, 191, 36, 0.3);
+    }
+    .status-diff .res-value {
+      color: var(--danger);
+    }
+    .status-diff .res-badge {
+      background: rgba(248, 113, 113, 0.2);
+      color: var(--danger);
+      border-color: rgba(248, 113, 113, 0.3);
+    }
+
+    /* Cards */
+    .cards-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .data-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: 0.3s;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-title {
+      font-size: 0.75rem;
+      font-weight: 800;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .color-dot {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: #334155;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      transition: 0.3s;
+    }
+
+    .lab-row {
+      display: flex;
+      justify-content: space-between;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 8px;
+      padding: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .l-item {
+      flex: 1;
+      text-align: center;
+      border-right: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    .l-item:last-child {
+      border: none;
+    }
+    .l-lbl {
+      font-size: 0.55rem;
+      color: #64748b;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    .l-val {
+      font-family: var(--font-num);
+      font-size: 0.9rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-act {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-size: 0.75rem;
+      font-weight: 700;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.2s;
+      border: 1px solid transparent;
+    }
+    .btn-act:active {
+      transform: scale(0.96);
+    }
+
+    .data-card.active-ref {
+      border-color: var(--primary);
+      background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%);
+    }
+    .data-card.active-ref .card-title {
+      color: var(--primary);
+    }
+    .data-card.active-ref .btn-act {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 15px var(--primary-glow);
+    }
+
+    .data-card.active-sam {
+      border-color: #fff;
+      background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%);
+    }
+    .data-card.active-sam .card-title {
+      color: #fff;
+    }
+    .data-card.active-sam .btn-act {
+      background: #fff;
+      color: #0f172a;
+      box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+    }
+
+    /* Viz Section */
+    .viz-section {
+      display: flex;
+      gap: 12px;
+      height: 160px;
+    }
+
+    .graph-box {
+      flex: 1;
+      background: #020617;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .plot-legend {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      z-index: 10;
+      display: flex;
+      gap: 8px;
+      pointer-events: none;
+    }
+
+    .legend-item {
+      font-size: 0.6rem;
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      background: rgba(15, 23, 42, 0.7);
+      padding: 3px 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(4px);
+    }
+
+    .dot-icon {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+    .di-ref {
+      background: var(--primary);
+      box-shadow: 0 0 5px var(--primary);
+    }
+    .di-sam {
+      background: var(--sample);
+    }
+
+    .axis-lbl {
+      position: absolute;
+      font-size: 0.55rem;
+      font-weight: 800;
+      color: rgba(255, 255, 255, 0.6);
+      pointer-events: none;
+      text-shadow: 0 0 4px #000;
+    }
+    .ax-t {
+      top: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .ax-b {
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
+    .ax-l {
+      left: 6px;
+      top: 50%;
+      transform: translateY(-50%) rotate(-90deg);
+    }
+    .ax-r {
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%) rotate(90deg);
+    }
+
+    .l-bar-box {
+      width: 40px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: 50px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 12px 0;
+      position: relative;
+    }
+
+    .l-track {
+      width: 6px;
+      flex: 1;
+      background: linear-gradient(to top, #020617, #fff);
+      border-radius: 4px;
+      position: relative;
+      margin: 6px 0;
+    }
+
+    .l-mark {
+      position: absolute;
+      left: 50%;
+      transform: translate(-50%, 50%);
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 3px solid var(--bg-card);
+      opacity: 0;
+      transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+    .l-mark.ref {
+      background: var(--primary);
+      z-index: 1;
+    }
+    .l-mark.sam {
+      background: #fff;
+      z-index: 2;
+      width: 12px;
+      height: 12px;
+      border-width: 2px;
+    }
+    .l-mark.visible {
+      opacity: 1;
+    }
+
+    canvas {
+      display: block;
+    }
+    #proc-canvas {
+      display: none;
+    }
+
+    /*
+      ✅ Additional responsive safeguards (still no per-model hardcoding):
+      When height is short (landscape), shrink viewport block so it won't overflow.
+    */
+    @media (max-height: 700px) {
+      .viewport {
+        height: 30%;
+        min-height: 180px;
+      }
+      .res-value {
+        font-size: 2.2rem;
+      }
+    }
+
+    @media (max-height: 600px) {
+      .viewport {
+        height: 28%;
+        min-height: 160px;
+      }
+      .viz-section {
+        height: 140px;
+      }
+      .panel {
+        padding-top: 14px;
+        padding-bottom: 14px;
+      }
+    }
+  </style>
 </head>
+
 <body>
-
-<div class="app-frame">
-
+  <div class="app-frame">
     <header>
-        <div class="brand"><i data-lucide="scan-face"></i> ColEx <span>Mobility</span></div>
-        <div class="header-controls">
-            <select id="algo-select" class="algo-selector" onchange="changeMode(this.value)">
-                <option value="2000">DE 2000</option>
-                <option value="94">DE 94</option>
-                <option value="76">DE 76</option>
-            </select>
-            <button class="btn-icon-header" onclick="resetAll()"><i data-lucide="rotate-cw" style="width: 18px;"></i></button>
-        </div>
+      <div class="brand"><i data-lucide="scan-face"></i> ColEx <span>Mobility</span></div>
+      <div class="header-controls">
+        <select id="algo-select" class="algo-selector" onchange="changeMode(this.value)">
+          <option value="2000">DE 2000</option>
+          <option value="94">DE 94</option>
+          <option value="76">DE 76</option>
+        </select>
+        <button class="btn-icon-header" onclick="resetAll()">
+          <i data-lucide="rotate-cw" style="width: 18px;"></i>
+        </button>
+      </div>
     </header>
 
     <div class="viewport">
-        <div class="vp-camera">
-            <video id="webcam" autoplay playsinline muted></video>
-            <div class="hud-overlay">
-                <div id="target-box" class="target-box">
-                    <div class="crosshair"><div class="ch-c"></div></div>
-                </div>
-            </div>
+      <div class="vp-camera">
+        <video id="webcam" autoplay playsinline muted></video>
+        <div class="hud-overlay">
+          <div id="target-box" class="target-box">
+            <div class="crosshair"><div class="ch-c"></div></div>
+          </div>
         </div>
-        
-        <div class="vp-advice">
-            <div class="vp-header"><i data-lucide="bot" style="width:14px;"></i> AI ASSIST</div>
-            <div id="advice-content"></div>
-            <div id="advice-placeholder" class="placeholder-state">
-                <i data-lucide="scan" style="width: 28px; opacity: 0.5;"></i>
-                <span style="font-size:0.65rem;">Lock both<br>Ref & Sample</span>
-            </div>
+      </div>
+
+      <div class="vp-advice">
+        <div class="vp-header"><i data-lucide="bot" style="width: 14px;"></i> AI ASSIST</div>
+        <div id="advice-content"></div>
+        <div id="advice-placeholder" class="placeholder-state">
+          <i data-lucide="scan" style="width: 28px; opacity: 0.5;"></i>
+          <span style="font-size: 0.65rem;">Lock both<br />Ref & Sample</span>
         </div>
+      </div>
     </div>
 
     <div class="panel">
-        <div class="panel-content">
-            
-            <div id="result-dashboard" class="result-dashboard">
-                <div class="res-left">
-                    <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
-                    <div class="res-value" id="delta-val">--</div>
-                </div>
-                <div class="res-badge" id="delta-msg">READY</div>
-            </div>
-
-            <div class="cards-container">
-                <div class="data-card" id="card-ref">
-                    <div class="card-top">
-                        <div class="card-title"><i data-lucide="crosshair" style="width:14px;"></i> REF</div>
-                        <div class="color-dot" id="preview-ref"></div>
-                    </div>
-                    <div class="lab-row">
-                        <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="ref-l">-</div></div>
-                        <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="ref-a">-</div></div>
-                        <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="ref-b">-</div></div>
-                    </div>
-                    <button class="btn-act" id="btn-lock-ref" onclick="lockRef()">
-                        <i data-lucide="fingerprint" style="width:16px;"></i> LOCK REF
-                    </button>
-                </div>
-
-                <div class="data-card" id="card-sam">
-                    <div class="card-top">
-                        <div class="card-title"><i data-lucide="zap" style="width:14px;"></i> SAMPLE</div>
-                        <div class="color-dot" id="preview-sam"></div>
-                    </div>
-                    <div class="lab-row">
-                        <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="sam-l">-</div></div>
-                        <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="sam-a">-</div></div>
-                        <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="sam-b">-</div></div>
-                    </div>
-                    <button class="btn-act" id="btn-lock-sam" onclick="lockSam()">
-                        <i data-lucide="scan-line" style="width:16px;"></i> SCAN
-                    </button>
-                </div>
-            </div>
-
-            <div class="viz-section">
-                <div class="graph-box">
-                    <div class="plot-legend">
-                        <div class="legend-item"><div class="dot-icon di-ref"></div> REF</div>
-                        <div class="legend-item"><div class="dot-icon di-sam"></div> SAM</div>
-                    </div>
-                    <div class="axis-lbl ax-t">+b Yel</div>
-                    <div class="axis-lbl ax-b">-b Blu</div>
-                    <div class="axis-lbl ax-l">-a Grn</div>
-                    <div class="axis-lbl ax-r">+a Red</div>
-                    <canvas id="ab-plot"></canvas>
-                </div>
-                
-                <div class="l-bar-box">
-                    <div style="font-size:0.5rem; color:#64748b; font-weight:700;">L*</div>
-                    <div class="l-track">
-                        <div id="marker-ref" class="l-mark ref"></div>
-                        <div id="marker-sam" class="l-mark sam"></div>
-                    </div>
-                </div>
-            </div>
-
+      <div class="panel-content">
+        <div id="result-dashboard" class="result-dashboard">
+          <div class="res-left">
+            <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
+            <div class="res-value" id="delta-val">--</div>
+          </div>
+          <div class="res-badge" id="delta-msg">READY</div>
         </div>
+
+        <div class="cards-container">
+          <div class="data-card" id="card-ref">
+            <div class="card-top">
+              <div class="card-title"><i data-lucide="crosshair" style="width: 14px;"></i> REF</div>
+              <div class="color-dot" id="preview-ref"></div>
+            </div>
+            <div class="lab-row">
+              <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="ref-l">-</div></div>
+              <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="ref-a">-</div></div>
+              <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="ref-b">-</div></div>
+            </div>
+            <button class="btn-act" id="btn-lock-ref" onclick="lockRef()">
+              <i data-lucide="fingerprint" style="width: 16px;"></i> LOCK REF
+            </button>
+          </div>
+
+          <div class="data-card" id="card-sam">
+            <div class="card-top">
+              <div class="card-title"><i data-lucide="zap" style="width: 14px;"></i> SAMPLE</div>
+              <div class="color-dot" id="preview-sam"></div>
+            </div>
+            <div class="lab-row">
+              <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="sam-l">-</div></div>
+              <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="sam-a">-</div></div>
+              <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="sam-b">-</div></div>
+            </div>
+            <button class="btn-act" id="btn-lock-sam" onclick="lockSam()">
+              <i data-lucide="scan-line" style="width: 16px;"></i> SCAN
+            </button>
+          </div>
+        </div>
+
+        <div class="viz-section">
+          <div class="graph-box">
+            <div class="plot-legend">
+              <div class="legend-item"><div class="dot-icon di-ref"></div> REF</div>
+              <div class="legend-item"><div class="dot-icon di-sam"></div> SAM</div>
+            </div>
+            <div class="axis-lbl ax-t">+b Yel</div>
+            <div class="axis-lbl ax-b">-b Blu</div>
+            <div class="axis-lbl ax-l">-a Grn</div>
+            <div class="axis-lbl ax-r">+a Red</div>
+            <canvas id="ab-plot"></canvas>
+          </div>
+
+          <div class="l-bar-box">
+            <div style="font-size: 0.5rem; color: #64748b; font-weight: 700;">L*</div>
+            <div class="l-track">
+              <div id="marker-ref" class="l-mark ref"></div>
+              <div id="marker-sam" class="l-mark sam"></div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
+  </div>
 
-</div> <canvas id="proc-canvas" width="50" height="50"></canvas>
+  <canvas id="proc-canvas" width="50" height="50"></canvas>
 
-<script>
+  <script>
     lucide.createIcons();
 
-    const video = document.getElementById('webcam');
-    const procCanvas = document.getElementById('proc-canvas');
-    const procCtx = procCanvas.getContext('2d');
-    const plotCanvas = document.getElementById('ab-plot');
-    const plotCtx = plotCanvas.getContext('2d');
-    
+    const video = document.getElementById("webcam");
+    const procCanvas = document.getElementById("proc-canvas");
+    const procCtx = procCanvas.getContext("2d");
+    const plotCanvas = document.getElementById("ab-plot");
+    const plotCtx = plotCanvas.getContext("2d");
+
     let isProcessing = false;
     let liveLab = null;
     let liveRGB = null;
-    let savedRefLab = null, savedSamLab = null;
+    let savedRefLab = null,
+      savedSamLab = null;
     let bgImageData = null;
-    let deltaMode = '2000'; 
+    let deltaMode = "2000";
 
     async function initCamera() {
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 640 } }
-            });
-            video.srcObject = stream;
-            video.onloadedmetadata = () => {
-                resizeGraph();
-                window.addEventListener('resize', resizeGraph);
-                isProcessing = true;
-                requestAnimationFrame(loop);
-            };
-        } catch (err) { alert("Camera Error: " + err); }
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 640 } },
+        });
+        video.srcObject = stream;
+        video.onloadedmetadata = () => {
+          resizeGraph();
+          window.addEventListener("resize", resizeGraph);
+          isProcessing = true;
+          requestAnimationFrame(loop);
+        };
+      } catch (err) {
+        alert("Camera Error: " + err);
+      }
     }
 
     function resizeGraph() {
-        const container = document.querySelector('.graph-box');
-        if(container) {
-            plotCanvas.width = container.offsetWidth;
-            plotCanvas.height = container.offsetHeight;
-            renderColorMap(); 
-        }
+      const container = document.querySelector(".graph-box");
+      if (container) {
+        plotCanvas.width = container.offsetWidth;
+        plotCanvas.height = container.offsetHeight;
+        renderColorMap();
+      }
     }
 
     // --- COLOR WHEEL GRADIENT LOGIC (Using HSL) ---
     function renderColorMap() {
-        const w = plotCanvas.width, h = plotCanvas.height;
-        const cx = w/2, cy = h/2;
-        const imgData = plotCtx.createImageData(w, h);
-        const d = imgData.data;
-        const maxDist = Math.min(w, h) / 2;
+      const w = plotCanvas.width,
+        h = plotCanvas.height;
+      const cx = w / 2,
+        cy = h / 2;
+      const imgData = plotCtx.createImageData(w, h);
+      const d = imgData.data;
+      const maxDist = Math.min(w, h) / 2;
 
-        for (let y = 0; y < h; y+=2) { 
-            for (let x = 0; x < w; x+=2) {
-                const dx = x - cx;
-                const dy = y - cy; 
-                const dist = Math.sqrt(dx*dx + dy*dy);
-                const normDist = Math.min(1, dist / maxDist);
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          const dx = x - cx;
+          const dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const normDist = Math.min(1, dist / maxDist);
 
-                const angleRad = Math.atan2(-dy, dx); 
-                let angleDeg = angleRad * (180 / Math.PI);
-                if (angleDeg < 0) angleDeg += 360;
-                
-                const hue = angleDeg; 
-                // Adjusted for Darker Navy Theme
-                const lit = 100 - (normDist * 55); 
-                const sat = normDist * 100;       
+          const angleRad = Math.atan2(-dy, dx);
+          let angleDeg = angleRad * (180 / Math.PI);
+          if (angleDeg < 0) angleDeg += 360;
 
-                const rgb = hslToRgb(hue, sat, lit);
+          const hue = angleDeg;
+          const lit = 100 - normDist * 55;
+          const sat = normDist * 100;
 
-                const idx = (y * w + x) * 4;
-                const idx2 = (y * w + (x+1)) * 4;
-                const idx3 = ((y+1) * w + x) * 4;
-                const idx4 = ((y+1) * w + (x+1)) * 4;
+          const rgb = hslToRgb(hue, sat, lit);
 
-                const setPx = (i) => { d[i]=rgb.r; d[i+1]=rgb.g; d[i+2]=rgb.b; d[i+3]=255; };
-                
-                if(idx < d.length) setPx(idx);
-                if(idx2 < d.length) setPx(idx2);
-                if(idx3 < d.length) setPx(idx3);
-                if(idx4 < d.length) setPx(idx4);
-            }
+          const idx = (y * w + x) * 4;
+          const idx2 = (y * w + (x + 1)) * 4;
+          const idx3 = ((y + 1) * w + x) * 4;
+          const idx4 = ((y + 1) * w + (x + 1)) * 4;
+
+          const setPx = (i) => {
+            d[i] = rgb.r;
+            d[i + 1] = rgb.g;
+            d[i + 2] = rgb.b;
+            d[i + 3] = 255;
+          };
+
+          if (idx < d.length) setPx(idx);
+          if (idx2 < d.length) setPx(idx2);
+          if (idx3 < d.length) setPx(idx3);
+          if (idx4 < d.length) setPx(idx4);
         }
+      }
 
-        for(let x=0; x<w; x++) {
-             const idx = (Math.floor(cy)*w + x)*4;
-             d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40;
-        }
-        for(let y=0; y<h; y++) {
-             const idx = (y*w + Math.floor(cx))*4;
-             d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40;
-        }
+      for (let x = 0; x < w; x++) {
+        const idx = (Math.floor(cy) * w + x) * 4;
+        d[idx] = 255;
+        d[idx + 1] = 255;
+        d[idx + 2] = 255;
+        d[idx + 3] = 40;
+      }
+      for (let y = 0; y < h; y++) {
+        const idx = (y * w + Math.floor(cx)) * 4;
+        d[idx] = 255;
+        d[idx + 1] = 255;
+        d[idx + 2] = 255;
+        d[idx + 3] = 40;
+      }
 
-        bgImageData = imgData;
+      bgImageData = imgData;
     }
 
     function hslToRgb(h, s, l) {
-        s /= 100; l /= 100;
-        const k = n => (n + h / 30) % 12;
-        const a = s * Math.min(l, 1 - l);
-        const f = n => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-        return {
-            r: Math.round(255 * f(0)),
-            g: Math.round(255 * f(8)),
-            b: Math.round(255 * f(4))
-        };
+      s /= 100;
+      l /= 100;
+      const k = (n) => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
     }
 
     function loop() {
-        if (!isProcessing) return;
-        if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            procCtx.drawImage(video, 0, 0, 50, 50);
-            const frame = procCtx.getImageData(23, 23, 4, 4);
-            const data = frame.data;
-            let r=0, g=0, b=0, c=0;
-            for(let i=0; i<data.length; i+=4) { r+=data[i]; g+=data[i+1]; b+=data[i+2]; c++; }
-            r=Math.round(r/c); g=Math.round(g/c); b=Math.round(b/c);
-            
-            liveRGB = `rgb(${r},${g},${b})`;
-            liveLab = rgbToLab(r, g, b);
-            drawABGraph();
+      if (!isProcessing) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        procCtx.drawImage(video, 0, 0, 50, 50);
+        const frame = procCtx.getImageData(23, 23, 4, 4);
+        const data = frame.data;
+        let r = 0,
+          g = 0,
+          b = 0,
+          c = 0;
+        for (let i = 0; i < data.length; i += 4) {
+          r += data[i];
+          g += data[i + 1];
+          b += data[i + 2];
+          c++;
         }
-        requestAnimationFrame(loop);
+        r = Math.round(r / c);
+        g = Math.round(g / c);
+        b = Math.round(b / c);
+
+        liveRGB = `rgb(${r},${g},${b})`;
+        liveLab = rgbToLab(r, g, b);
+        drawABGraph();
+      }
+      requestAnimationFrame(loop);
     }
 
     function lockRef() {
-        if(!liveLab) return;
-        savedRefLab = {...liveLab};
-        updateCard('ref', savedRefLab, liveRGB);
-        document.getElementById('card-ref').classList.add('active-ref');
-        document.getElementById('btn-lock-ref').innerHTML = '<i data-lucide="check"></i> SAVED';
-        flashTarget();
-        tryCalculate();
-        lucide.createIcons();
+      if (!liveLab) return;
+      savedRefLab = { ...liveLab };
+      updateCard("ref", savedRefLab, liveRGB);
+      document.getElementById("card-ref").classList.add("active-ref");
+      document.getElementById("btn-lock-ref").innerHTML = '<i data-lucide="check"></i> SAVED';
+      flashTarget();
+      tryCalculate();
+      lucide.createIcons();
     }
 
     function lockSam() {
-        if(!liveLab) return;
-        savedSamLab = {...liveLab};
-        updateCard('sam', savedSamLab, liveRGB);
-        document.getElementById('card-sam').classList.add('active-sam');
-        flashTarget();
-        tryCalculate();
+      if (!liveLab) return;
+      savedSamLab = { ...liveLab };
+      updateCard("sam", savedSamLab, liveRGB);
+      document.getElementById("card-sam").classList.add("active-sam");
+      flashTarget();
+      tryCalculate();
     }
 
     function flashTarget() {
-        const tb = document.getElementById('target-box');
-        tb.classList.remove('flash'); void tb.offsetWidth; tb.classList.add('flash');
+      const tb = document.getElementById("target-box");
+      tb.classList.remove("flash");
+      void tb.offsetWidth;
+      tb.classList.add("flash");
     }
 
     function updateCard(type, lab, rgb) {
-        document.getElementById(`preview-${type}`).style.background = rgb;
-        document.getElementById(`${type}-l`).innerText = lab.L;
-        document.getElementById(`${type}-a`).innerText = lab.a;
-        document.getElementById(`${type}-b`).innerText = lab.b;
-        
-        const lVal = Math.max(0, Math.min(100, parseFloat(lab.L)));
-        const marker = document.getElementById(`marker-${type}`);
-        marker.classList.add('visible');
-        marker.style.bottom = lVal + '%';
+      document.getElementById(`preview-${type}`).style.background = rgb;
+      document.getElementById(`${type}-l`).innerText = lab.L;
+      document.getElementById(`${type}-a`).innerText = lab.a;
+      document.getElementById(`${type}-b`).innerText = lab.b;
+
+      const lVal = Math.max(0, Math.min(100, parseFloat(lab.L)));
+      const marker = document.getElementById(`marker-${type}`);
+      marker.classList.add("visible");
+      marker.style.bottom = lVal + "%";
     }
 
     function tryCalculate() {
-        if (savedRefLab && savedSamLab) {
-            let dE = 0;
-            if(deltaMode === '2000') dE = calculateDeltaE2000(savedRefLab, savedSamLab);
-            else if(deltaMode === '94') dE = calculateDeltaE94(savedRefLab, savedSamLab);
-            else dE = calculateDeltaE76(savedRefLab, savedSamLab);
-            
-            const dash = document.getElementById('result-dashboard');
-            document.getElementById('delta-val').innerText = dE.toFixed(2);
-            
-            dash.classList.remove('status-match', 'status-close', 'status-diff');
-            
-            if (dE <= 1.0) {
-                dash.classList.add('status-match');
-                document.getElementById('delta-msg').innerText = "EXACT";
-            } else if(dE <= 2.5) {
-                dash.classList.add('status-close');
-                document.getElementById('delta-msg').innerText = "CLOSE";
-            } else {
-                dash.classList.add('status-diff');
-                document.getElementById('delta-msg').innerText = "DIFF";
-            }
-            generateAdvice(savedRefLab, savedSamLab);
+      if (savedRefLab && savedSamLab) {
+        let dE = 0;
+        if (deltaMode === "2000") dE = calculateDeltaE2000(savedRefLab, savedSamLab);
+        else if (deltaMode === "94") dE = calculateDeltaE94(savedRefLab, savedSamLab);
+        else dE = calculateDeltaE76(savedRefLab, savedSamLab);
+
+        const dash = document.getElementById("result-dashboard");
+        document.getElementById("delta-val").innerText = dE.toFixed(2);
+
+        dash.classList.remove("status-match", "status-close", "status-diff");
+
+        if (dE <= 1.0) {
+          dash.classList.add("status-match");
+          document.getElementById("delta-msg").innerText = "EXACT";
+        } else if (dE <= 2.5) {
+          dash.classList.add("status-close");
+          document.getElementById("delta-msg").innerText = "CLOSE";
+        } else {
+          dash.classList.add("status-diff");
+          document.getElementById("delta-msg").innerText = "DIFF";
         }
+        generateAdvice(savedRefLab, savedSamLab);
+      }
     }
 
     function generateAdvice(ref, curr) {
-        const dL = parseFloat(ref.L) - parseFloat(curr.L);
-        const da = parseFloat(ref.a) - parseFloat(curr.a);
-        const db = parseFloat(ref.b) - parseFloat(curr.b);
-        const th = 1.0; 
-        
-        const container = document.getElementById('advice-content');
-        const placeholder = document.getElementById('advice-placeholder');
-        container.innerHTML = "";
-        
-        let actions = [];
-        if (dL > th) actions.push({icon:'sun', text:'Lighten', det:'+White', col:'#fff'});
-        else if (dL < -th) actions.push({icon:'moon', text:'Darken', det:'+Black', col:'#94a3b8'});
-        
-        if (da > th) actions.push({icon:'droplet', text:'Add Red', det:'+Red', col:'#f87171'});
-        else if (da < -th) actions.push({icon:'droplet', text:'Add Green', det:'+Grn', col:'#4ade80'});
-        
-        if (db > th) actions.push({icon:'droplet', text:'Add Yellow', det:'+Yel', col:'#facc15'});
-        else if (db < -th) actions.push({icon:'droplet', text:'Add Blue', det:'+Blu', col:'#60a5fa'});
+      const dL = parseFloat(ref.L) - parseFloat(curr.L);
+      const da = parseFloat(ref.a) - parseFloat(curr.a);
+      const db = parseFloat(ref.b) - parseFloat(curr.b);
+      const th = 1.0;
 
-        if(actions.length === 0) actions.push({icon:'check-circle', text:'Perfect', det:'Good Match', col:'#10b981'});
+      const container = document.getElementById("advice-content");
+      const placeholder = document.getElementById("advice-placeholder");
+      container.innerHTML = "";
 
-        placeholder.style.display = 'none';
-        
-        actions.forEach(a => {
-            const div = document.createElement('div');
-            div.className = 'advice-item';
-            div.innerHTML = `
-                <div class="adv-icon-row" style="color:${a.col}">
-                    <i data-lucide="${a.icon}" width="14"></i> ${a.text}
-                </div>
-                <div class="adv-detail">${a.det}</div>
-            `;
-            container.appendChild(div);
-        });
-        lucide.createIcons();
+      let actions = [];
+      if (dL > th) actions.push({ icon: "sun", text: "Lighten", det: "+White", col: "#fff" });
+      else if (dL < -th) actions.push({ icon: "moon", text: "Darken", det: "+Black", col: "#94a3b8" });
+
+      if (da > th) actions.push({ icon: "droplet", text: "Add Red", det: "+Red", col: "#f87171" });
+      else if (da < -th) actions.push({ icon: "droplet", text: "Add Green", det: "+Grn", col: "#4ade80" });
+
+      if (db > th) actions.push({ icon: "droplet", text: "Add Yellow", det: "+Yel", col: "#facc15" });
+      else if (db < -th) actions.push({ icon: "droplet", text: "Add Blue", det: "+Blu", col: "#60a5fa" });
+
+      if (actions.length === 0) actions.push({ icon: "check-circle", text: "Perfect", det: "Good Match", col: "#10b981" });
+
+      placeholder.style.display = "none";
+
+      actions.forEach((a) => {
+        const div = document.createElement("div");
+        div.className = "advice-item";
+        div.innerHTML = `
+          <div class="adv-icon-row" style="color:${a.col}">
+            <i data-lucide="${a.icon}" width="14"></i> ${a.text}
+          </div>
+          <div class="adv-detail">${a.det}</div>
+        `;
+        container.appendChild(div);
+      });
+      lucide.createIcons();
     }
 
     function resetAll() {
-        savedRefLab = null; savedSamLab = null;
-        ['ref', 'sam'].forEach(type => {
-            document.getElementById(`card-${type}`).classList.remove('active-ref', 'active-sam');
-            document.getElementById(`preview-${type}`).style.background = "#334155";
-            document.getElementById(`${type}-l`).innerText = "-";
-            document.getElementById(`${type}-a`).innerText = "-";
-            document.getElementById(`${type}-b`).innerText = "-";
-            document.getElementById(`marker-${type}`).classList.remove('visible');
-        });
-        document.getElementById('btn-lock-ref').innerHTML = '<i data-lucide="fingerprint" style="width:16px;"></i> LOCK REF';
-        document.getElementById('delta-val').innerText = "--";
-        document.getElementById('result-dashboard').className = "result-dashboard"; 
-        document.getElementById('delta-msg').innerText = "READY";
-        
-        document.getElementById('advice-content').innerHTML = "";
-        document.getElementById('advice-placeholder').style.display = "flex";
-        lucide.createIcons();
+      savedRefLab = null;
+      savedSamLab = null;
+      ["ref", "sam"].forEach((type) => {
+        document.getElementById(`card-${type}`).classList.remove("active-ref", "active-sam");
+        document.getElementById(`preview-${type}`).style.background = "#334155";
+        document.getElementById(`${type}-l`).innerText = "-";
+        document.getElementById(`${type}-a`).innerText = "-";
+        document.getElementById(`${type}-b`).innerText = "-";
+        document.getElementById(`marker-${type}`).classList.remove("visible");
+      });
+      document.getElementById("btn-lock-ref").innerHTML =
+        '<i data-lucide="fingerprint" style="width:16px;"></i> LOCK REF';
+      document.getElementById("delta-val").innerText = "--";
+      document.getElementById("result-dashboard").className = "result-dashboard";
+      document.getElementById("delta-msg").innerText = "READY";
+
+      document.getElementById("advice-content").innerHTML = "";
+      document.getElementById("advice-placeholder").style.display = "flex";
+      lucide.createIcons();
     }
 
     function drawABGraph() {
-        const w = plotCanvas.width, h = plotCanvas.height;
-        const cx = w/2, cy = h/2;
-        if(bgImageData) plotCtx.putImageData(bgImageData, 0, 0);
-        else plotCtx.clearRect(0,0,w,h);
-        
-        if (savedRefLab) drawDot(savedRefLab, "#000", "#3b82f6"); 
-        if (savedSamLab) drawDot(savedSamLab, "#000", "#ffffff"); 
+      const w = plotCanvas.width,
+        h = plotCanvas.height;
+      const cx = w / 2,
+        cy = h / 2;
+      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0);
+      else plotCtx.clearRect(0, 0, w, h);
 
-        if(savedRefLab && savedSamLab) {
-             const rx = cx + parseFloat(savedRefLab.a); const ry = cy - parseFloat(savedRefLab.b);
-             const sx = cx + parseFloat(savedSamLab.a); const sy = cy - parseFloat(savedSamLab.b);
-             plotCtx.beginPath(); plotCtx.strokeStyle="rgba(0,0,0,0.5)"; plotCtx.lineWidth=1; plotCtx.setLineDash([2,2]);
-             plotCtx.moveTo(rx, ry); plotCtx.lineTo(sx, sy); plotCtx.stroke(); plotCtx.setLineDash([]);
-        }
+      if (savedRefLab) drawDot(savedRefLab, "#000", "#3b82f6");
+      if (savedSamLab) drawDot(savedSamLab, "#000", "#ffffff");
+
+      if (savedRefLab && savedSamLab) {
+        const rx = cx + parseFloat(savedRefLab.a);
+        const ry = cy - parseFloat(savedRefLab.b);
+        const sx = cx + parseFloat(savedSamLab.a);
+        const sy = cy - parseFloat(savedSamLab.b);
+        plotCtx.beginPath();
+        plotCtx.strokeStyle = "rgba(0,0,0,0.5)";
+        plotCtx.lineWidth = 1;
+        plotCtx.setLineDash([2, 2]);
+        plotCtx.moveTo(rx, ry);
+        plotCtx.lineTo(sx, sy);
+        plotCtx.stroke();
+        plotCtx.setLineDash([]);
+      }
     }
 
     function drawDot(lab, stroke, fill) {
-        const cx = plotCanvas.width/2, cy = plotCanvas.height/2;
-        const x = cx + parseFloat(lab.a); const y = cy - parseFloat(lab.b);
-        
-        plotCtx.beginPath(); 
-        plotCtx.fillStyle=fill; 
-        plotCtx.arc(x, y, 6, 0, Math.PI*2); plotCtx.fill(); 
-        plotCtx.lineWidth=2; plotCtx.strokeStyle=stroke; plotCtx.stroke();
+      const cx = plotCanvas.width / 2,
+        cy = plotCanvas.height / 2;
+      const x = cx + parseFloat(lab.a);
+      const y = cy - parseFloat(lab.b);
+
+      plotCtx.beginPath();
+      plotCtx.fillStyle = fill;
+      plotCtx.arc(x, y, 6, 0, Math.PI * 2);
+      plotCtx.fill();
+      plotCtx.lineWidth = 2;
+      plotCtx.strokeStyle = stroke;
+      plotCtx.stroke();
     }
 
-    function changeMode(m) { deltaMode = m; document.getElementById('algo-lbl').innerText = m; tryCalculate(); }
-
-    function rgbToLab(r,g,b){
-        let R=r/255, G=g/255, B=b/255;
-        R=(R>0.04045)?Math.pow((R+0.055)/1.055,2.4):R/12.92;
-        G=(G>0.04045)?Math.pow((G+0.055)/1.055,2.4):G/12.92;
-        B=(B>0.04045)?Math.pow((B+0.055)/1.055,2.4):B/12.92;
-        let X=(R*0.4124+G*0.3576+B*0.1805)*100;
-        let Y=(R*0.2126+G*0.7152+B*0.0722)*100;
-        let Z=(R*0.0193+G*0.1192+B*0.9505)*100;
-        X/=95.047; Y/=100.000; Z/=108.883;
-        X=(X>0.008856)?Math.pow(X,1/3):(7.787*X)+16/116;
-        Y=(Y>0.008856)?Math.pow(Y,1/3):(7.787*Y)+16/116;
-        Z=(Z>0.008856)?Math.pow(Z,1/3):(7.787*Z)+16/116;
-        return {L:((116*Y)-16).toFixed(1), a:(500*(X-Y)).toFixed(1), b:(200*(Y-Z)).toFixed(1)};
+    function changeMode(m) {
+      deltaMode = m;
+      document.getElementById("algo-lbl").innerText = m;
+      tryCalculate();
     }
 
-    function calculateDeltaE76(l1,l2){ return Math.sqrt(Math.pow(l2.L-l1.L,2)+Math.pow(l2.a-l1.a,2)+Math.pow(l2.b-l1.b,2)); }
-    function calculateDeltaE94(l1,l2){ 
-        const L1=parseFloat(l1.L),a1=parseFloat(l1.a),b1=parseFloat(l1.b);
-        const L2=parseFloat(l2.L),a2=parseFloat(l2.a),b2=parseFloat(l2.b);
-        const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2);
-        const dL=L1-L2, dC=C1-C2, da=a1-a2, db=b1-b2;
-        const dH=Math.sqrt(Math.max(0, da**2+db**2-dC**2));
-        const SC=1+0.045*C1, SH=1+0.015*C1;
-        return Math.sqrt(Math.pow(dL,2)+Math.pow(dC/SC,2)+Math.pow(dH/SH,2));
+    function rgbToLab(r, g, b) {
+      let R = r / 255,
+        G = g / 255,
+        B = b / 255;
+      R = R > 0.04045 ? Math.pow((R + 0.055) / 1.055, 2.4) : R / 12.92;
+      G = G > 0.04045 ? Math.pow((G + 0.055) / 1.055, 2.4) : G / 12.92;
+      B = B > 0.04045 ? Math.pow((B + 0.055) / 1.055, 2.4) : B / 12.92;
+      let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) * 100;
+      let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) * 100;
+      let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) * 100;
+      X /= 95.047;
+      Y /= 100.0;
+      Z /= 108.883;
+      X = X > 0.008856 ? Math.pow(X, 1 / 3) : 7.787 * X + 16 / 116;
+      Y = Y > 0.008856 ? Math.pow(Y, 1 / 3) : 7.787 * Y + 16 / 116;
+      Z = Z > 0.008856 ? Math.pow(Z, 1 / 3) : 7.787 * Z + 16 / 116;
+      return {
+        L: ((116 * Y) - 16).toFixed(1),
+        a: (500 * (X - Y)).toFixed(1),
+        b: (200 * (Y - Z)).toFixed(1),
+      };
     }
-    function calculateDeltaE2000(l1,l2) {
-        const L1=parseFloat(l1.L),a1=parseFloat(l1.a),b1=parseFloat(l1.b);
-        const L2=parseFloat(l2.L),a2=parseFloat(l2.a),b2=parseFloat(l2.b);
-        const rad2deg=r=>r*180/Math.PI, deg2rad=d=>d*Math.PI/180;
-        const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2), avgC=(C1+C2)/2;
-        const G=0.5*(1-Math.sqrt(Math.pow(avgC,7)/(Math.pow(avgC,7)+Math.pow(25,7))));
-        const a1p=(1+G)*a1, a2p=(1+G)*a2, C1p=Math.sqrt(a1p**2+b1**2), C2p=Math.sqrt(a2p**2+b2**2);
-        const h1p=(a1p===0&&b1===0)?0:rad2deg(Math.atan2(b1,a1p))+(rad2deg(Math.atan2(b1,a1p))<0?360:0);
-        const h2p=(a2p===0&&b2===0)?0:rad2deg(Math.atan2(b2,a2p))+(rad2deg(Math.atan2(b2,a2p))<0?360:0);
-        const dLp=L2-L1, dCp=C2p-C1p;
-        let dhp=0; if(C1p*C2p!==0) dhp=(Math.abs(h2p-h1p)<=180)?h2p-h1p:(h2p-h1p>180?h2p-h1p-360:h2p-h1p+360);
-        const dHp=2*Math.sqrt(C1p*C2p)*Math.sin(deg2rad(dhp/2));
-        const avgLp=(L1+L2)/2, avgCp=(C1p+C2p)/2;
-        let avghp=0; if(C1p*C2p!==0) avghp=(Math.abs(h1p-h2p)<=180)?(h1p+h2p)/2:((h1p+h2p<360)?(h1p+h2p+360)/2:(h1p+h2p-360)/2);
-        const T=1-0.17*Math.cos(deg2rad(avghp-30))+0.24*Math.cos(deg2rad(2*avghp))+0.32*Math.cos(deg2rad(3*avghp+6))-0.20*Math.cos(deg2rad(4*avghp-63));
-        const SL=1+((0.015*Math.pow(avgLp-50,2))/Math.sqrt(20+Math.pow(avgLp-50,2))), SC=1+0.045*avgCp, SH=1+0.015*avgCp*T;
-        const dTheta=30*Math.exp(-Math.pow((avghp-275)/25,2));
-        const RC=2*Math.sqrt(Math.pow(avgCp,7)/(Math.pow(avgCp,7)+Math.pow(25,7)));
-        const RT=-Math.sin(deg2rad(2*dTheta))*RC;
-        return Math.sqrt(Math.pow(dLp/SL,2)+Math.pow(dCp/SC,2)+Math.pow(dHp/SH,2)+RT*(dCp/SC)*(dHp/SH));
+
+    function calculateDeltaE76(l1, l2) {
+      return Math.sqrt(Math.pow(l2.L - l1.L, 2) + Math.pow(l2.a - l1.a, 2) + Math.pow(l2.b - l1.b, 2));
+    }
+    function calculateDeltaE94(l1, l2) {
+      const L1 = parseFloat(l1.L),
+        a1 = parseFloat(l1.a),
+        b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L),
+        a2 = parseFloat(l2.a),
+        b2 = parseFloat(l2.b);
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2),
+        C2 = Math.sqrt(a2 ** 2 + b2 ** 2);
+      const dL = L1 - L2,
+        dC = C1 - C2,
+        da = a1 - a2,
+        db = b1 - b2;
+      const dH = Math.sqrt(Math.max(0, da ** 2 + db ** 2 - dC ** 2));
+      const SC = 1 + 0.045 * C1,
+        SH = 1 + 0.015 * C1;
+      return Math.sqrt(Math.pow(dL, 2) + Math.pow(dC / SC, 2) + Math.pow(dH / SH, 2));
+    }
+    function calculateDeltaE2000(l1, l2) {
+      const L1 = parseFloat(l1.L),
+        a1 = parseFloat(l1.a),
+        b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L),
+        a2 = parseFloat(l2.a),
+        b2 = parseFloat(l2.b);
+      const rad2deg = (r) => (r * 180) / Math.PI,
+        deg2rad = (d) => (d * Math.PI) / 180;
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2),
+        C2 = Math.sqrt(a2 ** 2 + b2 ** 2),
+        avgC = (C1 + C2) / 2;
+      const G = 0.5 * (1 - Math.sqrt(Math.pow(avgC, 7) / (Math.pow(avgC, 7) + Math.pow(25, 7))));
+      const a1p = (1 + G) * a1,
+        a2p = (1 + G) * a2,
+        C1p = Math.sqrt(a1p ** 2 + b1 ** 2),
+        C2p = Math.sqrt(a2p ** 2 + b2 ** 2);
+      const h1p =
+        a1p === 0 && b1 === 0
+          ? 0
+          : rad2deg(Math.atan2(b1, a1p)) + (rad2deg(Math.atan2(b1, a1p)) < 0 ? 360 : 0);
+      const h2p =
+        a2p === 0 && b2 === 0
+          ? 0
+          : rad2deg(Math.atan2(b2, a2p)) + (rad2deg(Math.atan2(b2, a2p)) < 0 ? 360 : 0);
+      const dLp = L2 - L1,
+        dCp = C2p - C1p;
+      let dhp = 0;
+      if (C1p * C2p !== 0)
+        dhp =
+          Math.abs(h2p - h1p) <= 180
+            ? h2p - h1p
+            : h2p - h1p > 180
+            ? h2p - h1p - 360
+            : h2p - h1p + 360;
+      const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(deg2rad(dhp / 2));
+      const avgLp = (L1 + L2) / 2,
+        avgCp = (C1p + C2p) / 2;
+      let avghp = 0;
+      if (C1p * C2p !== 0)
+        avghp =
+          Math.abs(h1p - h2p) <= 180
+            ? (h1p + h2p) / 2
+            : h1p + h2p < 360
+            ? (h1p + h2p + 360) / 2
+            : (h1p + h2p - 360) / 2;
+      const T =
+        1 -
+        0.17 * Math.cos(deg2rad(avghp - 30)) +
+        0.24 * Math.cos(deg2rad(2 * avghp)) +
+        0.32 * Math.cos(deg2rad(3 * avghp + 6)) -
+        0.2 * Math.cos(deg2rad(4 * avghp - 63));
+      const SL = 1 + (0.015 * Math.pow(avgLp - 50, 2)) / Math.sqrt(20 + Math.pow(avgLp - 50, 2)),
+        SC = 1 + 0.045 * avgCp,
+        SH = 1 + 0.015 * avgCp * T;
+      const dTheta = 30 * Math.exp(-Math.pow((avghp - 275) / 25, 2));
+      const RC = 2 * Math.sqrt(Math.pow(avgCp, 7) / (Math.pow(avgCp, 7) + Math.pow(25, 7)));
+      const RT = -Math.sin(deg2rad(2 * dTheta)) * RC;
+      return Math.sqrt(
+        Math.pow(dLp / SL, 2) + Math.pow(dCp / SC, 2) + Math.pow(dHp / SH, 2) + RT * (dCp / SC) * (dHp / SH)
+      );
     }
 
     initCamera();
-</script>
+  </script>
 </body>
 </html>
