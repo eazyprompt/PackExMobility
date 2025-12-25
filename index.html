@@ -92,7 +92,7 @@
     }
     body.screen-flash::after{ opacity: 1; }
 
-    /* ✅ NEW: Screen lamp fallback (เปิดค้าง) */
+    /* ✅ Screen lamp fallback (เปิดค้าง) */
     body.screen-lamp::after{ opacity: 1; }
 
     /* --- App Frame Wrapper --- */
@@ -660,7 +660,7 @@
             <div class="res-value" id="delta-val">--</div>
           </div>
 
-          <!-- ✅ NEW: ย้าย Reset มาอยู่ใน Dashboard -->
+          <!-- ✅ Reset อยู่ใน Dashboard -->
           <div class="dash-right">
             <div class="res-badge" id="delta-msg">READY</div>
             <button class="btn-icon-header btn-icon-dash" onclick="resetAll()" title="Reset">
@@ -748,11 +748,9 @@
     let videoTrack = null;
     let torchSupported = false;
     let isTorchBusy = false;
-
-    // ✅ Torch hold state
     let isTorchOn = false;
 
-    // ✅ FIX: ความสูงจริงของ viewport บนมือถือ (แก้ปัญหาส่วนท้ายโดนตัด)
+    // ✅ FIX: ความสูงจริงของ viewport บนมือถือ
     function setRealAppHeight() {
       const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-h", `${Math.round(h)}px`);
@@ -805,7 +803,7 @@
       }
     }
 
-    // --- AUTO-FIT LAYOUT (ไม่กระทบ logic เดิม) ---
+    // --- AUTO-FIT LAYOUT ---
     function applyAutoFitLayout() {
       const frame = document.querySelector(".app-frame");
       const header = document.querySelector("header");
@@ -828,7 +826,7 @@
       if (typeof resizeGraph === "function") requestAnimationFrame(resizeGraph);
     }
 
-    // --- COLOR WHEEL GRADIENT LOGIC (Using HSL) ---
+    // --- COLOR MAP ---
     function renderColorMap() {
       const w = plotCanvas.width, h = plotCanvas.height;
       const cx = w / 2, cy = h / 2;
@@ -960,6 +958,7 @@
       }
     }
 
+    // ✅ อ่านค่า 1 ครั้ง (ส่ง r,g,b กลับด้วย เพื่อไปเฉลี่ยหลายเฟรม)
     function readOneSample() {
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
 
@@ -977,42 +976,70 @@
       liveRGB = rgb;
       liveLab = lab;
 
-      return { rgb, lab };
+      return { rgb, lab, r, g, b };
     }
 
-    async function captureNoFlash(settleMs = 120) {
-      if (isTorchBusy) return null;
+    // ✅ NEW: Temporal Averaging (เฉลี่ยหลายเฟรม)
+    async function captureAveraged(samples = 7, gapMs = 35, settleMs = 120) {
+      if (isTorchBusy) return null; // กันชนตอนกำลังกดเปิด/ปิดไฟ
       await wait(settleMs);
-      return readOneSample();
+
+      let sumR = 0, sumG = 0, sumB = 0, n = 0;
+
+      for (let i = 0; i < samples; i++) {
+        const s = readOneSample();
+        if (s) {
+          sumR += s.r; sumG += s.g; sumB += s.b;
+          n++;
+        }
+        await wait(gapMs);
+      }
+
+      if (n === 0) return null;
+
+      const r = Math.round(sumR / n);
+      const g = Math.round(sumG / n);
+      const b = Math.round(sumB / n);
+
+      const rgb = `rgb(${r},${g},${b})`;
+      const lab = rgbToLab(r, g, b);
+
+      liveRGB = rgb;
+      liveLab = lab;
+
+      return { rgb, lab, r, g, b };
     }
 
-    async function lockRef() {
-      const sample = await captureNoFlash();
-      if (!sample) return;
+   async function lockRef() {
+  // ✅ โหมดแม่นสุด
+  const sample = await captureAveraged(9, 45, 160);
+  if (!sample) return;
 
-      savedRefLab = { ...sample.lab };
-      updateCard("ref", savedRefLab, sample.rgb);
+  savedRefLab = { ...sample.lab };
+  updateCard("ref", savedRefLab, sample.rgb);
 
-      document.getElementById("card-ref").classList.add("active-ref");
-      document.getElementById("btn-lock-ref").innerHTML = '<i data-lucide="check"></i> SAVED';
+  document.getElementById("card-ref").classList.add("active-ref");
+  document.getElementById("btn-lock-ref").innerHTML = '<i data-lucide="check"></i> SAVED';
 
-      flashTarget();
-      tryCalculate();
-      lucide.createIcons();
-    }
+  flashTarget();
+  tryCalculate();
+  lucide.createIcons();
+}
 
-    async function lockSam() {
-      const sample = await captureNoFlash();
-      if (!sample) return;
+async function lockSam() {
+  // ✅ โหมดแม่นสุด
+  const sample = await captureAveraged(9, 45, 160);
+  if (!sample) return;
 
-      savedSamLab = { ...sample.lab };
-      updateCard("sam", savedSamLab, sample.rgb);
+  savedSamLab = { ...sample.lab };
+  updateCard("sam", savedSamLab, sample.rgb);
 
-      document.getElementById("card-sam").classList.add("active-sam");
+  document.getElementById("card-sam").classList.add("active-sam");
 
-      flashTarget();
-      tryCalculate();
-    }
+  flashTarget();
+  tryCalculate();
+}
+
 
     function flashTarget() {
       const tb = document.getElementById("target-box");
