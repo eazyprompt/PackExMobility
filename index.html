@@ -536,30 +536,35 @@
     /* =======================================================
        ✅ Visual Guidance HUD (Rings) — SMALL + TOP-LEFT
        ======================================================= */
-    .guidance-hud{
-      position:absolute;
-      top: calc(10px + env(safe-area-inset-top));
-      left: calc(10px + env(safe-area-inset-left));
-      right: auto;
-      z-index: 25;
-      pointer-events: none;
+.guidance-hud{
+  position:absolute;
 
-      display:flex;
-      justify-content: flex-start;
-      gap: 8px;
-      flex-wrap: nowrap;
-      align-items: center;
+  /* ✅ ย้ายจากมุมบนซ้าย -> มุมล่างซ้าย */
+  top: auto;
+  right: auto;
+  left: calc(10px + env(safe-area-inset-left));
+  bottom: calc(10px + env(safe-area-inset-bottom));
 
-      padding: 6px 8px;
-      border-radius: 14px;
-      background: rgba(2,6,23,.28);
-      border: 1px solid rgba(255,255,255,.12);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 10px 30px rgba(0,0,0,.18);
+  z-index: 25;
+  pointer-events: none;
 
-      width: fit-content;
-      max-width: calc(100% - 20px);
-    }
+  display:flex;
+  justify-content: flex-start;
+  gap: 8px;
+  flex-wrap: nowrap;
+  align-items: center;
+
+  padding: 6px 8px;
+  border-radius: 14px;
+  background: rgba(2,6,23,.28);
+  border: 1px solid rgba(255,255,255,.12);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.18);
+
+  width: fit-content;
+  max-width: calc(100% - 20px);
+}
+
 
     .guidance-hud.hidden{
       opacity: 0;
