@@ -8,11 +8,8 @@
   />
   <title>ColEx Mobility Split</title>
 
-  <!-- Tab icon -->
   <link rel="icon" type="image/png" href="./logo.png" />
-  <!-- iOS Add to Home Screen icon -->
   <link rel="apple-touch-icon" href="./logo.png" />
-  <!-- Android/Chrome shortcut (PWA manifest) -->
   <link rel="manifest" href="./manifest.webmanifest" />
   <meta name="theme-color" content="#020617" />
 
@@ -27,32 +24,22 @@
       --bg-body: #0f172a;
       --bg-card: #1e293b;
       --bg-sidebar: #172554;
-
       --border-subtle: rgba(255, 255, 255, 0.12);
       --text-main: #ffffff;
       --text-muted: #94a3b8;
-
       --primary: #3b82f6;
       --primary-glow: rgba(59, 130, 246, 0.5);
       --sample: #ffffff;
-
       --success: #34d399;
       --warn: #fbbf24;
       --danger: #f87171;
-
       --radius-lg: 18px;
       --font-ui: "Inter", sans-serif;
       --font-num: "JetBrains Mono", monospace;
-
-      /* responsive margins */
       --frame-gap: clamp(18px, 6.5vw, 72px);
-
-      /* JS auto-fit */
       --gap-layout: 16px;
       --viewport-h: 220px;
       --viz-h: 150px;
-
-      /* real mobile viewport height (JS sets px) */
       --app-h: 100dvh;
     }
 
@@ -63,14 +50,11 @@
       color: var(--text-main);
       font-family: var(--font-ui);
       margin: 0;
-
       width: 100vw;
       height: var(--app-h);
-
       display: flex;
       align-items: center;
       justify-content: center;
-
       overflow: hidden;
     }
 
@@ -93,16 +77,13 @@
       height: calc(var(--app-h) - (var(--frame-gap) * 2));
       max-width: 500px;
       max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
-
       background: var(--bg-body);
       display: flex;
       flex-direction: column;
       overflow: hidden;
       position: relative;
-
       border-radius: 24px;
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-
       padding-top: env(safe-area-inset-top);
       padding-bottom: env(safe-area-inset-bottom);
     }
@@ -120,14 +101,7 @@
       z-index: 50;
     }
 
-    .brand {
-      font-weight: 800;
-      font-size: 1.25rem;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      color: #fff;
-    }
+    .brand { font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff; }
     .brand i { color: var(--primary); }
     .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
 
@@ -182,7 +156,23 @@
       border-right: 1px solid var(--border-subtle);
       background: #020617;
     }
-    video { width: 100%; height: 100%; object-fit: cover; opacity: 0.9; }
+
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+
+    /* Ghost Overlay */
+    .ghost-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 5;
+      transition: opacity 0.3s ease;
+      filter: grayscale(0.2);
+    }
+    .ghost-overlay.active { opacity: 0.35; }
 
     .vp-advice {
       flex: 1;
@@ -268,10 +258,7 @@
       color: #94a3b8;
     }
 
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(10px); }
-      to { opacity: 1; transform: translateX(0); }
-    }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
     .panel {
       flex: 1;
@@ -289,11 +276,9 @@
       display: flex;
       flex-direction: column;
       gap: var(--gap-layout);
-
       margin: 0 auto;
       width: 100%;
       height: 100%;
-
       overflow: hidden;
       min-height: 0;
     }
@@ -312,31 +297,9 @@
     }
 
     .res-left { display: flex; flex-direction: column; gap: 2px; }
-    .res-label {
-      font-size: 0.65rem;
-      color: var(--text-muted);
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-    .res-value {
-      font-family: var(--font-num);
-      font-size: clamp(2.0rem, 7vw, 2.5rem);
-      font-weight: 800;
-      color: var(--text-main);
-      line-height: 1;
-    }
-    .res-badge {
-      padding: 8px 14px;
-      border-radius: 10px;
-      font-size: 0.75rem;
-      font-weight: 800;
-      background: #334155;
-      color: #fff;
-      letter-spacing: 0.5px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      flex-shrink: 0;
-    }
+    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .res-value { font-family: var(--font-num); font-size: clamp(2.0rem, 7vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+    .res-badge { padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800; background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1); flex-shrink: 0; }
 
     .status-match .res-value { color: var(--success); }
     .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
@@ -345,12 +308,7 @@
     .status-diff .res-value { color: var(--danger); }
     .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
 
-    .cards-container {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: clamp(10px, 2.4vw, 16px);
-      flex-shrink: 0;
-    }
+    .cards-container { display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px); flex-shrink: 0; }
 
     .data-card {
       background: var(--bg-card);
@@ -365,47 +323,14 @@
     }
 
     .card-top { display: flex; justify-content: space-between; align-items: center; }
-    .card-title {
-      font-size: 0.75rem;
-      font-weight: 800;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .card-title { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 6px; }
+    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
 
-    .color-dot {
-      width: 28px;
-      height: 28px;
-      border-radius: 8px;
-      background: #334155;
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      transition: 0.3s;
-      flex-shrink: 0;
-    }
-
-    .lab-row {
-      display: flex;
-      justify-content: space-between;
-      background: rgba(15, 23, 42, 0.5);
-      border-radius: 8px;
-      padding: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-    }
-
+    .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
     .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
     .l-item:last-child { border: none; }
-
     .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
-    .l-val {
-      font-family: var(--font-num);
-      font-size: 0.9rem;
-      font-weight: 700;
-      color: #fff;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+    .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
     .btn-act {
       width: 100%;
@@ -425,6 +350,7 @@
       border: 1px solid transparent;
     }
     .btn-act:active { transform: scale(0.96); }
+    .btn-act:disabled { opacity: 0.55; cursor: not-allowed; }
 
     .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
     .data-card.active-ref .card-title { color: var(--primary); }
@@ -434,98 +360,24 @@
     .data-card.active-sam .card-title { color: #fff; }
     .data-card.active-sam .btn-act { background: #fff; color: #0f172a; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2); }
 
-    .viz-section {
-      display: flex;
-      gap: 12px;
-      height: var(--viz-h);
-      flex-shrink: 0;
-      min-height: 0;
-    }
+    .viz-section { display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 0; min-height: 0; }
+    .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
 
-    .graph-box {
-      flex: 1;
-      background: #020617;
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      position: relative;
-      overflow: hidden;
-      min-width: 0;
-    }
-
-    .plot-legend {
-      position: absolute;
-      top: 10px;
-      left: 10px;
-      z-index: 10;
-      display: flex;
-      gap: 8px;
-      pointer-events: none;
-    }
-
-    .legend-item {
-      font-size: 0.6rem;
-      color: #fff;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      background: rgba(15, 23, 42, 0.7);
-      padding: 3px 8px;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(4px);
-    }
-
+    .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
+    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
     .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
     .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
     .di-sam { background: var(--sample); }
 
-    .axis-lbl {
-      position: absolute;
-      font-size: 0.55rem;
-      font-weight: 800;
-      color: rgba(255, 255, 255, 0.6);
-      pointer-events: none;
-      text-shadow: 0 0 4px #000;
-    }
+    .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
     .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
     .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
     .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
     .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
 
-    .l-bar-box {
-      width: 40px;
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: 50px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 12px 0;
-      position: relative;
-      flex-shrink: 0;
-    }
-
-    .l-track {
-      width: 6px;
-      flex: 1;
-      background: linear-gradient(to top, #020617, #fff);
-      border-radius: 4px;
-      position: relative;
-      margin: 6px 0;
-    }
-
-    .l-mark {
-      position: absolute;
-      left: 50%;
-      transform: translate(-50%, 50%);
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 3px solid var(--bg-card);
-      opacity: 0;
-      transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
+    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
+    .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
+    .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .l-mark.ref { background: var(--primary); z-index: 1; }
     .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
     .l-mark.visible { opacity: 1; }
@@ -534,101 +386,92 @@
     #proc-canvas { display: none; }
 
     /* =======================================================
-       ✅ Guidance Ring: %Ready (single ring)
+       ✅ Visual Guidance HUD (ANGLE + GLARE only) — SMALL + BOTTOM-LEFT
        ======================================================= */
-    .ready-hud{
+    .guidance-hud{
       position:absolute;
       left: calc(10px + env(safe-area-inset-left));
       bottom: calc(10px + env(safe-area-inset-bottom));
       z-index: 25;
       pointer-events: none;
-
       display:flex;
-      align-items:center;
-      gap: 10px;
-
-      padding: 8px 10px;
+      justify-content: flex-start;
+      gap: 8px;
+      align-items: center;
+      padding: 6px 8px;
       border-radius: 14px;
       background: rgba(2,6,23,.28);
       border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(8px);
       box-shadow: 0 10px 30px rgba(0,0,0,.18);
+      width: fit-content;
+      max-width: calc(100% - 20px);
     }
-
-    .ready-hud.hidden{
+    .guidance-hud.hidden{
       opacity: 0;
       transform: translateY(-6px);
       transition: opacity .18s ease, transform .18s ease;
     }
-    .ready-hud:not(.hidden){
+    .guidance-hud:not(.hidden){
       opacity: 1;
       transform: translateY(0);
       transition: opacity .18s ease, transform .18s ease;
     }
-
-    .ready-ring{
-      --p: 0; /* 0..100 */
+    .gauge{
+      width: 54px;
+      display:flex;
+      flex-direction: column;
+      align-items:center;
+      gap: 4px;
+    }
+    .g-lbl{
+      font-family: var(--font-num);
+      font-size: .52rem;
+      font-weight: 900;
+      letter-spacing: .08em;
+      color: rgba(255,255,255,.78);
+      text-transform: uppercase;
+      line-height: 1;
+    }
+    .g-circle{
+      --p: 0;
       --c: rgba(251,191,36,.95);
-      width: 38px;
-      height: 38px;
+      width: 34px;
+      height: 34px;
       border-radius: 50%;
       position: relative;
-
       background: conic-gradient(
         var(--c) calc(var(--p) * 1%),
         rgba(255,255,255,.10) 0
       );
-
       display:flex;
       align-items:center;
       justify-content:center;
     }
-
-    .ready-ring::after{
+    .g-circle::after{
       content:"";
       position:absolute;
-      inset: 4px;
+      inset: 3px;
       border-radius: 50%;
       background: rgba(2,6,23,.55);
       border: 1px solid rgba(255,255,255,.10);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
     }
-
-    .ready-ring i{
+    .g-circle i{
       position: relative;
       z-index: 2;
-      width: 16px !important;
-      height: 16px !important;
+      width: 14px !important;
+      height: 14px !important;
       color: rgba(255,255,255,.92);
     }
-
-    .ready-meta{
-      display:flex;
-      flex-direction: column;
-      gap: 2px;
-      line-height: 1.05;
+    .g-good .g-circle{ --c: rgba(52,211,153,.95); }
+    .g-mid  .g-circle{ --c: rgba(251,191,36,.95); }
+    .g-bad  .g-circle{ --c: rgba(248,113,113,.95); }
+    .g-na .g-circle{
+      --p: 0;
+      background: radial-gradient(circle at center, rgba(255,255,255,.10), rgba(255,255,255,.06));
     }
-
-    .ready-pct{
-      font-family: var(--font-num);
-      font-weight: 900;
-      letter-spacing: .06em;
-      font-size: .85rem;
-      color: rgba(255,255,255,.95);
-    }
-
-    .ready-sub{
-      font-family: var(--font-num);
-      font-weight: 800;
-      letter-spacing: .10em;
-      font-size: .55rem;
-      color: rgba(255,255,255,.70);
-      text-transform: uppercase;
-    }
-
-    .ready-good .ready-ring{ --c: rgba(52,211,153,.95); }
-    .ready-mid  .ready-ring{ --c: rgba(251,191,36,.95); }
-    .ready-bad  .ready-ring{ --c: rgba(248,113,113,.95); }
+    .g-na .g-lbl{ opacity: .55; }
   </style>
 </head>
 
@@ -642,7 +485,6 @@
           <option value="94">DE 94</option>
           <option value="76">DE 76</option>
         </select>
-
         <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
           <i data-lucide="flashlight" style="width: 18px;"></i>
         </button>
@@ -653,16 +495,22 @@
       <div class="vp-camera">
         <video id="webcam" autoplay playsinline muted></video>
 
-        <!-- ✅ Guidance Ring: %Ready -->
-        <div id="readyHud" class="ready-hud hidden" aria-label="Capture readiness">
-          <div id="readyRingWrap" class="ready-bad">
-            <div id="readyRing" class="ready-ring" style="--p:0">
-              <i data-lucide="check"></i>
+        <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
+
+        <!-- ✅ Guidance HUD (ANGLE + GLARE only) -->
+        <div id="guidanceHud" class="guidance-hud hidden" aria-label="Capture guidance">
+          <div class="gauge" id="gAngleGauge" title="Angle / Tilt">
+            <div class="g-circle" id="gAngleCircle">
+              <i data-lucide="rotate-3d"></i>
             </div>
+            <div class="g-lbl">ANGLE</div>
           </div>
-          <div class="ready-meta">
-            <div class="ready-pct" id="readyPct">0%</div>
-            <div class="ready-sub" id="readyLabel">NOT READY</div>
+
+          <div class="gauge" id="gGlareGauge" title="Glare / Reflection">
+            <div class="g-circle" id="gGlareCircle">
+              <i data-lucide="sun"></i>
+            </div>
+            <div class="g-lbl">GLARE</div>
           </div>
         </div>
 
@@ -676,8 +524,6 @@
       <div class="vp-advice">
         <div class="vp-header"><i data-lucide="bot" style="width: 14px;"></i> AI ASSIST</div>
         <div id="advice-content"></div>
-
-        <!-- ✅ no hint text -->
         <div id="advice-placeholder" class="placeholder-state">
           <i data-lucide="scan" style="width: 28px; opacity: 0.55;"></i>
         </div>
@@ -691,7 +537,6 @@
             <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
             <div class="res-value" id="delta-val">--</div>
           </div>
-
           <div class="dash-right">
             <div class="res-badge" id="delta-msg">READY</div>
             <button class="btn-icon-header btn-icon-dash" onclick="resetAll()" title="Reset">
@@ -744,7 +589,6 @@
             <div class="axis-lbl ax-r">+a Red</div>
             <canvas id="ab-plot"></canvas>
           </div>
-
           <div class="l-bar-box">
             <div style="font-size: 0.5rem; color: #64748b; font-weight: 700;">L*</div>
             <div class="l-track">
@@ -767,40 +611,41 @@
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
+    const ghostOverlay = document.getElementById("ghost-overlay");
+
+    // Guidance HUD elements
+    const guidanceHud = document.getElementById("guidanceHud");
+    const gAngleGauge = document.getElementById("gAngleGauge");
+    const gGlareGauge = document.getElementById("gGlareGauge");
+    const gAngleCircle = document.getElementById("gAngleCircle");
+    const gGlareCircle = document.getElementById("gGlareCircle");
 
     let isProcessing = false;
+
     let liveLab = null;
     let liveRGB = null;
+
     let savedRefLab = null, savedSamLab = null;
     let bgImageData = null;
     let deltaMode = "2000";
 
-    // Torch
+    // Torch & Camera
     let videoTrack = null;
     let torchSupported = false;
     let isTorchBusy = false;
     let isTorchOn = false;
+    let cameraLocked = false;
 
-    // Orientation (Angle)
+    // Orientation
     let lastOri = { beta: null, gamma: null, alpha: null };
 
-    // Guidance reference metrics
-    let refMetrics = null;  // { meanLuma, sharpness, overPct, beta, gamma }
+    // Guidance metrics
+    let refMetrics = null;
     let liveMetrics = null;
 
-    // ✅ Ring HUD Elements
-    const readyHud = document.getElementById("readyHud");
-    const readyRing = document.getElementById("readyRing");
-    const readyRingWrap = document.getElementById("readyRingWrap");
-    const readyPctEl = document.getElementById("readyPct");
-    const readyLabelEl = document.getElementById("readyLabel");
-
-    // ✅ Thresholds (tune here)
-    const READY_DE_MAX = 0.8;        // ตามที่ขอ: Live DeltaE threshold = 0.8
-    const READY_TILT_MAX_DEG = 8;    // เข้ม/ผ่อน
-    const READY_GLARE_MAX = 0.10;    // สัดส่วน highlight
-
-    // Real app height (mobile browser bars)
+    // -------------------------
+    // Real app height (mobile bars)
+    // -------------------------
     function setRealAppHeight() {
       const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-h", `${Math.round(h)}px`);
@@ -814,6 +659,9 @@
       window.visualViewport.addEventListener("scroll", setRealAppHeight);
     }
 
+    // -------------------------
+    // Orientation listener + permission
+    // -------------------------
     function attachOrientationListener() {
       if (!("DeviceOrientationEvent" in window)) return;
       window.addEventListener("deviceorientation", (e) => {
@@ -838,94 +686,21 @@
       }
     }
 
-    const clamp01 = (x) => Math.max(0, Math.min(1, x));
-
-    function showReadyHud(visible){
-      if (!readyHud) return;
-      readyHud.classList.toggle("hidden", !visible);
-    }
-
-    function getLiveDeltaE(refLab, curLab){
-      if (!refLab || !curLab) return null;
-      if (deltaMode === "2000") return calculateDeltaE2000(refLab, curLab);
-      if (deltaMode === "94")   return calculateDeltaE94(refLab, curLab);
-      return calculateDeltaE76(refLab, curLab);
-    }
-
-    function computeReadyPercent() {
-      if (!savedRefLab || !refMetrics || !liveLab || !liveMetrics) return { pct: 0, ready: false };
-
-      // 1) DeltaE score (main)
-      const de = getLiveDeltaE(savedRefLab, liveLab);
-      if (typeof de !== "number") return { pct: 0, ready: false };
-      const deScore = 1 - clamp01(de / READY_DE_MAX);
-
-      // 2) Glare score
-      const over = liveMetrics.overPct ?? 1;
-      const glareScore = 1 - clamp01(over / READY_GLARE_MAX);
-
-      // 3) Angle score (optional)
-      let angleScore = null;
-      let tilt = null;
-      if (typeof refMetrics.beta === "number" && typeof refMetrics.gamma === "number" &&
-          typeof liveMetrics.beta === "number" && typeof liveMetrics.gamma === "number") {
-        const db = Math.abs(liveMetrics.beta - refMetrics.beta);
-        const dg = Math.abs(liveMetrics.gamma - refMetrics.gamma);
-        tilt = Math.max(db, dg);
-        angleScore = 1 - clamp01(tilt / READY_TILT_MAX_DEG);
-      }
-
-      // Weighted avg (no distance)
-      const wDe = 0.55, wGlare = 0.30, wAngle = 0.15;
-      let num = (deScore * wDe) + (glareScore * wGlare);
-      let den = (wDe + wGlare);
-
-      if (angleScore !== null) { num += angleScore * wAngle; den += wAngle; }
-
-      const pct = Math.round(100 * clamp01(num / Math.max(1e-6, den)));
-
-      // READY condition (strict)
-      const glareOk = over <= READY_GLARE_MAX;
-      const deOk = de <= READY_DE_MAX;
-      const angleOk = (tilt == null) ? true : (tilt <= READY_TILT_MAX_DEG);
-
-      const ready = deOk && glareOk && angleOk;
-      return { pct, ready };
-    }
-
-    function updateReadyRing() {
-      if (!savedRefLab || !refMetrics || !liveLab || !liveMetrics) {
-        showReadyHud(false);
-        return;
-      }
-
-      const { pct, ready } = computeReadyPercent();
-      showReadyHud(true);
-
-      readyRing.style.setProperty("--p", pct);
-      readyPctEl.textContent = `${pct}%`;
-      readyLabelEl.textContent = ready ? "READY" : "NOT READY";
-
-      readyRingWrap.classList.remove("ready-good", "ready-mid", "ready-bad");
-      if (pct >= 85) readyRingWrap.classList.add("ready-good");
-      else if (pct >= 65) readyRingWrap.classList.add("ready-mid");
-      else readyRingWrap.classList.add("ready-bad");
-    }
-
+    // -------------------------
+    // Init Camera
+    // -------------------------
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "environment", width: { ideal: 640 }, height: { ideal: 640 } },
         });
         video.srcObject = stream;
-
         videoTrack = stream.getVideoTracks?.()[0] || null;
+
         try {
           const caps = videoTrack?.getCapabilities?.();
           torchSupported = !!caps?.torch;
-        } catch (e) {
-          torchSupported = false;
-        }
+        } catch (e) { torchSupported = false; }
 
         updateTorchUI();
 
@@ -935,9 +710,7 @@
           isProcessing = true;
           requestAnimationFrame(loop);
         };
-      } catch (err) {
-        alert("Camera Error: " + err);
-      }
+      } catch (err) { alert("Camera Error: " + err); }
     }
 
     function resizeGraph() {
@@ -950,88 +723,117 @@
       }
     }
 
-    // Auto-fit layout
-    function applyAutoFitLayout() {
-      const frame = document.querySelector(".app-frame");
-      const header = document.querySelector("header");
-      if (!frame || !header) return;
-
-      const H = frame.getBoundingClientRect().height;
-      const headerH = header.offsetHeight;
-
-      const remain = Math.max(0, H - headerH);
-      const viewportH = Math.max(140, Math.min(270, Math.round(remain * 0.34)));
-      const panelRemain = Math.max(0, remain - viewportH);
-      const vizH = Math.max(90, Math.min(175, Math.round(panelRemain * 0.24)));
-      const gap = Math.max(10, Math.min(18, Math.round(panelRemain * 0.06)));
-
-      document.documentElement.style.setProperty("--viewport-h", viewportH + "px");
-      document.documentElement.style.setProperty("--viz-h", vizH + "px");
-      document.documentElement.style.setProperty("--gap-layout", gap + "px");
-
-      requestAnimationFrame(resizeGraph);
+    // -------------------------
+    // Smart sampling (trimmed mean)
+    // -------------------------
+    function getSmartAverage(arr) {
+      if (arr.length === 0) return 0;
+      arr.sort((a, b) => a - b);
+      const trimAmt = Math.floor(arr.length * 0.25);
+      const target = arr.slice(trimAmt, arr.length - trimAmt);
+      if (target.length === 0) return arr[Math.floor(arr.length / 2)];
+      const sum = target.reduce((a, b) => a + b, 0);
+      return Math.round(sum / target.length);
     }
 
-    // Color wheel gradient
-    function renderColorMap() {
-      const w = plotCanvas.width, h = plotCanvas.height;
-      const cx = w / 2, cy = h / 2;
-      const imgData = plotCtx.createImageData(w, h);
-      const d = imgData.data;
-      const maxDist = Math.min(w, h) / 2;
+    function readOneSample() {
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
 
-      for (let y = 0; y < h; y += 2) {
-        for (let x = 0; x < w; x += 2) {
-          const dx = x - cx;
-          const dy = y - cy;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          const normDist = Math.min(1, dist / maxDist);
+      procCtx.drawImage(video, 0, 0, 50, 50);
+      const frame = procCtx.getImageData(20, 20, 10, 10);
+      const data = frame.data;
 
-          const angleRad = Math.atan2(-dy, dx);
-          let angleDeg = angleRad * (180 / Math.PI);
-          if (angleDeg < 0) angleDeg += 360;
+      let rList = [], gList = [], bList = [];
+      for (let i = 0; i < data.length; i += 4) {
+        rList.push(data[i]);
+        gList.push(data[i + 1]);
+        bList.push(data[i + 2]);
+      }
 
-          const hue = angleDeg;
-          const lit = 100 - normDist * 55;
-          const sat = normDist * 100;
+      const r = getSmartAverage(rList);
+      const g = getSmartAverage(gList);
+      const b = getSmartAverage(bList);
 
-          const rgb = hslToRgb(hue, sat, lit);
+      const rgb = `rgb(${r},${g},${b})`;
+      const lab = rgbToLab(r, g, b);
 
-          const idx = (y * w + x) * 4;
-          const idx2 = (y * w + (x + 1)) * 4;
-          const idx3 = ((y + 1) * w + x) * 4;
-          const idx4 = ((y + 1) * w + (x + 1)) * 4;
+      liveRGB = rgb;
+      liveLab = lab;
 
-          const setPx = (i) => { d[i] = rgb.r; d[i + 1] = rgb.g; d[i + 2] = rgb.b; d[i + 3] = 255; };
+      return { rgb, lab };
+    }
 
-          if (idx < d.length) setPx(idx);
-          if (idx2 < d.length) setPx(idx2);
-          if (idx3 < d.length) setPx(idx3);
-          if (idx4 < d.length) setPx(idx4);
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    async function captureSmartSample() {
+      if (isTorchBusy) return null;
+      isTorchBusy = true;
+      try {
+        const frames = 10;
+        let sumL = 0, sumA = 0, sumB = 0;
+        let lastRGB = "";
+
+        for (let i = 0; i < frames; i++) {
+          const sample = readOneSample();
+          if (sample) {
+            sumL += parseFloat(sample.lab.L);
+            sumA += parseFloat(sample.lab.a);
+            sumB += parseFloat(sample.lab.b);
+            lastRGB = sample.rgb;
+          }
+          await wait(30);
         }
-      }
 
-      for (let x = 0; x < w; x++) {
-        const idx = (Math.floor(cy) * w + x) * 4;
-        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
+        return {
+          rgb: lastRGB,
+          lab: { L: (sumL / frames).toFixed(1), a: (sumA / frames).toFixed(1), b: (sumB / frames).toFixed(1) }
+        };
+      } finally {
+        isTorchBusy = false;
       }
-      for (let y = 0; y < h; y++) {
-        const idx = (y * w + Math.floor(cx)) * 4;
-        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
-      }
-
-      bgImageData = imgData;
     }
 
-    function hslToRgb(h, s, l) {
-      s /= 100; l /= 100;
-      const k = (n) => (n + h / 30) % 12;
-      const a = s * Math.min(l, 1 - l);
-      const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-      return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
+    // -------------------------
+    // Camera Lock (Exposure/WB)
+    // -------------------------
+    async function toggleCameraLock(lock) {
+      if (!videoTrack) return;
+
+      try {
+        const capabilities = videoTrack.getCapabilities ? videoTrack.getCapabilities() : {};
+        const constraints = { advanced: [] };
+
+        if (lock) {
+          if (capabilities.whiteBalanceMode?.includes('manual')) constraints.advanced.push({ whiteBalanceMode: 'manual' });
+          if (capabilities.exposureMode?.includes('manual')) constraints.advanced.push({ exposureMode: 'manual' });
+        } else {
+          if (capabilities.whiteBalanceMode?.includes('continuous')) constraints.advanced.push({ whiteBalanceMode: 'continuous' });
+          if (capabilities.exposureMode?.includes('continuous')) constraints.advanced.push({ exposureMode: 'continuous' });
+        }
+
+        if (constraints.advanced.length > 0) {
+          await videoTrack.applyConstraints(constraints);
+          cameraLocked = lock;
+        }
+      } catch (e) {
+        console.warn("Camera locking not supported", e);
+      }
     }
 
-    // Guidance metrics (glare + keep orientation)
+    // -------------------------
+    // Ghost Capture
+    // -------------------------
+    function captureGhostImage() {
+      const c = document.createElement("canvas");
+      c.width = video.videoWidth;
+      c.height = video.videoHeight;
+      c.getContext("2d").drawImage(video, 0, 0);
+      return c.toDataURL("image/jpeg", 0.8);
+    }
+
+    // -------------------------
+    // Guidance Metrics (Angle + Glare only)
+    // -------------------------
     function computeRegionMetrics(imgData, w, h) {
       const d = imgData.data;
       let sumL = 0, over = 0, n = 0;
@@ -1072,139 +874,118 @@
       return { ...m, beta: lastOri?.beta ?? null, gamma: lastOri?.gamma ?? null };
     }
 
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+    function showGuidance(visible) {
+      if (!guidanceHud) return;
+      guidanceHud.classList.toggle("hidden", !visible);
+    }
+
+    function setGaugeState(gaugeEl, circleEl, score01, stateClass) {
+      if (!gaugeEl || !circleEl) return;
+      gaugeEl.classList.remove("g-good", "g-mid", "g-bad", "g-na");
+      if (stateClass) gaugeEl.classList.add(stateClass);
+      const p = Math.round(Math.max(0, Math.min(1, score01)) * 100);
+      circleEl.style.setProperty("--p", p);
+    }
+
+    function updateGuidanceHud(ref, cur) {
+      if (!ref || !cur) { showGuidance(false); return; }
+      showGuidance(true);
+
+      // ANGLE
+      let tiltDiff = null;
+      if (typeof ref.beta === "number" && typeof ref.gamma === "number" &&
+          typeof cur.beta === "number" && typeof cur.gamma === "number") {
+        const db = Math.abs(cur.beta - ref.beta);
+        const dg = Math.abs(cur.gamma - ref.gamma);
+        tiltDiff = Math.max(db, dg);
+      }
+      const angleScore = (tiltDiff == null) ? null : (1 - clamp01(tiltDiff / 18));
+
+      // GLARE
+      const GLARE_MAX = 0.10;
+      const glareScore = 1 - clamp01((cur.overPct ?? 0) / GLARE_MAX);
+
+      const stateFrom = (s) => (s > 0.90 ? "g-good" : (s > 0.78 ? "g-mid" : "g-bad"));
+
+      setGaugeState(gGlareGauge, gGlareCircle, glareScore, stateFrom(glareScore));
+
+      if (angleScore == null) {
+        gAngleGauge.classList.remove("g-good","g-mid","g-bad");
+        gAngleGauge.classList.add("g-na");
+        gAngleCircle.style.setProperty("--p", 0);
+      } else {
+        setGaugeState(gAngleGauge, gAngleCircle, angleScore, stateFrom(angleScore));
+      }
+    }
+
+    // -------------------------
+    // Main loop
+    // -------------------------
     function loop() {
       if (!isProcessing) return;
 
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        procCtx.drawImage(video, 0, 0, 50, 50);
-        const frame = procCtx.getImageData(23, 23, 4, 4);
-        const data = frame.data;
+      readOneSample();
+      drawABGraph();
 
-        let r = 0, g = 0, b = 0, c = 0;
-        for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; c++; }
-        r = Math.round(r / c); g = Math.round(g / c); b = Math.round(b / c);
-
-        liveRGB = `rgb(${r},${g},${b})`;
-        liveLab = rgbToLab(r, g, b);
-
-        drawABGraph();
-
-        liveMetrics = readLiveQuality();
-        updateReadyRing();
-      }
+      liveMetrics = readLiveQuality();
+      if (refMetrics && liveMetrics) updateGuidanceHud(refMetrics, liveMetrics);
+      else showGuidance(false);
 
       requestAnimationFrame(loop);
     }
 
-    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
-
-    async function setTorch(on) {
-      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
-      try {
-        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
-
-    function updateTorchUI() {
-      const btn = document.getElementById("btn-torch");
-      if (!btn) return;
-
-      if (isTorchOn) {
-        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
-        btn.style.borderColor = "rgba(255,255,255,0.35)";
-      } else {
-        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
-        btn.style.borderColor = "rgba(255,255,255,0.12)";
-      }
-      lucide.createIcons();
-    }
-
-    async function toggleTorchHold() {
-      if (isTorchBusy) return;
-      isTorchBusy = true;
-
-      const next = !isTorchOn;
-
-      try {
-        if (torchSupported && videoTrack?.applyConstraints) {
-          const ok = await setTorch(next);
-          if (!ok && next) {
-            document.body.classList.add("screen-lamp");
-            isTorchOn = true;
-            updateTorchUI();
-            return;
-          }
-
-          isTorchOn = next;
-          if (!isTorchOn) document.body.classList.remove("screen-lamp");
-          updateTorchUI();
-          return;
-        }
-
-        isTorchOn = next;
-        document.body.classList.toggle("screen-lamp", isTorchOn);
-        updateTorchUI();
-      } finally {
-        isTorchBusy = false;
-      }
-    }
-
-    function readOneSample() {
-      if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
-
-      procCtx.drawImage(video, 0, 0, 50, 50);
-      const frame = procCtx.getImageData(23, 23, 4, 4);
-      const data = frame.data;
-
-      let r = 0, g = 0, b = 0, c = 0;
-      for (let i = 0; i < data.length; i += 4) { r += data[i]; g += data[i + 1]; b += data[i + 2]; c++; }
-      r = Math.round(r / c); g = Math.round(g / c); b = Math.round(b / c);
-
-      const rgb = `rgb(${r},${g},${b})`;
-      const lab = rgbToLab(r, g, b);
-
-      liveRGB = rgb;
-      liveLab = lab;
-
-      return { rgb, lab };
-    }
-
-    async function captureNoFlash(settleMs = 120) {
-      if (isTorchBusy) return null;
-      await wait(settleMs);
-      return readOneSample();
-    }
-
+    // -------------------------
+    // Capture Handlers
+    // -------------------------
     async function lockRef() {
+      const btn = document.getElementById("btn-lock-ref");
+      if (btn.disabled) return;
+      btn.disabled = true;
+
+      // iOS: allow ANGLE to move
       await requestOrientationPermissionIfNeeded();
 
-      const sample = await captureNoFlash();
+      // Lock camera
+      await toggleCameraLock(true);
+
+      // Ghost
+      const ghostData = captureGhostImage();
+      ghostOverlay.src = ghostData;
+      ghostOverlay.classList.add("active");
+
+      // Smart capture
+      const sample = await captureSmartSample();
+      btn.disabled = false;
+
       if (!sample) return;
 
       savedRefLab = { ...sample.lab };
       updateCard("ref", savedRefLab, sample.rgb);
+      document.getElementById("card-ref").classList.add("active-ref");
 
+      // Save reference metrics for guidance
       const m = readLiveQuality();
       if (m) refMetrics = { ...m };
 
-      document.getElementById("card-ref").classList.add("active-ref");
-
       flashTarget();
       tryCalculate();
-      updateReadyRing();
       lucide.createIcons();
     }
 
     async function lockSam() {
-      const sample = await captureNoFlash();
+      const btn = document.getElementById("btn-lock-sam");
+      if (btn.disabled) return;
+      btn.disabled = true;
+
+      const sample = await captureSmartSample();
+      btn.disabled = false;
+
       if (!sample) return;
 
       savedSamLab = { ...sample.lab };
       updateCard("sam", savedSamLab, sample.rgb);
-
       document.getElementById("card-sam").classList.add("active-sam");
 
       flashTarget();
@@ -1229,6 +1010,83 @@
       marker.style.bottom = lVal + "%";
     }
 
+    function resetAll() {
+      savedRefLab = null; savedSamLab = null;
+      refMetrics = null; liveMetrics = null;
+
+      // Unlock camera settings
+      toggleCameraLock(false);
+
+      ["ref", "sam"].forEach((type) => {
+        document.getElementById(`card-${type}`).classList.remove("active-ref", "active-sam");
+        document.getElementById(`preview-${type}`).style.background = "#334155";
+        document.getElementById(`${type}-l`).innerText = "-";
+        document.getElementById(`${type}-a`).innerText = "-";
+        document.getElementById(`${type}-b`).innerText = "-";
+        document.getElementById(`marker-${type}`).classList.remove("visible");
+      });
+
+      ghostOverlay.classList.remove("active");
+      setTimeout(() => { ghostOverlay.src = ""; }, 300);
+
+      document.getElementById("delta-val").innerText = "--";
+      document.getElementById("result-dashboard").className = "result-dashboard";
+      document.getElementById("delta-msg").innerText = "READY";
+      document.getElementById("advice-content").innerHTML = "";
+      document.getElementById("advice-placeholder").style.display = "flex";
+
+      showGuidance(false);
+      lucide.createIcons();
+    }
+
+    // -------------------------
+    // Torch
+    // -------------------------
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try { await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] }); return true; } catch (e) { return false; }
+    }
+
+    function updateTorchUI() {
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold() {
+      if (isTorchBusy) return;
+      isTorchBusy = true;
+      const next = !isTorchOn;
+      try {
+        if (torchSupported && videoTrack?.applyConstraints) {
+          const ok = await setTorch(next);
+          if (!ok && next) {
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+          isTorchOn = next;
+          if (!isTorchOn) document.body.classList.remove("screen-lamp");
+          updateTorchUI();
+          return;
+        }
+        isTorchOn = next;
+        document.body.classList.toggle("screen-lamp", isTorchOn);
+        updateTorchUI();
+      } finally { isTorchBusy = false; }
+    }
+
+    // -------------------------
+    // Delta E + Advice + Plot
+    // -------------------------
     function tryCalculate() {
       if (savedRefLab && savedSamLab) {
         let dE = 0;
@@ -1238,19 +1096,11 @@
 
         const dash = document.getElementById("result-dashboard");
         document.getElementById("delta-val").innerText = dE.toFixed(2);
-
         dash.classList.remove("status-match", "status-close", "status-diff");
 
-        if (dE <= 1.0) {
-          dash.classList.add("status-match");
-          document.getElementById("delta-msg").innerText = "EXACT";
-        } else if (dE <= 2.5) {
-          dash.classList.add("status-close");
-          document.getElementById("delta-msg").innerText = "CLOSE";
-        } else {
-          dash.classList.add("status-diff");
-          document.getElementById("delta-msg").innerText = "DIFF";
-        }
+        if (dE <= 1.0) { dash.classList.add("status-match"); document.getElementById("delta-msg").innerText = "EXACT"; }
+        else if (dE <= 2.5) { dash.classList.add("status-close"); document.getElementById("delta-msg").innerText = "CLOSE"; }
+        else { dash.classList.add("status-diff"); document.getElementById("delta-msg").innerText = "DIFF"; }
 
         generateAdvice(savedRefLab, savedSamLab);
       }
@@ -1265,8 +1115,8 @@
       const container = document.getElementById("advice-content");
       const placeholder = document.getElementById("advice-placeholder");
       container.innerHTML = "";
-
       let actions = [];
+
       if (dL > th) actions.push({ icon: "sun", text: "Lighten", det: "+White", col: "#fff" });
       else if (dL < -th) actions.push({ icon: "moon", text: "Darken", det: "+Black", col: "#94a3b8" });
 
@@ -1279,193 +1129,138 @@
       if (actions.length === 0) actions.push({ icon: "check-circle", text: "Perfect", det: "Good Match", col: "#10b981" });
 
       placeholder.style.display = "none";
-
       actions.forEach((a) => {
         const div = document.createElement("div");
         div.className = "advice-item";
-        div.innerHTML = `
-          <div class="adv-icon-row" style="color:${a.col}">
-            <i data-lucide="${a.icon}" width="14"></i> ${a.text}
-          </div>
-          <div class="adv-detail">${a.det}</div>
-        `;
+        div.innerHTML = `<div class="adv-icon-row" style="color:${a.col}"><i data-lucide="${a.icon}" width="14"></i> ${a.text}</div><div class="adv-detail">${a.det}</div>`;
         container.appendChild(div);
       });
-
-      lucide.createIcons();
-    }
-
-    function resetAll() {
-      savedRefLab = null; savedSamLab = null;
-      refMetrics = null; liveMetrics = null;
-
-      ["ref", "sam"].forEach((type) => {
-        document.getElementById(`card-${type}`).classList.remove("active-ref", "active-sam");
-        document.getElementById(`preview-${type}`).style.background = "#334155";
-        document.getElementById(`${type}-l`).innerText = "-";
-        document.getElementById(`${type}-a`).innerText = "-";
-        document.getElementById(`${type}-b`).innerText = "-";
-        document.getElementById(`marker-${type}`).classList.remove("visible");
-      });
-
-      // ✅ Always CAPTURE
-      document.getElementById("btn-lock-ref").innerHTML =
-        '<i data-lucide="fingerprint" style="width:16px;"></i> CAPTURE';
-      document.getElementById("btn-lock-sam").innerHTML =
-        '<i data-lucide="scan-line" style="width:16px;"></i> CAPTURE';
-
-      document.getElementById("delta-val").innerText = "--";
-      document.getElementById("result-dashboard").className = "result-dashboard";
-      document.getElementById("delta-msg").innerText = "READY";
-
-      document.getElementById("advice-content").innerHTML = "";
-      document.getElementById("advice-placeholder").style.display = "flex";
-
-      showReadyHud(false);
       lucide.createIcons();
     }
 
     function drawABGraph() {
       const w = plotCanvas.width, h = plotCanvas.height;
       const cx = w / 2, cy = h / 2;
-
-      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0);
-      else plotCtx.clearRect(0, 0, w, h);
-
+      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0); else plotCtx.clearRect(0, 0, w, h);
       if (savedRefLab) drawDot(savedRefLab, "#000", "#3b82f6");
       if (savedSamLab) drawDot(savedSamLab, "#000", "#ffffff");
-
       if (savedRefLab && savedSamLab) {
-        const rx = cx + parseFloat(savedRefLab.a); const ry = cy - parseFloat(savedRefLab.b);
-        const sx = cx + parseFloat(savedSamLab.a); const sy = cy - parseFloat(savedSamLab.b);
-        plotCtx.beginPath();
-        plotCtx.strokeStyle = "rgba(0,0,0,0.5)";
-        plotCtx.lineWidth = 1;
-        plotCtx.setLineDash([2, 2]);
-        plotCtx.moveTo(rx, ry);
-        plotCtx.lineTo(sx, sy);
-        plotCtx.stroke();
-        plotCtx.setLineDash([]);
+        const rx = cx + parseFloat(savedRefLab.a), ry = cy - parseFloat(savedRefLab.b);
+        const sx = cx + parseFloat(savedSamLab.a), sy = cy - parseFloat(savedSamLab.b);
+        plotCtx.beginPath(); plotCtx.strokeStyle = "rgba(0,0,0,0.5)"; plotCtx.lineWidth = 1; plotCtx.setLineDash([2, 2]);
+        plotCtx.moveTo(rx, ry); plotCtx.lineTo(sx, sy); plotCtx.stroke(); plotCtx.setLineDash([]);
       }
     }
 
     function drawDot(lab, stroke, fill) {
-      const cx = plotCanvas.width / 2, cy = plotCanvas.height / 2;
-      const x = cx + parseFloat(lab.a);
-      const y = cy - parseFloat(lab.b);
-
-      plotCtx.beginPath();
-      plotCtx.fillStyle = fill;
-      plotCtx.arc(x, y, 6, 0, Math.PI * 2);
-      plotCtx.fill();
-      plotCtx.lineWidth = 2;
-      plotCtx.strokeStyle = stroke;
-      plotCtx.stroke();
+      const cx = plotCanvas.width/2, cy = plotCanvas.height/2;
+      const x = cx + parseFloat(lab.a), y = cy - parseFloat(lab.b);
+      plotCtx.beginPath(); plotCtx.fillStyle = fill; plotCtx.arc(x, y, 6, 0, Math.PI * 2); plotCtx.fill();
+      plotCtx.lineWidth = 2; plotCtx.strokeStyle = stroke; plotCtx.stroke();
     }
 
-    function changeMode(m) {
-      deltaMode = m;
-      document.getElementById("algo-lbl").innerText = m;
-      tryCalculate();
-      updateReadyRing();
+    function changeMode(m) { deltaMode = m; document.getElementById("algo-lbl").innerText = m; tryCalculate(); }
+
+    function renderColorMap() {
+      const w = plotCanvas.width, h = plotCanvas.height;
+      const cx = w / 2, cy = h / 2;
+      const imgData = plotCtx.createImageData(w, h);
+      const d = imgData.data;
+      const maxDist = Math.min(w, h) / 2;
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          const dx = x - cx, dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const normDist = Math.min(1, dist / maxDist);
+          const angleRad = Math.atan2(-dy, dx);
+          let angleDeg = angleRad * (180 / Math.PI); if (angleDeg < 0) angleDeg += 360;
+          const rgb = hslToRgb(angleDeg, normDist * 100, 100 - normDist * 55);
+          const idx = (y * w + x) * 4;
+          const setPx = (i) => { d[i]=rgb.r; d[i+1]=rgb.g; d[i+2]=rgb.b; d[i+3]=255; };
+          if(idx<d.length) setPx(idx);
+          if(((y+1)*w+(x+1))*4 < d.length) setPx(((y+1)*w+(x+1))*4);
+        }
+      }
+      for (let x=0; x<w; x++) { const idx=(Math.floor(cy)*w+x)*4; d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40; }
+      for (let y=0; y<h; y++) { const idx=(y*w+Math.floor(cx))*4; d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40; }
+      bgImageData = imgData;
+    }
+
+    function hslToRgb(h, s, l) {
+      s/=100; l/=100;
+      const k = (n) => (n + h/30)%12;
+      const a = s * Math.min(l, 1-l);
+      const f = (n) => l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1)));
+      return { r:Math.round(255*f(0)), g:Math.round(255*f(8)), b:Math.round(255*f(4)) };
     }
 
     function rgbToLab(r, g, b) {
-      let R = r / 255, G = g / 255, B = b / 255;
-      R = (R > 0.04045) ? Math.pow((R + 0.055) / 1.055, 2.4) : R / 12.92;
-      G = (G > 0.04045) ? Math.pow((G + 0.055) / 1.055, 2.4) : G / 12.92;
-      B = (B > 0.04045) ? Math.pow((B + 0.055) / 1.055, 2.4) : B / 12.92;
-      let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) * 100;
-      let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) * 100;
-      let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) * 100;
-      X /= 95.047; Y /= 100.000; Z /= 108.883;
-      X = (X > 0.008856) ? Math.pow(X, 1 / 3) : (7.787 * X) + 16 / 116;
-      Y = (Y > 0.008856) ? Math.pow(Y, 1 / 3) : (7.787 * Y) + 16 / 116;
-      Z = (Z > 0.008856) ? Math.pow(Z, 1 / 3) : (7.787 * Z) + 16 / 116;
-      return { L: ((116 * Y) - 16).toFixed(1), a: (500 * (X - Y)).toFixed(1), b: (200 * (Y - Z)).toFixed(1) };
+      let R=r/255, G=g/255, B=b/255;
+      R=(R>0.04045)?Math.pow((R+0.055)/1.055,2.4):R/12.92;
+      G=(G>0.04045)?Math.pow((G+0.055)/1.055,2.4):G/12.92;
+      B=(B>0.04045)?Math.pow((B+0.055)/1.055,2.4):B/12.92;
+      let X=(R*0.4124+G*0.3576+B*0.1805)*100, Y=(R*0.2126+G*0.7152+B*0.0722)*100, Z=(R*0.0193+G*0.1192+B*0.9505)*100;
+      X/=95.047; Y/=100.000; Z/=108.883;
+      X=(X>0.008856)?Math.pow(X,1/3):(7.787*X)+16/116;
+      Y=(Y>0.008856)?Math.pow(Y,1/3):(7.787*Y)+16/116;
+      Z=(Z>0.008856)?Math.pow(Z,1/3):(7.787*Z)+16/116;
+      return { L:((116*Y)-16).toFixed(1), a:(500*(X-Y)).toFixed(1), b:(200*(Y-Z)).toFixed(1) };
     }
 
-    function calculateDeltaE76(l1, l2) {
-      return Math.sqrt(Math.pow(l2.L - l1.L, 2) + Math.pow(l2.a - l1.a, 2) + Math.pow(l2.b - l1.b, 2));
+    function calculateDeltaE76(l1,l2){ return Math.sqrt(Math.pow(l2.L-l1.L,2)+Math.pow(l2.a-l1.a,2)+Math.pow(l2.b-l1.b,2)); }
+
+    function calculateDeltaE94(l1,l2){
+      const L1=parseFloat(l1.L), a1=parseFloat(l1.a), b1=parseFloat(l1.b);
+      const L2=parseFloat(l2.L), a2=parseFloat(l2.a), b2=parseFloat(l2.b);
+      const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2);
+      const dL=L1-L2, dC=C1-C2, da=a1-a2, db=b1-b2;
+      const dH=Math.sqrt(Math.max(0, da**2+db**2-dC**2));
+      const SC=1+0.045*C1, SH=1+0.015*C1;
+      return Math.sqrt(dL**2+(dC/SC)**2+(dH/SH)**2);
     }
 
-    function calculateDeltaE94(l1, l2) {
-      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
-      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
-      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2);
-      const dL = L1 - L2, dC = C1 - C2, da = a1 - a2, db = b1 - b2;
-      const dH = Math.sqrt(Math.max(0, da ** 2 + db ** 2 - dC ** 2));
-      const SC = 1 + 0.045 * C1, SH = 1 + 0.015 * C1;
-      return Math.sqrt(Math.pow(dL, 2) + Math.pow(dC / SC, 2) + Math.pow(dH / SH, 2));
+    function calculateDeltaE2000(l1,l2){
+      const L1=parseFloat(l1.L),a1=parseFloat(l1.a),b1=parseFloat(l1.b);
+      const L2=parseFloat(l2.L),a2=parseFloat(l2.a),b2=parseFloat(l2.b);
+      const deg2rad=d=>d*Math.PI/180, rad2deg=r=>r*180/Math.PI;
+      const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2), avgC=(C1+C2)/2;
+      const G=0.5*(1-Math.sqrt(avgC**7/(avgC**7+25**7)));
+      const a1p=(1+G)*a1, a2p=(1+G)*a2;
+      const C1p=Math.sqrt(a1p**2+b1**2), C2p=Math.sqrt(a2p**2+b2**2);
+      const h1p=(a1p===0&&b1===0)?0:rad2deg(Math.atan2(b1,a1p))+(rad2deg(Math.atan2(b1,a1p))<0?360:0);
+      const h2p=(a2p===0&&b2===0)?0:rad2deg(Math.atan2(b2,a2p))+(rad2deg(Math.atan2(b2,a2p))<0?360:0);
+      const dLp=L2-L1, dCp=C2p-C1p;
+      let dhp=0; if(C1p*C2p!==0) dhp=(Math.abs(h2p-h1p)<=180)?h2p-h1p:(h2p-h1p>180?h2p-h1p-360:h2p-h1p+360);
+      const dHp=2*Math.sqrt(C1p*C2p)*Math.sin(deg2rad(dhp/2));
+      const avgLp=(L1+L2)/2, avgCp=(C1p+C2p)/2;
+      let avghp=0; if(C1p*C2p!==0) avghp=(Math.abs(h1p-h2p)<=180)?(h1p+h2p)/2:((h1p+h2p<360)?(h1p+h2p+360)/2:(h1p+h2p-360)/2);
+      const T=1-0.17*Math.cos(deg2rad(avghp-30))+0.24*Math.cos(deg2rad(2*avghp))+0.32*Math.cos(deg2rad(3*avghp+6))-0.20*Math.cos(deg2rad(4*avghp-63));
+      const SL=1+((0.015*(avgLp-50)**2)/Math.sqrt(20+(avgLp-50)**2)), SC=1+0.045*avgCp, SH=1+0.015*avgCp*T;
+      const dTheta = 30 * Math.exp( -Math.pow((avghp-275)/25, 2) );
+      const RC=2*Math.sqrt(avgCp**7/(avgCp**7+25**7)), RT=-Math.sin(deg2rad(2*dTheta))*RC;
+      return Math.sqrt((dLp/SL)**2+(dCp/SC)**2+(dHp/SH)**2+RT*(dCp/SC)*(dHp/SH));
     }
 
-    function calculateDeltaE2000(l1, l2) {
-      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
-      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
-      const rad2deg = (r) => (r * 180) / Math.PI, deg2rad = (d) => (d * Math.PI) / 180;
-
-      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2), avgC = (C1 + C2) / 2;
-      const G = 0.5 * (1 - Math.sqrt(Math.pow(avgC, 7) / (Math.pow(avgC, 7) + Math.pow(25, 7))));
-      const a1p = (1 + G) * a1, a2p = (1 + G) * a2;
-      const C1p = Math.sqrt(a1p ** 2 + b1 ** 2), C2p = Math.sqrt(a2p ** 2 + b2 ** 2);
-
-      const h1p = (a1p === 0 && b1 === 0) ? 0 : (rad2deg(Math.atan2(b1, a1p)) + (rad2deg(Math.atan2(b1, a1p)) < 0 ? 360 : 0));
-      const h2p = (a2p === 0 && b2 === 0) ? 0 : (rad2deg(Math.atan2(b2, a2p)) + (rad2deg(Math.atan2(b2, a2p)) < 0 ? 360 : 0));
-
-      const dLp = L2 - L1, dCp = C2p - C1p;
-
-      let dhp = 0;
-      if (C1p * C2p !== 0) {
-        dhp = (Math.abs(h2p - h1p) <= 180) ? (h2p - h1p) : (h2p - h1p > 180 ? h2p - h1p - 360 : h2p - h1p + 360);
-      }
-
-      const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(deg2rad(dhp / 2));
-      const avgLp = (L1 + L2) / 2, avgCp = (C1p + C2p) / 2;
-
-      let avghp = 0;
-      if (C1p * C2p !== 0) {
-        avghp = (Math.abs(h1p - h2p) <= 180) ? (h1p + h2p) / 2 : ((h1p + h2p < 360) ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2);
-      }
-
-      const T = 1 - 0.17 * Math.cos(deg2rad(avghp - 30)) + 0.24 * Math.cos(deg2rad(2 * avghp)) + 0.32 * Math.cos(deg2rad(3 * avghp + 6)) - 0.20 * Math.cos(deg2rad(4 * avghp - 63));
-      const SL = 1 + ((0.015 * Math.pow(avgLp - 50, 2)) / Math.sqrt(20 + Math.pow(avgLp - 50, 2)));
-      const SC = 1 + 0.045 * avgCp;
-      const SH = 1 + 0.015 * avgCp * T;
-
-      const dTheta = 30 * Math.exp(-Math.pow((avghp - 275) / 25, 2));
-      const RC = 2 * Math.sqrt(Math.pow(avgCp, 7) / (Math.pow(avgCp, 7) + Math.pow(25, 7)));
-      const RT = -Math.sin(deg2rad(2 * dTheta)) * RC;
-
-      return Math.sqrt(
-        Math.pow(dLp / SL, 2) +
-        Math.pow(dCp / SC, 2) +
-        Math.pow(dHp / SH, 2) +
-        RT * (dCp / SC) * (dHp / SH)
-      );
+    // Auto-fit layout
+    function applyAutoFitLayout() {
+      const frame=document.querySelector(".app-frame"), header=document.querySelector("header");
+      if(!frame||!header)return;
+      const H=frame.getBoundingClientRect().height, headerH=header.offsetHeight;
+      const remain=Math.max(0, H-headerH), viewportH=Math.max(140,Math.min(270,Math.round(remain*0.34)));
+      const panelRemain=Math.max(0, remain-viewportH), vizH=Math.max(90,Math.min(175,Math.round(panelRemain*0.24)));
+      const gap=Math.max(10,Math.min(18,Math.round(panelRemain*0.06)));
+      document.documentElement.style.setProperty("--viewport-h",viewportH+"px");
+      document.documentElement.style.setProperty("--viz-h",vizH+"px");
+      document.documentElement.style.setProperty("--gap-layout",gap+"px");
+      requestAnimationFrame(resizeGraph);
     }
-
-    // Auto-fit init
     applyAutoFitLayout();
-    window.addEventListener("resize", applyAutoFitLayout);
-
-    const frameEl = document.querySelector(".app-frame");
-    if (frameEl && "ResizeObserver" in window) {
-      new ResizeObserver(() => applyAutoFitLayout()).observe(frameEl);
-    }
+    const frameEl=document.querySelector(".app-frame");
+    if(frameEl && "ResizeObserver" in window) new ResizeObserver(()=>applyAutoFitLayout()).observe(frameEl);
 
     // Torch safety
-    document.addEventListener("visibilitychange", async () => {
-      if (document.hidden && isTorchOn) {
-        if (torchSupported) await setTorch(false);
-        document.body.classList.remove("screen-lamp");
-        isTorchOn = false;
-        updateTorchUI();
-      }
-    });
-
-    window.addEventListener("beforeunload", async () => {
-      if (torchSupported) await setTorch(false);
-    });
+    document.addEventListener("visibilitychange", async()=>{ if(document.hidden&&isTorchOn){ if(torchSupported)await setTorch(false); document.body.classList.remove("screen-lamp"); isTorchOn=false; updateTorchUI(); }});
+    window.addEventListener("beforeunload", async()=>{ if(torchSupported)await setTorch(false); });
 
     initCamera();
   </script>
