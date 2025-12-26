@@ -534,69 +534,43 @@
     #proc-canvas { display: none; }
 
     /* =======================================================
-       ✅ Visual Guidance HUD (ANGLE + GLARE only) — SMALL + BOTTOM-LEFT
+       ✅ Guidance Ring: %Ready (single ring)
        ======================================================= */
-    .guidance-hud{
+    .ready-hud{
       position:absolute;
-      top: auto;
-      right: auto;
       left: calc(10px + env(safe-area-inset-left));
       bottom: calc(10px + env(safe-area-inset-bottom));
-
       z-index: 25;
       pointer-events: none;
 
       display:flex;
-      justify-content: flex-start;
-      gap: 8px;
-      flex-wrap: nowrap;
-      align-items: center;
+      align-items:center;
+      gap: 10px;
 
-      padding: 6px 8px;
+      padding: 8px 10px;
       border-radius: 14px;
       background: rgba(2,6,23,.28);
       border: 1px solid rgba(255,255,255,.12);
       backdrop-filter: blur(8px);
       box-shadow: 0 10px 30px rgba(0,0,0,.18);
-
-      width: fit-content;
-      max-width: calc(100% - 20px);
     }
 
-    .guidance-hud.hidden{
+    .ready-hud.hidden{
       opacity: 0;
       transform: translateY(-6px);
       transition: opacity .18s ease, transform .18s ease;
     }
-    .guidance-hud:not(.hidden){
+    .ready-hud:not(.hidden){
       opacity: 1;
       transform: translateY(0);
       transition: opacity .18s ease, transform .18s ease;
     }
 
-    .gauge{
-      width: 54px;
-      display:flex;
-      flex-direction: column;
-      align-items:center;
-      gap: 4px;
-    }
-
-    .g-lbl{
-      font-family: var(--font-num);
-      font-size: .52rem;
-      font-weight: 900;
-      letter-spacing: .08em;
-      color: rgba(255,255,255,.78);
-      text-transform: uppercase;
-      line-height: 1;
-    }
-
-    .g-circle{
-      --p: 0;
+    .ready-ring{
+      --p: 0; /* 0..100 */
       --c: rgba(251,191,36,.95);
-      width: 34px;
-      height: 34px;
+      width: 38px;
+      height: 38px;
       border-radius: 50%;
       position: relative;
 
@@ -610,33 +584,51 @@
       justify-content:center;
     }
 
-    .g-circle::after{
+    .ready-ring::after{
       content:"";
       position:absolute;
-      inset: 3px;
+      inset: 4px;
       border-radius: 50%;
       background: rgba(2,6,23,.55);
       border: 1px solid rgba(255,255,255,.10);
       box-shadow: inset 0 0 0 1px rgba(0,0,0,.25);
     }
 
-    .g-circle i{
+    .ready-ring i{
       position: relative;
       z-index: 2;
-      width: 14px !important;
-      height: 14px !important;
+      width: 16px !important;
+      height: 16px !important;
       color: rgba(255,255,255,.92);
     }
 
-    .g-good .g-circle{ --c: rgba(52,211,153,.95); }
-    .g-mid  .g-circle{ --c: rgba(251,191,36,.95); }
-    .g-bad  .g-circle{ --c: rgba(248,113,113,.95); }
-
-    .g-na .g-circle{
-      --p: 0;
-      background: radial-gradient(circle at center, rgba(255,255,255,.10), rgba(255,255,255,.06));
+    .ready-meta{
+      display:flex;
+      flex-direction: column;
+      gap: 2px;
+      line-height: 1.05;
     }
-    .g-na .g-lbl{ opacity: .55; }
+
+    .ready-pct{
+      font-family: var(--font-num);
+      font-weight: 900;
+      letter-spacing: .06em;
+      font-size: .85rem;
+      color: rgba(255,255,255,.95);
+    }
+
+    .ready-sub{
+      font-family: var(--font-num);
+      font-weight: 800;
+      letter-spacing: .10em;
+      font-size: .55rem;
+      color: rgba(255,255,255,.70);
+      text-transform: uppercase;
+    }
+
+    .ready-good .ready-ring{ --c: rgba(52,211,153,.95); }
+    .ready-mid  .ready-ring{ --c: rgba(251,191,36,.95); }
+    .ready-bad  .ready-ring{ --c: rgba(248,113,113,.95); }
   </style>
 </head>
 
@@ -661,21 +653,16 @@
       <div class="vp-camera">
         <video id="webcam" autoplay playsinline muted></video>
 
-        <!-- ✅ Guidance HUD (NO DISTANCE) -->
-        <div id="guidanceHud" class="guidance-hud hidden" aria-label="Capture guidance">
-
-          <div class="gauge" id="gAngleGauge" title="Angle / Tilt">
-            <div class="g-circle" id="gAngleCircle">
-              <i data-lucide="rotate-3d"></i>
+        <!-- ✅ Guidance Ring: %Ready -->
+        <div id="readyHud" class="ready-hud hidden" aria-label="Capture readiness">
+          <div id="readyRingWrap" class="ready-bad">
+            <div id="readyRing" class="ready-ring" style="--p:0">
+              <i data-lucide="check"></i>
             </div>
-            <div class="g-lbl">ANGLE</div>
           </div>
-
-          <div class="gauge" id="gGlareGauge" title="Glare / Reflection">
-            <div class="g-circle" id="gGlareCircle">
-              <i data-lucide="sun"></i>
-            </div>
-            <div class="g-lbl">GLARE</div>
+          <div class="ready-meta">
+            <div class="ready-pct" id="readyPct">0%</div>
+            <div class="ready-sub" id="readyLabel">NOT READY</div>
           </div>
         </div>
 
@@ -724,8 +711,6 @@
               <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="ref-a">-</div></div>
               <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="ref-b">-</div></div>
             </div>
-
-            <!-- ✅ Always show CAPTURE -->
             <button class="btn-act" id="btn-lock-ref" onclick="lockRef()">
               <i data-lucide="fingerprint" style="width: 16px;"></i> CAPTURE
             </button>
@@ -741,8 +726,6 @@
               <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="sam-a">-</div></div>
               <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="sam-b">-</div></div>
             </div>
-
-            <!-- ✅ Always show CAPTURE -->
             <button class="btn-act" id="btn-lock-sam" onclick="lockSam()">
               <i data-lucide="scan-line" style="width: 16px;"></i> CAPTURE
             </button>
@@ -805,12 +788,17 @@
     let refMetrics = null;  // { meanLuma, sharpness, overPct, beta, gamma }
     let liveMetrics = null;
 
-    // Guidance HUD Elements (NO DISTANCE)
-    const guidanceHud = document.getElementById("guidanceHud");
-    const gAngleGauge = document.getElementById("gAngleGauge");
-    const gGlareGauge = document.getElementById("gGlareGauge");
-    const gAngleCircle = document.getElementById("gAngleCircle");
-    const gGlareCircle = document.getElementById("gGlareCircle");
+    // ✅ Ring HUD Elements
+    const readyHud = document.getElementById("readyHud");
+    const readyRing = document.getElementById("readyRing");
+    const readyRingWrap = document.getElementById("readyRingWrap");
+    const readyPctEl = document.getElementById("readyPct");
+    const readyLabelEl = document.getElementById("readyLabel");
+
+    // ✅ Thresholds (tune here)
+    const READY_DE_MAX = 0.8;        // ตามที่ขอ: Live DeltaE threshold = 0.8
+    const READY_TILT_MAX_DEG = 8;    // เข้ม/ผ่อน
+    const READY_GLARE_MAX = 0.10;    // สัดส่วน highlight
 
     // Real app height (mobile browser bars)
     function setRealAppHeight() {
@@ -848,6 +836,80 @@
       } catch (e) {
         return false;
       }
+    }
+
+    const clamp01 = (x) => Math.max(0, Math.min(1, x));
+
+    function showReadyHud(visible){
+      if (!readyHud) return;
+      readyHud.classList.toggle("hidden", !visible);
+    }
+
+    function getLiveDeltaE(refLab, curLab){
+      if (!refLab || !curLab) return null;
+      if (deltaMode === "2000") return calculateDeltaE2000(refLab, curLab);
+      if (deltaMode === "94")   return calculateDeltaE94(refLab, curLab);
+      return calculateDeltaE76(refLab, curLab);
+    }
+
+    function computeReadyPercent() {
+      if (!savedRefLab || !refMetrics || !liveLab || !liveMetrics) return { pct: 0, ready: false };
+
+      // 1) DeltaE score (main)
+      const de = getLiveDeltaE(savedRefLab, liveLab);
+      if (typeof de !== "number") return { pct: 0, ready: false };
+      const deScore = 1 - clamp01(de / READY_DE_MAX);
+
+      // 2) Glare score
+      const over = liveMetrics.overPct ?? 1;
+      const glareScore = 1 - clamp01(over / READY_GLARE_MAX);
+
+      // 3) Angle score (optional)
+      let angleScore = null;
+      let tilt = null;
+      if (typeof refMetrics.beta === "number" && typeof refMetrics.gamma === "number" &&
+          typeof liveMetrics.beta === "number" && typeof liveMetrics.gamma === "number") {
+        const db = Math.abs(liveMetrics.beta - refMetrics.beta);
+        const dg = Math.abs(liveMetrics.gamma - refMetrics.gamma);
+        tilt = Math.max(db, dg);
+        angleScore = 1 - clamp01(tilt / READY_TILT_MAX_DEG);
+      }
+
+      // Weighted avg (no distance)
+      const wDe = 0.55, wGlare = 0.30, wAngle = 0.15;
+      let num = (deScore * wDe) + (glareScore * wGlare);
+      let den = (wDe + wGlare);
+
+      if (angleScore !== null) { num += angleScore * wAngle; den += wAngle; }
+
+      const pct = Math.round(100 * clamp01(num / Math.max(1e-6, den)));
+
+      // READY condition (strict)
+      const glareOk = over <= READY_GLARE_MAX;
+      const deOk = de <= READY_DE_MAX;
+      const angleOk = (tilt == null) ? true : (tilt <= READY_TILT_MAX_DEG);
+
+      const ready = deOk && glareOk && angleOk;
+      return { pct, ready };
+    }
+
+    function updateReadyRing() {
+      if (!savedRefLab || !refMetrics || !liveLab || !liveMetrics) {
+        showReadyHud(false);
+        return;
+      }
+
+      const { pct, ready } = computeReadyPercent();
+      showReadyHud(true);
+
+      readyRing.style.setProperty("--p", pct);
+      readyPctEl.textContent = `${pct}%`;
+      readyLabelEl.textContent = ready ? "READY" : "NOT READY";
+
+      readyRingWrap.classList.remove("ready-good", "ready-mid", "ready-bad");
+      if (pct >= 85) readyRingWrap.classList.add("ready-good");
+      else if (pct >= 65) readyRingWrap.classList.add("ready-mid");
+      else readyRingWrap.classList.add("ready-bad");
     }
 
     async function initCamera() {
@@ -969,7 +1031,7 @@
       return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
     }
 
-    // Guidance metrics
+    // Guidance metrics (glare + keep orientation)
     function computeRegionMetrics(imgData, w, h) {
       const d = imgData.data;
       let sumL = 0, over = 0, n = 0;
@@ -1010,55 +1072,6 @@
       return { ...m, beta: lastOri?.beta ?? null, gamma: lastOri?.gamma ?? null };
     }
 
-    const clamp01 = (x) => Math.max(0, Math.min(1, x));
-
-    function showGuidance(visible) {
-      if (!guidanceHud) return;
-      guidanceHud.classList.toggle("hidden", !visible);
-    }
-
-    function setGaugeState(gaugeEl, circleEl, score01, stateClass) {
-      if (!gaugeEl || !circleEl) return;
-      gaugeEl.classList.remove("g-good", "g-mid", "g-bad", "g-na");
-      if (stateClass) gaugeEl.classList.add(stateClass);
-
-      const p = Math.round(Math.max(0, Math.min(1, score01)) * 100);
-      circleEl.style.setProperty("--p", p);
-    }
-
-    // ✅ Guidance HUD: ANGLE + GLARE only (NO DISTANCE)
-    function updateGuidanceHud(ref, cur) {
-      if (!ref || !cur) { showGuidance(false); return; }
-      showGuidance(true);
-
-      // ANGLE score
-      let tiltDiff = null;
-      if (typeof ref.beta === "number" && typeof ref.gamma === "number" &&
-          typeof cur.beta === "number" && typeof cur.gamma === "number") {
-        const db = Math.abs(cur.beta - ref.beta);
-        const dg = Math.abs(cur.gamma - ref.gamma);
-        tiltDiff = Math.max(db, dg);
-      }
-      const angleScore = (tiltDiff == null) ? null : (1 - clamp01(tiltDiff / 18));
-
-      // GLARE score
-      const GLARE_MAX = 0.10;
-      const glareScore = 1 - clamp01((cur.overPct ?? 0) / GLARE_MAX);
-
-      const stateFrom = (s) => (s > 0.90 ? "g-good" : (s > 0.78 ? "g-mid" : "g-bad"));
-
-      setGaugeState(gGlareGauge, gGlareCircle, glareScore, stateFrom(glareScore));
-
-      if (angleScore == null) {
-        gAngleGauge.classList.remove("g-good","g-mid","g-bad");
-        gAngleGauge.classList.add("g-na");
-        gAngleCircle.style.setProperty("--p", 0);
-      } else {
-        setGaugeState(gAngleGauge, gAngleCircle, angleScore, stateFrom(angleScore));
-      }
-    }
-
-    // Main loop
     function loop() {
       if (!isProcessing) return;
 
@@ -1077,8 +1090,7 @@
         drawABGraph();
 
         liveMetrics = readLiveQuality();
-        if (refMetrics && liveMetrics) updateGuidanceHud(refMetrics, liveMetrics);
-        else showGuidance(false);
+        updateReadyRing();
       }
 
       requestAnimationFrame(loop);
@@ -1167,7 +1179,6 @@
     }
 
     async function lockRef() {
-      // iOS: ask permission so ANGLE can move
       await requestOrientationPermissionIfNeeded();
 
       const sample = await captureNoFlash();
@@ -1176,15 +1187,14 @@
       savedRefLab = { ...sample.lab };
       updateCard("ref", savedRefLab, sample.rgb);
 
-      // save reference metrics for guidance
       const m = readLiveQuality();
       if (m) refMetrics = { ...m };
 
       document.getElementById("card-ref").classList.add("active-ref");
 
-      // ✅ Button label always CAPTURE (no SAVED/CAPTURED text)
       flashTarget();
       tryCalculate();
+      updateReadyRing();
       lucide.createIcons();
     }
 
@@ -1197,7 +1207,6 @@
 
       document.getElementById("card-sam").classList.add("active-sam");
 
-      // ✅ Button label always CAPTURE (no SAVED/CAPTURED text)
       flashTarget();
       tryCalculate();
       lucide.createIcons();
@@ -1299,7 +1308,7 @@
         document.getElementById(`marker-${type}`).classList.remove("visible");
       });
 
-      // ✅ Always CAPTURE (never SAVED/CAPTURED)
+      // ✅ Always CAPTURE
       document.getElementById("btn-lock-ref").innerHTML =
         '<i data-lucide="fingerprint" style="width:16px;"></i> CAPTURE';
       document.getElementById("btn-lock-sam").innerHTML =
@@ -1312,7 +1321,7 @@
       document.getElementById("advice-content").innerHTML = "";
       document.getElementById("advice-placeholder").style.display = "flex";
 
-      showGuidance(false);
+      showReadyHud(false);
       lucide.createIcons();
     }
 
@@ -1358,6 +1367,7 @@
       deltaMode = m;
       document.getElementById("algo-lbl").innerText = m;
       tryCalculate();
+      updateReadyRing();
     }
 
     function rgbToLab(r, g, b) {
