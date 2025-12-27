@@ -885,7 +885,7 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: GLUE GAP DETECTION (Optimized for 7 layers)
+    //  UPDATED LOGIC: GLUE GAP DETECTION WITH RED BOX FOR NO-GAP
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -936,7 +936,7 @@
 
       // --- LOGIC: Profile Scan for Dark Gaps ---
       const profile = new Float32Array(roiH_v);
-      const centerStart = Math.floor(roiW_v * 0.35); // Scan center 30% strip
+      const centerStart = Math.floor(roiW_v * 0.35);
       const centerEnd = Math.floor(roiW_v * 0.65);
       const centerW = centerEnd - centerStart;
 
@@ -959,14 +959,19 @@
       // Smooth Profile
       const smoothed = movingAverage(profile, 4);
 
-      // Thresholds
+      // --- NEW LOGIC: Double Threshold (Layer vs Gap) ---
       const { med, mad } = robustStats(smoothed);
-      const prominence = Math.max(100, mad * 4.0);
       
-      // Force Separation: ~Height/12 prevents double counting small gaps
+      // Threshold 1: Layer Detection (Lower threshold to find boundaries)
+      const layerThreshold = Math.max(30, mad * 1.5); 
+      // Threshold 2: Gap Confirmation (Higher threshold for dark gaps)
+      const gapThreshold = Math.max(100, mad * 4.5);
+
+      // Force Separation: ~Height/12 prevents double counting
       const minDist = Math.floor(roiH_v / 12); 
 
-      let peaks = findPeaksDynamic(smoothed, prominence, minDist);
+      // Find all potential layers using the lower threshold
+      let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       // Scale factors
       const sx = roiW_disp / roiW_v;
@@ -982,7 +987,22 @@
         const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
 
-        // Use edge detection just for visual width calculation
+        // Check if it's dark enough to be a gap
+        const peakValue = smoothed[localY_v];
+        let status = "OK";
+        let boxColor = "#34d399"; // Green
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let labelText = `#${idx + 1}`;
+
+        if (peakValue < gapThreshold) {
+            // It's a layer boundary, but not dark enough for a gap
+            status = "NG";
+            boxColor = "#ef4444"; // Red
+            bgColor = "rgba(239, 68, 68, 0.2)";
+            labelText = `NO GAP ${idx + 1}`;
+        }
+
+        // Calculate geometry for visualization width
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
         
         let st = layerStabilizer[idx];
@@ -995,32 +1015,40 @@
 
         maxW = Math.max(maxW, dispW);
 
-        // Visuals
-        sheetCtx.fillStyle = "rgba(52, 211, 153, 0.2)";
+        // Visuals (Box & Label)
+        sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
-        sheetCtx.strokeStyle = "#34d399";
+        sheetCtx.strokeStyle = boxColor;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
 
-        sheetCtx.fillStyle = "#34d399";
+        sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(`#${idx + 1}`, roiX_disp - 25, drawY + 4);
+        // Adjust X position for longer label if NG
+        sheetCtx.fillText(labelText, roiX_disp - (status === "NG" ? 75 : 30), drawY + 4);
 
-        results.push({ layer: idx + 1, w: dispW, status: "OK" });
+        results.push({ layer: idx + 1, w: dispW, status: status });
       });
 
-      // Update UI
+      // Update UI Header
       const expected = results.length;
+      const ngCount = results.filter(r => r.status === "NG").length;
+
       document.getElementById("sh-count").innerText = String(expected);
       document.getElementById("sh-found").innerText = String(expected);
       
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      // Valid range 7-8
-      if (expected >= 7 && expected <= 8) {
+      if (ngCount > 0) {
+         // FAIL: Found layers with no gaps
+         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FOUND NO-GAP (${ngCount})</div>`;
+         header.className = "glue-compact-header status-fail";
+      } else if (expected >= 7 && expected <= 8) {
+         // PASS: 7-8 layers, all have gaps
          statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS (${expected})</div>`;
          header.className = "glue-compact-header status-pass";
       } else {
+         // SCANNING: Not enough layers or too many
          statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
          header.className = "glue-compact-header";
       }
@@ -1029,12 +1057,16 @@
       const listCont = document.getElementById("layer-list-cont");
       let html = "";
       results.forEach((res) => {
+        const isNG = res.status === "NG";
+        const statusClass = isNG ? "missing" : "ok"; // Use existing 'missing' class for red styling
+        const statusText = isNG ? "NO GAP DETECTED" : "Gap Detected";
         const pct = maxW > 0 ? (res.w / maxW) * 100 : 50;
+        
         html += `
-          <div class="layer-card ok">
+          <div class="layer-card ${statusClass}">
             <div class="lc-header">
               <div class="lc-title"><div class="lc-idx">${res.layer}</div> Layer ${res.layer}</div>
-              <div class="lc-val">Gap Detected</div>
+              <div class="lc-val">${statusText}</div>
             </div>
             <div class="lc-visual"><div class="lc-bar" style="width:${pct}%"></div></div>
           </div>`;
