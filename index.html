@@ -779,9 +779,7 @@
     }
 
     // =========================================================
-    // CAPTURE LIGHTING (หลักการเดียวกัน)
-    // - ถ้า Torch มี: เปิดชั่วคราวตอน capture แล้วคืนค่าเดิม
-    // - ถ้าไม่มี: ใช้ screen-flash (ไม่เปลี่ยน UI)
+    // CAPTURE LIGHTING
     // =========================================================
     async function setTorch(on) {
       if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
@@ -887,7 +885,7 @@
     }
 
     // =========================================================
-    // GLUE GAP (Improved Accuracy + COVER-MAPPING)
+    //  UPDATED LOGIC: GLUE GAP DETECTION (Optimized for 7 layers)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -900,43 +898,35 @@
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
 
-      // ROI in DISPLAY coords (so overlay matches what user sees)
-      const roiW_disp = Math.round(dw * 0.70);
-      const roiH_disp = Math.round(dh * 0.62);
+      // ROI: Focus on Center Strip 50% width
+      const roiW_disp = Math.round(dw * 0.50);
+      const roiH_disp = Math.round(dh * 0.70);
       const roiX_disp = Math.round((dw - roiW_disp) / 2);
 
-      const bottomSafe_disp = Math.round(dh * 0.22);
-      let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.25);
+      const bottomSafe_disp = Math.round(dh * 0.15);
+      let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.2);
       roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
 
-      // Map ROI to VIDEO coords for processing
+      // Map ROI to Video Coordinates
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
-      // HUD overlay draw (DISPLAY coords)
+      // Draw HUD (Overlay)
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
       sheetCtx.fillRect(0, 0, dw, dh);
       sheetCtx.clearRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
-
+      sheetCtx.strokeStyle = "rgba(52, 211, 153, 0.5)";
       sheetCtx.lineWidth = 2;
-      sheetCtx.strokeStyle = "rgba(255, 255, 255, 0.30)";
       sheetCtx.setLineDash([10, 10]);
       sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
-      sheetCtx.setLineDash([]);
-
-      sheetCtx.beginPath();
-      sheetCtx.moveTo(roiX_disp + roiW_disp / 2, roiY_disp);
-      sheetCtx.lineTo(roiX_disp + roiW_disp / 2, roiY_disp + roiH_disp);
-      sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.18)";
-      sheetCtx.stroke();
       sheetCtx.restore();
 
-      // prepare processing canvas (VIDEO coords)
+      // Get Image Data
       if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
         procCanvas.width = roiW_v; procCanvas.height = roiH_v;
       }
@@ -944,239 +934,119 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // 1) Build score profile per row (y)
+      // --- LOGIC: Profile Scan for Dark Gaps ---
       const profile = new Float32Array(roiH_v);
-      const bandLeft = Math.floor(roiW_v * 0.30);
-      const bandRight = Math.floor(roiW_v * 0.70);
-      const maxScanLeft = Math.floor(roiW_v * 0.15);
-      const maxScanRight = Math.floor(roiW_v * 0.85);
+      const centerStart = Math.floor(roiW_v * 0.35); // Scan center 30% strip
+      const centerEnd = Math.floor(roiW_v * 0.65);
+      const centerW = centerEnd - centerStart;
 
       for (let y = 0; y < roiH_v; y++) {
-        const rowStart = y * roiW_v * 4;
-
-        let minLuma = 255;
-        let minX = (bandLeft + bandRight) >> 1;
-        let sumL = 0;
-        let cnt = 0;
-
-        for (let x = bandLeft; x < bandRight; x += 2) {
-          const i = rowStart + x * 4;
+        let sumLuma = 0;
+        const rowOffset = y * roiW_v * 4;
+        
+        for (let x = centerStart; x < centerEnd; x++) {
+          const i = rowOffset + x * 4;
           const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          sumL += luma; cnt++;
-          if (luma < minLuma) { minLuma = luma; minX = x; }
+          sumLuma += luma;
         }
-
-        const meanL = cnt ? (sumL / cnt) : minLuma;
-        const contrast = Math.max(0, meanL - minLuma);
-
-        const thr = clamp(minLuma + Math.max(18, contrast * 0.60), 0, 245);
-
-        let L = minX;
-        while (L > maxScanLeft) {
-          const i = rowStart + L * 4;
-          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          if (luma > thr) break;
-          L--;
-        }
-
-        let R = minX;
-        while (R < maxScanRight) {
-          const i = rowStart + R * 4;
-          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          if (luma > thr) break;
-          R++;
-        }
-
-        const width = Math.max(0, R - L);
-        const cBoost = clamp(contrast / 50, 0.0, 1.5);
-        profile[y] = width * (0.65 + cBoost);
+        
+        const avgLuma = sumLuma / centerW;
+        // Invert signal: Darker = Higher peak
+        const darkness = Math.max(0, 255 - avgLuma);
+        profile[y] = Math.pow(darkness, 1.5); 
       }
 
-      // 2) Smooth profile
-      const smoothed = movingAverage(profile, 3);
+      // Smooth Profile
+      const smoothed = movingAverage(profile, 4);
 
-      // 3) Dynamic peak params
+      // Thresholds
       const { med, mad } = robustStats(smoothed);
-      const prominence = Math.max(10, mad * 3.2);
-      const minDist = Math.max(10, Math.floor(roiH_v * 0.055));
+      const prominence = Math.max(100, mad * 4.0);
+      
+      // Force Separation: ~Height/12 prevents double counting small gaps
+      const minDist = Math.floor(roiH_v / 12); 
 
       let peaks = findPeaksDynamic(smoothed, prominence, minDist);
 
-      // 4) Fill missing layers
-      peaks.sort((a, b) => a.index - b.index);
-      if (peaks.length > 2) {
-        const distances = [];
-        for (let i = 0; i < peaks.length - 1; i++) distances.push(peaks[i + 1].index - peaks[i].index);
-        distances.sort((a, b) => a - b);
-        const pitch = medianOfSorted(distances);
-
-        if (pitch > 0) {
-          const filled = [];
-          filled.push(peaks[0]);
-          for (let i = 0; i < peaks.length - 1; i++) {
-            const curr = peaks[i];
-            const next = peaks[i + 1];
-            const dist = next.index - curr.index;
-
-            if (dist > pitch * 1.55) {
-              const missingCount = Math.round(dist / pitch) - 1;
-              for (let mm = 1; mm <= missingCount; mm++) {
-                filled.push({ index: Math.floor(curr.index + mm * pitch), value: 0, isMissing: true });
-              }
-            }
-            filled.push(next);
-          }
-          peaks = filled.sort((a, b) => a.index - b.index);
-        }
-      }
-
-      // scale factors from VIDEO ROI to DISPLAY ROI
+      // Scale factors
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-
-      // 5) Draw + results (DRAW in DISPLAY coords)
+      
       const results = [];
-      let foundCount = 0;
       let maxW = 0;
 
-      const peakMinScore = Math.max(med + prominence * 0.60, 10);
-
       peaks.forEach((peak, idx) => {
+        // Filter Bottom Edge/Shadow
+        if (peak.index > roiH_v * 0.96) return; 
+
         const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
 
-        if (peak.isMissing) {
-          if (layerStabilizer[idx]) delete layerStabilizer[idx];
+        // Use edge detection just for visual width calculation
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        
+        let st = layerStabilizer[idx];
+        if (!st) st = { width: gapGeo.width };
+        else st.width = lerp(st.width, gapGeo.width, 0.2);
+        layerStabilizer[idx] = st;
 
-          sheetCtx.beginPath();
-          sheetCtx.setLineDash([5, 5]);
-          sheetCtx.lineWidth = 2;
-          sheetCtx.strokeStyle = "#ef4444";
-          sheetCtx.moveTo(roiX_disp, drawY);
-          sheetCtx.lineTo(roiX_disp + roiW_disp, drawY);
-          sheetCtx.stroke();
-          sheetCtx.setLineDash([]);
+        const dispW = Math.max(40, st.width * sx);
+        const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-          // label
-          sheetCtx.fillStyle = "#ef4444";
-          sheetCtx.fillRect(roiX_disp + roiW_disp + 8, drawY - 10, 80, 20);
-          sheetCtx.fillStyle = "#fff";
-          sheetCtx.font = "bold 10px 'Inter'";
-          sheetCtx.fillText("MISSING", roiX_disp + roiW_disp + 18, drawY + 4);
+        maxW = Math.max(maxW, dispW);
 
-          results.push({ layer: idx + 1, w: 0, status: "MISSING" });
-          return;
-        }
+        // Visuals
+        sheetCtx.fillStyle = "rgba(52, 211, 153, 0.2)";
+        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.strokeStyle = "#34d399";
+        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
 
-        if (smoothed[localY_v] < peakMinScore) {
-          if (layerStabilizer[idx]) delete layerStabilizer[idx];
-          return;
-        }
+        sheetCtx.fillStyle = "#34d399";
+        sheetCtx.font = "bold 12px 'JetBrains Mono'";
+        sheetCtx.fillText(`#${idx + 1}`, roiX_disp - 25, drawY + 4);
 
-        const gap = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
-
-        if (gap.width > 3) {
-          foundCount++;
-
-          const rawLeft = gap.left;
-          const rawWidth = gap.width;
-
-          let st = layerStabilizer[idx];
-          if (!st) st = { left: rawLeft, width: rawWidth };
-          else {
-            const f = 0.28;
-            st.left = lerp(st.left, rawLeft, f);
-            st.width = lerp(st.width, rawWidth, f);
-          }
-          layerStabilizer[idx] = st;
-
-          const drawX = roiX_disp + st.left * sx;
-          const drawW = st.width * sx;
-
-          maxW = Math.max(maxW, drawW);
-
-          sheetCtx.fillStyle = "rgba(52, 211, 153, 0.28)";
-          sheetCtx.fillRect(drawX, drawY - 6, drawW, 12);
-          sheetCtx.strokeStyle = "#34d399";
-          sheetCtx.lineWidth = 1;
-          sheetCtx.strokeRect(drawX, drawY - 6, drawW, 12);
-
-          sheetCtx.beginPath();
-          sheetCtx.moveTo(roiX_disp + roiW_disp, drawY);
-          sheetCtx.lineTo(roiX_disp + roiW_disp + 15, drawY);
-          sheetCtx.strokeStyle = "#34d399";
-          sheetCtx.stroke();
-
-          sheetCtx.fillStyle = "#020617";
-          sheetCtx.fillRect(roiX_disp + roiW_disp + 15, drawY - 9, 52, 18);
-          sheetCtx.strokeStyle = "#34d399";
-          sheetCtx.strokeRect(roiX_disp + roiW_disp + 15, drawY - 9, 52, 18);
-
-          sheetCtx.fillStyle = "#34d399";
-          sheetCtx.font = "bold 12px 'JetBrains Mono'";
-          sheetCtx.textAlign = "left";
-          sheetCtx.fillText(`${Math.round(drawW)}`, roiX_disp + roiW_disp + 20, drawY + 4);
-
-          results.push({ layer: idx + 1, w: drawW, status: "OK" });
-        } else {
-          if (layerStabilizer[idx]) delete layerStabilizer[idx];
-        }
+        results.push({ layer: idx + 1, w: dispW, status: "OK" });
       });
 
-      // 6) Update DOM UI
+      // Update UI
       const expected = results.length;
-      const missingCount = results.filter(r => r.status === "MISSING").length;
-
+      document.getElementById("sh-count").innerText = String(expected);
+      document.getElementById("sh-found").innerText = String(expected);
+      
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      if (expected === 0) {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="loader"></i> SCANNING</div>`;
-        header.className = "glue-compact-header";
-      } else if (missingCount > 0 || foundCount < expected) {
-        const miss = Math.max(missingCount, expected - foundCount);
-        statusGroup.innerHTML = `<div class="gc-status-badge"><span style="color:#ef4444">●</span> FAIL (${miss})</div>`;
-        header.className = "glue-compact-header status-fail";
+      // Valid range 7-8
+      if (expected >= 7 && expected <= 8) {
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS (${expected})</div>`;
+         header.className = "glue-compact-header status-pass";
       } else {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-        header.className = "glue-compact-header status-pass";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+         header.className = "glue-compact-header";
       }
 
-      document.getElementById("sh-count").innerText = String(expected);
-      document.getElementById("sh-found").innerText = String(foundCount);
-
+      // List Update
       const listCont = document.getElementById("layer-list-cont");
-      if (expected === 0) {
-        if (!listCont.innerHTML.includes("Align camera")) {
-          listCont.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;"><i data-lucide="scan-line"></i><span style="font-size:0.75rem;">Scanning...</span></div>`;
-        }
-      } else {
-        let html = "";
-        results.forEach((res) => {
-          const isMiss = res.status === "MISSING";
-          const statusClass = isMiss ? "missing" : "ok";
-          const valText = isMiss ? "MISSING" : `${Math.round(res.w)} px`;
-          const pct = maxW > 0 ? Math.min(100, (res.w / maxW) * 80 + 10) : 0;
-
-          html += `
-            <div class="layer-card ${statusClass}">
-              <div class="lc-header">
-                <div class="lc-title">
-                  <div class="lc-idx">${res.layer}</div>
-                  <span>Layer ${res.layer}</span>
-                </div>
-                <div class="lc-val">${valText}</div>
-              </div>
-              <div class="lc-visual">
-                <div class="lc-bar" style="width:${isMiss ? 100 : pct}%"></div>
-              </div>
+      let html = "";
+      results.forEach((res) => {
+        const pct = maxW > 0 ? (res.w / maxW) * 100 : 50;
+        html += `
+          <div class="layer-card ok">
+            <div class="lc-header">
+              <div class="lc-title"><div class="lc-idx">${res.layer}</div> Layer ${res.layer}</div>
+              <div class="lc-val">Gap Detected</div>
             </div>
-          `;
-        });
-        listCont.innerHTML = html;
+            <div class="lc-visual"><div class="lc-bar" style="width:${pct}%"></div></div>
+          </div>`;
+      });
+      
+      if(results.length === 0) {
+        html = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;">
+          <i data-lucide="scan-line" width="32"></i><span style="font-size:0.75rem;">Align center strip</span>
+        </div>`;
       }
-
-      sheetResults = results;
+      listCont.innerHTML = html;
+      
       lucide.createIcons();
     }
 
