@@ -38,11 +38,17 @@
 
       --frame-gap: clamp(18px, 6.5vw, 72px);
       --gap-layout: 16px;
+
       /* Viewport H calculated by JS */
       --viewport-h: 220px;
       --viz-h: 150px;
       --app-h: 100dvh;
+
       --tab-h: 60px;
+
+      /* ✅ NEW: Safe tab height + responsive padding */
+      --tab-safe: calc(var(--tab-h) + env(safe-area-inset-bottom));
+      --panel-pad-x: clamp(12px, 4vw, 20px);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -189,9 +195,9 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    /* NEW: GLUE GAP CAPTURE BUTTON (In Viewport) */
+    /* GLUE GAP CAPTURE BUTTON (In Viewport) */
     .btn-vp-capture {
-        pointer-events: auto; /* Enable clicking */
+        pointer-events: auto;
         position: absolute;
         bottom: 20px;
         left: 50%;
@@ -215,7 +221,7 @@
         background: rgba(239, 68, 68, 0.3);
         color: #ef4444;
     }
-    .btn-vp-capture.frozen i { color: #fff; } /* Icon white */
+    .btn-vp-capture.frozen i { color: #fff; }
 
     /* --- PANEL LAYOUT --- */
     .panel {
@@ -227,12 +233,21 @@
       padding: 0;
       min-height: 0;
     }
+
+    /* ✅ FIX: allow internal scroll + correct bottom padding so it never hides under tab bar */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow: hidden;
-      padding-bottom: 70px;
+
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+
+      padding-bottom: var(--tab-safe);
     }
+    /* Optional: hide scrollbar */
+    .panel-content::-webkit-scrollbar { width: 0; height: 0; }
+    .panel-content { scrollbar-width: none; }
 
     /* --- COLEX DASHBOARD --- */
     .result-dashboard {
@@ -255,7 +270,7 @@
     .status-close .res-value { color: var(--warn); }
     .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
     .status-diff .res-value { color: var(--danger); }
-    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
+    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(251, 113, 113, 0.3); }
 
     .cards-container {
       display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
@@ -305,15 +320,24 @@
 
     /* --- TAB BAR --- */
     .tab-bar {
-        position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
-        background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-        border-top: 1px solid var(--border-subtle); display: flex;
-        justify-content: space-around; align-items: center; z-index: 100;
-        padding-bottom: env(safe-area-inset-bottom);
+      position: absolute; left: 0; right: 0; bottom: 0;
+
+      /* ✅ FIX: includes safe-area */
+      height: var(--tab-safe);
+      padding-bottom: env(safe-area-inset-bottom);
+
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
     }
     .tab-item {
-        flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-        color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+      flex: 1; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
     }
     .tab-item.active { color: var(--primary); }
     .tab-lbl { font-size: 0.65rem; font-weight: 700; }
@@ -331,7 +355,6 @@
       width: 100%;
     }
 
-    /* 1. HEADER */
     .glue-compact-header {
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -355,10 +378,8 @@
     .gc-big-num { font-family: var(--font-num); font-size: 1.2rem; font-weight: 700; color: #e2e8f0; }
     .gc-label { font-size: 0.55rem; color: #64748b; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; }
 
-    /* 2. SPLIT BODY */
     .glue-body-split { flex: 1; display: flex; overflow: hidden; position: relative; }
 
-    /* Left: LIST */
     .layer-list-container {
       flex: 1;
       display: flex; flex-direction: column;
@@ -366,13 +387,15 @@
       padding: 0;
       gap: 0;
       background: #020617;
-      padding-bottom: 80px;
+
+      /* ✅ FIX: safe bottom padding so list never hides under tab */
+      padding-bottom: var(--tab-safe);
+
       scrollbar-gutter: stable;
     }
 
-    /* CARD STYLE */
     .layer-card {
-      flex-shrink: 0; /* FIX: Prevents overlap by forcing full height */
+      flex-shrink: 0;
       display: flex; flex-direction: column; gap: 6px;
       background: #0f172a;
       border: none;
@@ -424,6 +447,13 @@
 
     canvas { display: block; }
     #proc-canvas { display: none; }
+
+    /* ✅ Helper: on short screens reduce viz height automatically */
+    @media (max-height: 760px){
+      :root{ --viz-h: 120px; }
+      .result-dashboard{ padding: 10px 14px; }
+      .data-card{ padding: 10px; }
+    }
   </style>
 </head>
 
@@ -476,7 +506,8 @@
     <div class="panel">
       <div class="panel-content">
 
-        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 0 20px; padding-top:10px;">
+        <!-- ✅ CHANGED: padding now responsive via var(--panel-pad-x) -->
+        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 0 var(--panel-pad-x); padding-top:10px;">
           <div id="result-dashboard" class="result-dashboard">
             <div class="res-left">
               <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
@@ -545,30 +576,29 @@
         </div>
 
         <div id="panel-gluegap" class="display-none" style="height:100%; width:100%;">
-            <div class="glue-dashboard">
-
-              <div class="glue-compact-header">
-                <div class="gc-status-group" id="header-status-group">
-                   <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
+          <div class="glue-dashboard">
+            <div class="glue-compact-header">
+              <div class="gc-status-group" id="header-status-group">
+                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
+              </div>
+              <div class="gc-stat-group">
+                <div class="gc-big-num">
+                  <span id="sh-found">0</span><span style="opacity:0.3; font-size:0.8em; margin:0 2px;">/</span><span id="sh-count" style="opacity:0.6;">0</span>
                 </div>
-                <div class="gc-stat-group">
-                  <div class="gc-big-num">
-                    <span id="sh-found">0</span><span style="opacity:0.3; font-size:0.8em; margin:0 2px;">/</span><span id="sh-count" style="opacity:0.6;">0</span>
-                  </div>
-                  <div class="gc-label">LAYERS FOUND</div>
+                <div class="gc-label">LAYERS FOUND</div>
+              </div>
+            </div>
+
+            <div class="glue-body-split">
+              <div class="layer-list-container" id="layer-list-cont">
+                <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;">
+                  <i data-lucide="scan-line" width="32"></i>
+                  <span style="font-size:0.75rem;">Align camera to scan</span>
                 </div>
               </div>
-
-              <div class="glue-body-split">
-                <div class="layer-list-container" id="layer-list-cont">
-                  <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;">
-                    <i data-lucide="scan-line" width="32"></i>
-                    <span style="font-size:0.75rem;">Align camera to scan</span>
-                  </div>
-                </div>
-                </div>
-
             </div>
+
+          </div>
         </div>
 
       </div>
@@ -622,21 +652,25 @@
     function applyAutoFitLayout() {
       const frame = document.querySelector(".app-frame");
       if (!frame) return;
+
       const h = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-h", `${Math.round(h)}px`);
 
       const frameH = frame.offsetHeight;
+
+      // ✅ FIX: use actual tab-bar height (includes safe-area) instead of hardcoded 60
+      const tabBar = document.querySelector(".tab-bar");
+      const tabH = tabBar ? tabBar.offsetHeight : 60;
+
       if (activeTab === 'gluegap') {
-          // MODIFIED: 50% split as requested
-          const camH = Math.round(frameH * 0.50);
-          document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
+        const camH = Math.round(frameH * 0.50);
+        document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
       } else {
-          const header = document.querySelector("header");
-          const headerH = header ? header.offsetHeight : 64;
-          const tabH = 60;
-          const available = frameH - headerH - tabH;
-          const standardH = Math.max(220, Math.round(available * 0.38));
-          document.documentElement.style.setProperty("--viewport-h", `${standardH}px`);
+        const header = document.querySelector("header");
+        const headerH = header ? header.offsetHeight : 64;
+        const available = frameH - headerH - tabH;
+        const standardH = Math.max(220, Math.round(available * 0.38));
+        document.documentElement.style.setProperty("--viewport-h", `${standardH}px`);
       }
 
       const container = document.querySelector(".graph-box");
@@ -664,7 +698,6 @@
       document.getElementById('ctl-color-algo').classList.add('display-none');
       sheetCtx.clearRect(0,0,sheetCanvas.width, sheetCanvas.height);
 
-      // Handle Buttons inside Viewport
       document.getElementById('target-box').classList.add('display-none');
       document.getElementById('btn-sheet-cap').classList.add('display-none');
 
@@ -674,16 +707,15 @@
         document.getElementById('vp-camera').classList.remove('full-width');
         document.getElementById('panel-colex').style.display = 'flex';
 
-        // Show Colex Target
         document.getElementById('target-box').classList.remove('display-none');
 
       } else if (mode === 'gluegap') {
-ghostOverlay.classList.remove("active");
-setTimeout(() => { ghostOverlay.src = ""; }, 0);
+        ghostOverlay.classList.remove("active");
+        setTimeout(() => { ghostOverlay.src = ""; }, 0);
+
         document.getElementById('panel-gluegap').classList.remove('display-none');
         document.getElementById('panel-gluegap').style.display = 'flex';
 
-        // Show Glue Gap Button
         document.getElementById('btn-sheet-cap').classList.remove('display-none');
         resetSheetUI();
       }
@@ -743,21 +775,16 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
         sheetCanvas.width = w; sheetCanvas.height = h;
       }
 
-      // *** ROI TUNED: narrower width + keep clear of capture button (no other logic touched) ***
-      const roiW = Math.round(w * 0.62 * 0.60); // narrower width (from 80% -> 62%)
-      const roiH = Math.round(h * 0.60); // slightly shorter height (from 65% -> 60%)
+      const roiW = Math.round(w * 0.62 * 0.60);
+      const roiH = Math.round(h * 0.60);
       const roiX = Math.round((w - roiW) / 2);
 
-      // Reserve bottom area so ROI doesn't reach the capture button zone
-      const bottomSafe = Math.round(h * 0.18); // ~18% bottom space
-      let roiY = Math.round((h - roiH) / 2 - bottomSafe / 2); // bias ROI upward
-
-      // Clamp to valid bounds
+      const bottomSafe = Math.round(h * 0.18);
+      let roiY = Math.round((h - roiH) / 2 - bottomSafe / 2);
       roiY = Math.max(0, Math.min(h - roiH, roiY));
 
       sheetCtx.clearRect(0, 0, w, h);
 
-      // --- 1. Draw HUD / ROI ---
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.6)";
       sheetCtx.fillRect(0,0,w,h);
@@ -784,7 +811,6 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
       const imgData = procCtx.getImageData(0, 0, roiW, roiH);
       const data = imgData.data;
 
-      // Vertical Profile
       const profile = new Float32Array(roiH);
       const checkW = 20;
       const startX = (roiW - checkW) / 2;
@@ -801,7 +827,6 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
       const smoothed = smoothArray(profile, 3);
       let peaks = findPeaks(smoothed, 15, 10);
 
-      // --- MISSING LAYER LOGIC ---
       peaks.sort((a, b) => a.index - b.index);
       if (peaks.length > 1) {
           const distances = [];
@@ -835,7 +860,6 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
           peaks = filledPeaks;
       }
 
-      // --- 2. Draw Results ---
       const results = [];
       let foundCount = 0;
       let maxW = 0;
@@ -845,7 +869,6 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
          const drawY = roiY + localY;
 
          if (peak.isMissing) {
-             // Reset stabilizer for missing
              if (layerStabilizer[index]) delete layerStabilizer[index];
 
              sheetCtx.beginPath();
@@ -867,29 +890,23 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
          if (gapInfo.width > 2) {
              foundCount++;
 
-             // ** STABILIZATION LOGIC START **
-             // Get raw values
              const rawLeft = gapInfo.left;
              const rawWidth = gapInfo.width;
 
-             // Retrieve previous state or initialize
              let stabilized = layerStabilizer[index];
              if (!stabilized) {
                 stabilized = { left: rawLeft, width: rawWidth };
              } else {
-                // Lerp factor: 0.2 = very smooth (slow), 0.5 = fast
                 const factor = 0.25;
                 stabilized.left = lerp(stabilized.left, rawLeft, factor);
                 stabilized.width = lerp(stabilized.width, rawWidth, factor);
              }
              layerStabilizer[index] = stabilized;
 
-             // Use STABILIZED values for drawing
              const drawX = roiX + stabilized.left;
              const drawW = stabilized.width;
 
              if(drawW > maxW) maxW = drawW;
-             // ** STABILIZATION LOGIC END **
 
              sheetCtx.fillStyle = "rgba(52, 211, 153, 0.3)";
              sheetCtx.fillRect(drawX, drawY - 6, drawW, 12);
@@ -913,7 +930,6 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
          }
       });
 
-      // --- 3. Update DOM UI ---
       const expected = peaks.length;
       const missingCount = Math.max(0, expected - foundCount);
       const statusGroup = document.getElementById('header-status-group');
@@ -1044,7 +1060,7 @@ setTimeout(() => { ghostOverlay.src = ""; }, 0);
 
     function resetSheetUI() {
       sheetFrozen = false; sheetResults = [];
-      layerStabilizer = {}; // Reset stabilizer
+      layerStabilizer = {};
       sheetCtx.clearRect(0,0,sheetCanvas.width, sheetCanvas.height);
       document.getElementById('sh-count').innerText="0";
       document.getElementById('sh-found').innerText="0";
