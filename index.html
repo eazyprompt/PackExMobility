@@ -31,24 +31,21 @@
       --success: #34d399;
       --warn: #fbbf24;
       --danger: #ef4444;
-      --neon-green: #00ff41;
       --radius-lg: 18px;
       --font-ui: "Inter", sans-serif;
       --font-num: "JetBrains Mono", monospace;
 
-      --frame-gap: clamp(14px, 5.5vw, 64px);
-      --gap-layout: 14px;
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 16px;
 
-      /* Viewport H calculated by JS */
+      /* JS-calculated */
       --viewport-h: 220px;
-      --viz-h: 140px;
+      --viz-h: 150px;
       --app-h: 100dvh;
       --tab-h: 60px;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-
-    html, body { height: 100%; }
 
     body {
       background: #020617;
@@ -83,12 +80,12 @@
       border-radius: 24px;
       box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
       padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
     }
 
-    /* --- HEADER --- */
     header {
       min-height: 64px;
-      padding: 0 18px;
+      padding: 0 20px;
       padding-top: 12px;
       display: flex;
       justify-content: space-between;
@@ -102,7 +99,7 @@
     }
 
     .brand {
-      font-weight: 800; font-size: 1.15rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
       min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
     .brand i { color: var(--primary); }
@@ -110,7 +107,7 @@
     .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
     .algo-selector {
       appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
-      padding: 8px 12px; border-radius: 100px; font-size: 0.75rem; font-weight: 700;
+      padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
       font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
     }
     .btn-icon-header {
@@ -119,7 +116,6 @@
       cursor: pointer; transition: 0.2s; flex-shrink: 0;
     }
 
-    /* --- VIEWPORT --- */
     .viewport {
       height: var(--viewport-h);
       min-height: 0;
@@ -128,13 +124,13 @@
       border-bottom: 1px solid var(--border-subtle);
       flex-shrink: 0;
       position: relative;
-      transition: height 0.25s ease;
+      transition: height 0.3s ease;
     }
     .vp-camera {
       flex: 1; position: relative; overflow: hidden; display: flex;
       align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
       background: #020617; min-width: 0;
-      transition: flex 0.25s ease;
+      transition: flex 0.3s ease;
     }
     .vp-camera.full-width { border-right: none; }
 
@@ -149,12 +145,11 @@
       pointer-events:none; z-index: 20;
     }
 
-    /* --- SIDE PANEL --- */
     .vp-side-panel {
       flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
-      padding: 14px; overflow-y: auto; flex-shrink: 0;
+      padding: 16px; overflow-y: auto; flex-shrink: 0;
       box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
-      transition: width 0.25s ease, flex 0.25s ease;
+      transition: width 0.3s ease, flex 0.3s ease;
     }
     .vp-side-panel.hidden { display: none; }
 
@@ -170,13 +165,11 @@
     .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
     @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-    /* --- HUD ELEMENTS --- */
     .hud-overlay {
       position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
       pointer-events: none; z-index: 10;
     }
 
-    /* COLEX TARGET */
     .target-box {
       width: 42px; height: 42px; position: relative;
       box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
@@ -191,11 +184,10 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    /* GLUE GAP CAPTURE BUTTON (In Viewport) */
     .btn-vp-capture {
       pointer-events: auto;
       position: absolute;
-      bottom: 16px;
+      bottom: 18px;
       left: 50%;
       transform: translateX(-50%);
       width: 70px; height: 70px;
@@ -205,12 +197,13 @@
       border: 4px solid #fff;
       display: flex; align-items: center; justify-content: center;
       color: #fff;
+      font-size: 1.5rem;
       cursor: pointer;
       box-shadow: 0 4px 20px rgba(0,0,0,0.4);
       transition: transform 0.1s, background 0.2s, border-color 0.2s;
       z-index: 100;
     }
-    .btn-vp-capture:active { transform: translateX(-50%) scale(0.92); }
+    .btn-vp-capture:active { transform: translateX(-50%) scale(0.9); }
     .btn-vp-capture.frozen {
       border-color: #ef4444;
       background: rgba(239, 68, 68, 0.3);
@@ -218,7 +211,6 @@
     }
     .btn-vp-capture.frozen i { color: #fff; }
 
-    /* --- PANEL LAYOUT --- */
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -228,36 +220,23 @@
       padding: 0;
       min-height: 0;
     }
-
-    /* ✅ FIX overflow/cut-off:
-       - allow internal scroll if needed
-       - reserve space for tab bar + safe area
-    */
     .panel-content {
-      display: flex;
-      flex-direction: column;
-      gap: var(--gap-layout);
-      margin: 0 auto;
-      width: 100%;
-      height: 100%;
-      min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(var(--tab-h) + 14px + env(safe-area-inset-bottom));
+      display: flex; flex-direction: column; gap: var(--gap-layout);
+      margin: 0 auto; width: 100%; height: 100%; min-height: 0;
+      overflow: hidden;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* --- COLEX DASHBOARD --- */
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
       border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-      padding: clamp(10px, 2.0vw, 14px) clamp(12px, 2.2vw, 18px);
+      padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
       box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
     }
     .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
     .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.2vw, 2.3rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
     .res-badge {
       padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
       background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
@@ -271,15 +250,15 @@
     .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
 
     .cards-container {
-      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.0vw, 14px);
-      flex-shrink: 0; min-width: 0;
+      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
+      flex-shrink: 1; min-height: 0;
     }
     .data-card {
       background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-      padding: clamp(10px, 2.0vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
+      padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
     }
     .card-top { display: flex; justify-content: space-between; align-items: center; }
-    .color-dot { width: 26px; height: 26px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
+    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
     .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
     .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
     .l-item:last-child { border: none; }
@@ -287,22 +266,19 @@
     .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .btn-act {
       width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
-      color: #fff; font-size: 0.75rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 8px; transition: 0.2s;
-      border: 1px solid transparent;
+      color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
     }
-    .btn-act:active { transform: scale(0.98); }
+    .btn-act:active { transform: scale(0.96); }
     .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
     .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
 
-    /* --- VIZ SECTION --- */
     .viz-section {
-      display: flex; gap: 12px; height: var(--viz-h);
-      flex-shrink: 0; min-height: 0;
+      display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
     }
     .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
     .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
-    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 800; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
     .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
     .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
     .di-sam { background: var(--sample); }
@@ -311,147 +287,106 @@
     .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
     .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
     .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 10px 0; position: relative; flex-shrink: 0; }
+    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
     .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
     .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
     .l-mark.ref { background: var(--primary); z-index: 1; }
     .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
     .l-mark.visible { opacity: 1; }
 
-    /* --- TAB BAR --- */
     .tab-bar {
-      position: absolute;
-      bottom: 0; left: 0; right: 0;
-      height: var(--tab-h);
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border-subtle);
-      display: flex;
-      justify-content: space-around;
-      align-items: center;
-      z-index: 100;
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
       padding-bottom: env(safe-area-inset-bottom);
     }
     .tab-item {
-      flex: 1; height: 100%;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
       color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
-      user-select: none;
     }
     .tab-item.active { color: var(--primary); }
-    .tab-lbl { font-size: 0.65rem; font-weight: 800; }
+    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
     .tab-item i { transition: transform 0.2s; }
     .tab-item.active i { transform: translateY(-2px); }
 
     .display-none { display: none !important; }
 
-    /* ============================================================ */
-    /* --- GLUE GAP UI --- */
-    /* ============================================================ */
-    .glue-dashboard {
-      display: flex; flex-direction: column; height: 100%;
-      background: #0f172a; overflow: hidden;
-      width: 100%;
-    }
-
-    .glue-compact-header {
+    /* GLUE GAP */
+    .glue-dashboard { display:flex; flex-direction:column; height:100%; background:#0f172a; overflow:hidden; width:100%; }
+    .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
       padding: 12px 16px;
-      display: flex; justify-content: space-between; align-items: center;
-      flex-shrink: 0; z-index: 10;
+      display:flex; justify-content:space-between; align-items:center;
+      flex-shrink:0; z-index:10;
     }
-    .gc-status-group { display: flex; align-items: center; gap: 12px; }
-    .gc-status-badge {
-      padding: 6px 12px; border-radius: 8px; font-size: 0.75rem; font-weight: 900;
-      display: flex; align-items: center; gap: 8px; letter-spacing: 0.5px;
-      background: #1e293b; border: 1px solid rgba(255,255,255,0.1); color: #94a3b8;
+    .gc-status-group{ display:flex; align-items:center; gap:12px; }
+    .gc-status-badge{
+      padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
+      display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
+      background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
     }
-    .status-pass .gc-status-badge {
-      background: rgba(16, 185, 129, 0.1); color: #34d399; border-color: rgba(52, 211, 153, 0.2);
-    }
-    .status-fail .gc-status-badge {
-      background: rgba(239, 68, 68, 0.1); color: #f87171; border-color: rgba(248, 113, 113, 0.2);
-    }
-    .gc-stat-group { display: flex; flex-direction: column; align-items: flex-end; }
-    .gc-big-num { font-family: var(--font-num); font-size: 1.2rem; font-weight: 800; color: #e2e8f0; }
-    .gc-label { font-size: 0.55rem; color: #64748b; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+    .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
+    .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
+    .gc-stat-group{ display:flex; flex-direction:column; align-items:flex-end; }
+    .gc-big-num{ font-family: var(--font-num); font-size: 1.2rem; font-weight: 700; color:#e2e8f0; }
+    .gc-label{ font-size:0.55rem; color:#64748b; font-weight:700; text-transform:uppercase; letter-spacing:1px; }
 
-    .glue-body-split { flex: 1; display: flex; overflow: hidden; position: relative; }
+    .glue-body-split{ flex:1; display:flex; overflow:hidden; position:relative; }
 
-    .layer-list-container {
-      flex: 1;
-      display: flex; flex-direction: column;
-      overflow-y: auto; overflow-x: hidden;
-      background: #020617;
-      padding-bottom: calc(var(--tab-h) + 16px + env(safe-area-inset-bottom));
+    .layer-list-container{
+      flex:1; display:flex; flex-direction:column;
+      overflow-y:auto; overflow-x:hidden;
+      background:#020617;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
       scrollbar-gutter: stable;
     }
 
-    .layer-card {
-      position: relative;
-      flex-shrink: 0;
-      display: flex; flex-direction: column; gap: 6px;
-      background: #0f172a;
-      border: none;
-      border-bottom: 1px solid rgba(255,255,255,0.08);
-      border-radius: 0;
-      padding: 12px 16px;
-      margin: 0;
-      min-height: 50px;
+    .layer-card{
+      flex-shrink:0;
+      display:flex; flex-direction:column; gap:6px;
+      background:#0f172a;
+      border:none; border-bottom:1px solid rgba(255,255,255,0.08);
+      padding:12px 16px;
+      min-height:50px;
+      position:relative;
     }
-    .layer-card:active { background: #1e293b; }
-
-    .layer-card::before {
-      content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px;
-      background: #334155; opacity: 0; transition: opacity 0.2s;
+    .layer-card:active{ background:#1e293b; }
+    .layer-card::before{
+      content:""; position:absolute; left:0; top:0; bottom:0; width:4px;
+      background:#334155; opacity:0; transition:opacity 0.2s;
     }
-
-    .lc-header {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      align-items: center;
-      gap: 12px;
-    }
-    .lc-title {
-      font-size: 0.8rem; font-weight: 700; color: #e2e8f0;
-      display: flex; align-items: center; gap: 10px;
-      min-width: 0;
-    }
-    .lc-idx {
-      width: 24px; height: 24px; border-radius: 50%;
+    .lc-header{ display:grid; grid-template-columns:1fr auto; align-items:center; gap:12px; }
+    .lc-title{ font-size:0.8rem; font-weight:600; color:#e2e8f0; display:flex; align-items:center; gap:10px; }
+    .lc-idx{
+      width:24px; height:24px; border-radius:50%;
       background: rgba(255,255,255,0.05);
-      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
-      font-size: 0.65rem; color: #94a3b8; font-family: var(--font-num); font-weight: 800;
+      display:flex; align-items:center; justify-content:center; flex-shrink:0;
+      font-size:0.65rem; color:#94a3b8; font-family: var(--font-num); font-weight:700;
     }
-    .lc-val {
-      font-family: var(--font-num); font-size: 0.9rem; font-weight: 800; color: #fff;
-      text-align: right; min-width: 84px;
-    }
+    .lc-val{ font-family: var(--font-num); font-size:0.9rem; font-weight:700; color:#fff; text-align:right; min-width:80px; }
+    .lc-visual{ width:100%; height:4px; background: rgba(255,255,255,0.05); border-radius:2px; overflow:hidden; display:flex; margin-top:4px; }
+    .lc-bar{ height:100%; border-radius:2px; transition: width 0.3s ease; min-width:4px; }
 
-    .lc-visual { width: 100%; height: 4px; background: rgba(255,255,255,0.05); border-radius: 2px; overflow: hidden; position: relative; display: flex; margin-top: 4px; }
-    .lc-bar { height: 100%; border-radius: 2px; transition: width 0.2s ease; min-width: 4px; }
+    .layer-card.ok::before{ background: var(--success); opacity:1; }
+    .layer-card.ok .lc-val{ color: var(--success); }
+    .layer-card.ok .lc-bar{ background: var(--success); box-shadow: 0 0 10px var(--success); }
 
-    .layer-card.ok::before { background: var(--success); opacity: 1; }
-    .layer-card.ok .lc-val { color: var(--success); }
-    .layer-card.ok .lc-bar { background: var(--success); box-shadow: 0 0 10px var(--success); }
+    .layer-card.missing{ background: rgba(239,68,68,0.05); }
+    .layer-card.missing::before{ background: var(--danger); opacity:1; }
+    .layer-card.missing .lc-val{ color: var(--danger); }
+    .layer-card.missing .lc-bar{ background: var(--danger); width: 100% !important; opacity: 0.3; }
 
-    .layer-card.missing { background: rgba(239, 68, 68, 0.05); }
-    .layer-card.missing::before { background: var(--danger); opacity: 1; }
-    .layer-card.missing .lc-val { color: var(--danger); }
-    .layer-card.missing .lc-bar { background: var(--danger); width: 100% !important; opacity: 0.3; }
+    canvas { display:block; }
+    #proc-canvas { display:none; }
 
-    canvas { display: block; }
-    #proc-canvas { display: none; }
-
-    /* ✅ Small-height tuning (reduce padding so it won't overflow) */
     @media (max-height: 760px) {
       :root { --gap-layout: 12px; }
-      header { min-height: 60px; padding-top: 10px; }
-      .result-dashboard { padding: 10px 12px; }
-      .btn-act { padding: 11px; }
-      .tab-lbl { font-size: 0.6rem; }
-      .brand { font-size: 1.05rem; }
+      header { min-height: 58px; padding-top: 10px; }
+      .btn-act { padding: 10px; }
+      .btn-vp-capture { width: 64px; height: 64px; bottom: 14px; }
+      .result-dashboard { padding: 12px 14px; }
     }
   </style>
 </head>
@@ -495,7 +430,7 @@
         <div id="side-colex">
           <div class="vp-header"><i data-lucide="bot" style="width: 14px;"></i> AI ASSIST</div>
           <div id="advice-content"></div>
-          <div id="advice-placeholder" style="display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; opacity: 0.35; text-align: center; gap: 10px; color: #94a3b8;">
+          <div id="advice-placeholder" style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; opacity:0.35; text-align:center; gap:10px; color:#94a3b8;">
             <i data-lucide="scan" style="width: 28px; opacity: 0.55;"></i>
           </div>
         </div>
@@ -505,7 +440,7 @@
     <div class="panel">
       <div class="panel-content">
 
-        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 0 18px; padding-top:10px;">
+        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 0 20px; padding-top:10px;">
           <div id="result-dashboard" class="result-dashboard">
             <div class="res-left">
               <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
@@ -522,7 +457,7 @@
           <div class="cards-container">
             <div class="data-card" id="card-ref">
               <div class="card-top">
-                <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="crosshair" width="14"></i> REF</div>
+                <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="crosshair" width="14"></i> REF</div>
                 <div class="color-dot" id="preview-ref"></div>
               </div>
               <div class="lab-row">
@@ -537,7 +472,7 @@
 
             <div class="data-card" id="card-sam">
               <div class="card-top">
-                <div style="font-size:0.75rem; font-weight:900; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="zap" width="14"></i> SAMPLE</div>
+                <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="zap" width="14"></i> SAMPLE</div>
                 <div class="color-dot" id="preview-sam"></div>
               </div>
               <div class="lab-row">
@@ -564,7 +499,7 @@
               <canvas id="ab-plot"></canvas>
             </div>
             <div class="l-bar-box">
-              <div style="font-size: 0.5rem; color: #64748b; font-weight: 800;">L*</div>
+              <div style="font-size: 0.5rem; color: #64748b; font-weight: 700;">L*</div>
               <div class="l-track">
                 <div id="marker-ref" class="l-mark ref"></div>
                 <div id="marker-sam" class="l-mark sam"></div>
@@ -575,8 +510,7 @@
 
         <div id="panel-gluegap" class="display-none" style="height:100%; width:100%;">
           <div class="glue-dashboard">
-
-            <div class="glue-compact-header">
+            <div class="glue-compact-header" id="glue-header">
               <div class="gc-status-group" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
@@ -613,6 +547,7 @@
         <span class="tab-lbl">GLUE GAP</span>
       </div>
     </div>
+
   </div>
 
   <canvas id="proc-canvas" width="100" height="100"></canvas>
@@ -644,13 +579,10 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    // Stabilizer for GlueGap boxes (index-based)
+    // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
-    // --- HELPER: LERP for Smoothing ---
-    function lerp(start, end, amt) { return (1 - amt) * start + amt * end; }
-
-    // --- LAYOUT (✅ no cut-off + auto fit) ---
+    // --- LAYOUT ---
     function applyAutoFitLayout() {
       const frame = document.querySelector(".app-frame");
       if (!frame) return;
@@ -658,25 +590,22 @@
       const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
       document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
 
-      const header = document.querySelector("header");
-      const headerH = header ? header.offsetHeight : 64;
-      const tabH = 60;
-
       const frameH = frame.offsetHeight;
-      const available = Math.max(220, frameH - headerH - tabH);
 
       if (activeTab === 'gluegap') {
-        // 50% viewport for gluegap
-        const camH = Math.round(available * 0.50);
-        document.documentElement.style.setProperty("--viewport-h", `${Math.max(190, camH)}px`);
-        // glue doesn't need viz height
-        document.documentElement.style.setProperty("--viz-h", `140px`);
+        const camH = Math.round(frameH * 0.50);
+        document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
       } else {
-        // Colex: dynamic viewport & viz height so bottom won't overflow
-        const vpH = Math.round(available * 0.32);
-        const vizH = Math.round(available * 0.24);
-        document.documentElement.style.setProperty("--viewport-h", `${clamp(vpH, 185, 280)}px`);
-        document.documentElement.style.setProperty("--viz-h", `${clamp(vizH, 110, 170)}px`);
+        const header = document.querySelector("header");
+        const headerH = header ? header.offsetHeight : 64;
+        const tabH = 60;
+        const available = frameH - headerH - tabH;
+
+        const standardH = Math.max(200, Math.round(available * 0.38));
+        document.documentElement.style.setProperty("--viewport-h", `${standardH}px`);
+
+        const viz = Math.max(110, Math.round(available * 0.24));
+        document.documentElement.style.setProperty("--viz-h", `${viz}px`);
       }
 
       const container = document.querySelector(".graph-box");
@@ -687,8 +616,6 @@
         drawABGraph();
       }
     }
-    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
     window.addEventListener("resize", applyAutoFitLayout);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
     applyAutoFitLayout();
@@ -706,9 +633,10 @@
       document.getElementById('vp-camera').classList.add('full-width');
       document.getElementById('ctl-color-algo').classList.add('display-none');
 
-      sheetCtx.clearRect(0,0,sheetCanvas.width, sheetCanvas.height);
+      // clear glue canvas overlay every tab switch
+      sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
 
-      // Viewport HUD buttons
+      // Buttons inside Viewport
       document.getElementById('target-box').classList.add('display-none');
       document.getElementById('btn-sheet-cap').classList.add('display-none');
 
@@ -719,7 +647,7 @@
         document.getElementById('panel-colex').style.display = 'flex';
         document.getElementById('target-box').classList.remove('display-none');
       } else if (mode === 'gluegap') {
-        // ✅ Reset ghost automatically when switching to GlueGap
+        // Reset ghost when switching to GlueGap (as requested)
         ghostOverlay.classList.remove("active");
         setTimeout(() => { ghostOverlay.src = ""; }, 0);
 
@@ -741,10 +669,12 @@
         });
         video.srcObject = stream;
         videoTrack = stream.getVideoTracks?.()[0] || null;
+
         try {
           const caps = videoTrack?.getCapabilities?.();
           torchSupported = !!caps?.torch;
         } catch (e) { torchSupported = false; }
+
         updateTorchUI();
 
         video.onloadedmetadata = () => {
@@ -761,14 +691,80 @@
 
     function loop() {
       if (!isProcessing) return;
-      if (activeTab === 'colex') drawABGraph();
-      else if (activeTab === 'gluegap') processSheetFrame();
+      if (activeTab === 'colex') {
+        drawABGraph();
+      } else if (activeTab === 'gluegap') {
+        processSheetFrame();
+      }
       requestAnimationFrame(loop);
     }
 
+    // --- helper ---
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+
+    function movingAverage(arr, radius) {
+      const out = new Float32Array(arr.length);
+      for (let i = 0; i < arr.length; i++) {
+        let sum = 0, cnt = 0;
+        for (let r = -radius; r <= radius; r++) {
+          const j = i + r;
+          if (j >= 0 && j < arr.length) { sum += arr[j]; cnt++; }
+        }
+        out[i] = cnt ? (sum / cnt) : arr[i];
+      }
+      return out;
+    }
+
+    function medianOfSorted(sorted) {
+      const n = sorted.length;
+      if (!n) return 0;
+      const mid = (n / 2) | 0;
+      return (n % 2) ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+
+    function robustStats(arr) {
+      const a = Array.from(arr);
+      a.sort((x, y) => x - y);
+      const med = medianOfSorted(a);
+      const dev = a.map(v => Math.abs(v - med));
+      dev.sort((x, y) => x - y);
+      const mad = medianOfSorted(dev) || 0;
+      return { med, mad };
+    }
+
+    function findPeaksDynamic(arr, prominence, minDist) {
+      const candidates = [];
+      for (let i = 1; i < arr.length - 1; i++) {
+        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) candidates.push({ index: i, value: arr[i] });
+      }
+
+      // local prominence check
+      const finalPeaks = [];
+      const range = 18;
+      for (const cand of candidates) {
+        let localMin = Infinity;
+        for (let k = -range; k <= range; k++) {
+          const idx = cand.index + k;
+          if (idx >= 0 && idx < arr.length) localMin = Math.min(localMin, arr[idx]);
+        }
+        if ((cand.value - localMin) >= prominence) finalPeaks.push(cand);
+      }
+
+      finalPeaks.sort((a, b) => b.value - a.value);
+      const picked = [];
+      for (const p of finalPeaks) {
+        const tooClose = picked.some(q => Math.abs(q.index - p.index) < minDist);
+        if (!tooClose) picked.push(p);
+      }
+      picked.sort((a, b) => a.index - b.index);
+      return picked;
+    }
+
     // =========================================================
-    // ✅ GLUE GAP (Accurate like your example)
-    // ROI -> Otsu threshold -> Morphology -> Components -> Boxes
+    // GLUE GAP (Improved Accuracy)
+    // - Build per-row "gap score" using dark-gap width + contrast
+    // - Peak detect on that score profile (more stable than raw luma)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -778,188 +774,264 @@
       const h = video.videoHeight;
 
       if (sheetCanvas.width !== w || sheetCanvas.height !== h) {
-        sheetCanvas.width = w;
-        sheetCanvas.height = h;
+        sheetCanvas.width = w; sheetCanvas.height = h;
       }
 
-      // ROI (keep clear of capture button zone)
-      const roiW = Math.round(w * 0.62 * 0.60);
-      const roiH = Math.round(h * 0.60);
+      // ROI: centered, tall enough, but keep clear of capture button area
+      const roiW = Math.round(w * 0.70);
+      const roiH = Math.round(h * 0.62);
       const roiX = Math.round((w - roiW) / 2);
 
-      const bottomSafe = Math.round(h * 0.18);
-      let roiY = Math.round((h - roiH) / 2 - bottomSafe / 2);
-      roiY = Math.max(0, Math.min(h - roiH, roiY));
+      // keep bottom safe zone ~ button diameter + margin (converted into video px proportion)
+      const bottomSafe = Math.round(h * 0.22);
+      let roiY = Math.round((h - roiH) / 2 - bottomSafe * 0.25);
+      roiY = clamp(roiY, 0, h - roiH);
 
-      // HUD overlay + ROI box
+      // HUD overlay
       sheetCtx.clearRect(0, 0, w, h);
       sheetCtx.save();
-      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.6)";
+      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
       sheetCtx.fillRect(0, 0, w, h);
       sheetCtx.clearRect(roiX, roiY, roiW, roiH);
 
       sheetCtx.lineWidth = 2;
-      sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.65)";
+      sheetCtx.strokeStyle = "rgba(255, 255, 255, 0.30)";
+      sheetCtx.setLineDash([10, 10]);
       sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
+      sheetCtx.setLineDash([]);
 
       sheetCtx.beginPath();
       sheetCtx.moveTo(roiX + roiW / 2, roiY);
       sheetCtx.lineTo(roiX + roiW / 2, roiY + roiH);
-      sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.25)";
+      sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.18)";
       sheetCtx.stroke();
       sheetCtx.restore();
 
-      // Downscale ROI for stable / fast
-      const SCALE = 0.5; // 0.4~0.6
-      const sw = Math.max(2, Math.round(roiW * SCALE));
-      const sh = Math.max(2, Math.round(roiH * SCALE));
+      // prepare processing canvas
+      if (procCanvas.width !== roiW || procCanvas.height !== roiH) {
+        procCanvas.width = roiW; procCanvas.height = roiH;
+      }
+      procCtx.drawImage(video, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
+      const imgData = procCtx.getImageData(0, 0, roiW, roiH);
+      const data = imgData.data;
 
-      if (procCanvas.width !== sw || procCanvas.height !== sh) {
-        procCanvas.width = sw;
-        procCanvas.height = sh;
+      // 1) Build score profile per row (y)
+      const profile = new Float32Array(roiH);
+      const bandLeft = Math.floor(roiW * 0.30);
+      const bandRight = Math.floor(roiW * 0.70);
+      const maxScanLeft = Math.floor(roiW * 0.15);
+      const maxScanRight = Math.floor(roiW * 0.85);
+
+      for (let y = 0; y < roiH; y++) {
+        const rowStart = y * roiW * 4;
+
+        // find darkest point in band
+        let minLuma = 255;
+        let minX = (bandLeft + bandRight) >> 1;
+        let sumL = 0;
+        let cnt = 0;
+
+        for (let x = bandLeft; x < bandRight; x += 2) {
+          const i = rowStart + x * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          sumL += luma; cnt++;
+          if (luma < minLuma) { minLuma = luma; minX = x; }
+        }
+
+        const meanL = cnt ? (sumL / cnt) : minLuma;
+        const contrast = Math.max(0, meanL - minLuma);
+
+        // dynamic threshold (robust under highlight / exposure changes)
+        const thr = clamp(minLuma + Math.max(18, contrast * 0.60), 0, 245);
+
+        // expand from minX to estimate dark gap width
+        let L = minX;
+        while (L > maxScanLeft) {
+          const i = rowStart + L * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          if (luma > thr) break;
+          L--;
+        }
+
+        let R = minX;
+        while (R < maxScanRight) {
+          const i = rowStart + R * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          if (luma > thr) break;
+          R++;
+        }
+
+        const width = Math.max(0, R - L);
+
+        // score = width boosted by contrast (helps reject random dark speckles)
+        const cBoost = clamp(contrast / 50, 0.0, 1.5);
+        profile[y] = width * (0.65 + cBoost);
       }
 
-      procCtx.drawImage(video, roiX, roiY, roiW, roiH, 0, 0, sw, sh);
-      const img = procCtx.getImageData(0, 0, sw, sh);
-      const rgba = img.data;
+      // 2) Smooth profile
+      const smoothed = movingAverage(profile, 3);
 
-      const gray = rgbaToGray(rgba, sw, sh);
-      const blur = boxBlurGray(gray, sw, sh, 1);
+      // 3) Dynamic peak params (based on robust stats)
+      const { med, mad } = robustStats(smoothed);
+      const prominence = Math.max(10, mad * 3.2);
+      const minDist = Math.max(10, Math.floor(roiH * 0.055));
 
-      // Otsu auto threshold
-      const t = otsuThreshold(blur);
+      let peaks = findPeaksDynamic(smoothed, prominence, minDist);
 
-      // binary: dark features as FG
-      let bin = binarize(blur, sw, sh, t, true);
+      // 4) Fill missing layers (pitch inference) – keep your original concept
+      peaks.sort((a, b) => a.index - b.index);
+      if (peaks.length > 2) {
+        const distances = [];
+        for (let i = 0; i < peaks.length - 1; i++) distances.push(peaks[i + 1].index - peaks[i].index);
+        distances.sort((a, b) => a - b);
+        const pitch = medianOfSorted(distances);
 
-      // auto invert if FG too much
-      const fgRatio = countOnes(bin) / bin.length;
-      if (fgRatio > 0.55) bin = invertBinary(bin);
+        if (pitch > 0) {
+          const filled = [];
+          filled.push(peaks[0]);
+          for (let i = 0; i < peaks.length - 1; i++) {
+            const curr = peaks[i];
+            const next = peaks[i + 1];
+            const dist = next.index - curr.index;
 
-      // morphology
-      bin = morphOpen(bin, sw, sh, 1);
-      bin = morphClose(bin, sw, sh, 1);
+            if (dist > pitch * 1.55) {
+              const missingCount = Math.round(dist / pitch) - 1;
+              for (let m = 1; m <= missingCount; m++) {
+                filled.push({ index: Math.floor(curr.index + m * pitch), value: 0, isMissing: true });
+              }
+            }
+            filled.push(next);
+          }
+          peaks = filled.sort((a, b) => a.index - b.index);
+        }
+      }
 
-      // components -> boxes
-      const comps = connectedComponents(bin, sw, sh);
-
-      // filter: horizontal bars (glue gaps)
-      const minArea = sw * sh * 0.00035;
-      const maxArea = sw * sh * 0.18;
-
-      const minH = sh * 0.012;
-      const maxH = sh * 0.18;
-
-      const minW = sw * 0.06;
-      const maxW = sw * 0.95;
-
-      const minAR = 2.2;
-
-      let boxes = comps
-        .filter(c => c.area >= minArea && c.area <= maxArea)
-        .map(c => ({
-          x: c.minX, y: c.minY,
-          w: c.maxX - c.minX + 1,
-          h: c.maxY - c.minY + 1,
-          area: c.area
-        }))
-        .filter(b =>
-          b.w >= minW && b.w <= maxW &&
-          b.h >= minH && b.h <= maxH &&
-          (b.w / Math.max(1, b.h)) >= minAR
-        )
-        .filter(b =>
-          b.x > 1 && b.y > 1 && (b.x + b.w) < (sw - 2) && (b.y + b.h) < (sh - 2)
-        );
-
-      // sort vertical
-      boxes.sort((a, b) => (a.y + a.h/2) - (b.y + b.h/2));
-
-      // stabilize
-      boxes = stabilizeBoxesByIndex(boxes, 0.25);
-
-      // fill missing by pitch
-      const filled = fillMissingByPitch(boxes, sh);
-
-      // draw boxes (green + magenta inner)
+      // 5) Draw + Compute results
       const results = [];
       let foundCount = 0;
+      let maxW = 0;
 
-      filled.forEach((b, idx) => {
-        if (b.missing) {
-          const y0 = roiY + (b.y + b.h/2) / SCALE;
-          sheetCtx.save();
-          sheetCtx.strokeStyle = "#ef4444";
-          sheetCtx.lineWidth = 2;
-          sheetCtx.setLineDash([6, 6]);
+      const peakMinScore = Math.max(med + prominence * 0.60, 10);
+
+      peaks.forEach((peak, idx) => {
+        const localY = peak.index;
+        const drawY = roiY + localY;
+
+        // "missing" injected
+        if (peak.isMissing) {
+          if (layerStabilizer[idx]) delete layerStabilizer[idx];
+
           sheetCtx.beginPath();
-          sheetCtx.moveTo(roiX, y0);
-          sheetCtx.lineTo(roiX + roiW, y0);
+          sheetCtx.setLineDash([5, 5]);
+          sheetCtx.lineWidth = 2;
+          sheetCtx.strokeStyle = "#ef4444";
+          sheetCtx.moveTo(roiX, drawY);
+          sheetCtx.lineTo(roiX + roiW, drawY);
           sheetCtx.stroke();
           sheetCtx.setLineDash([]);
-          sheetCtx.restore();
+
+          sheetCtx.fillStyle = "#ef4444";
+          sheetCtx.fillRect(roiX + roiW + 5, drawY - 10, 80, 20);
+          sheetCtx.fillStyle = "#fff";
+          sheetCtx.font = "bold 10px 'Inter'";
+          sheetCtx.fillText("MISSING", roiX + roiW + 15, drawY + 4);
 
           results.push({ layer: idx + 1, w: 0, status: "MISSING" });
           return;
         }
 
-        foundCount++;
+        // reject weak peaks (helps eliminate 1/1 false positives)
+        if (smoothed[localY] < peakMinScore) {
+          if (layerStabilizer[idx]) delete layerStabilizer[idx];
+          return;
+        }
 
-        const x0 = roiX + b.x / SCALE;
-        const y0 = roiY + b.y / SCALE;
-        const ww = b.w / SCALE;
-        const hh = b.h / SCALE;
+        // analyze gap width with same dynamic threshold but using slightly wider search
+        const gap = analyzeGapWidthRow(data, roiW, roiH, localY);
 
-        sheetCtx.save();
-        sheetCtx.fillStyle = "rgba(52, 211, 153, 0.15)";
-        sheetCtx.strokeStyle = "#34d399";
-        sheetCtx.lineWidth = 2;
-        sheetCtx.fillRect(x0, y0, ww, hh);
-        sheetCtx.strokeRect(x0, y0, ww, hh);
+        if (gap.width > 3) {
+          foundCount++;
 
-        sheetCtx.strokeStyle = "#ff4dff";
-        sheetCtx.lineWidth = 2;
-        sheetCtx.strokeRect(x0 + 2, y0 + 2, Math.max(0, ww - 4), Math.max(0, hh - 4));
-        sheetCtx.restore();
+          const rawLeft = gap.left;
+          const rawWidth = gap.width;
 
-        results.push({ layer: idx + 1, w: ww, status: "OK" });
+          let st = layerStabilizer[idx];
+          if (!st) st = { left: rawLeft, width: rawWidth };
+          else {
+            const f = 0.28;
+            st.left = lerp(st.left, rawLeft, f);
+            st.width = lerp(st.width, rawWidth, f);
+          }
+          layerStabilizer[idx] = st;
+
+          const drawX = roiX + st.left;
+          const drawW = st.width;
+
+          maxW = Math.max(maxW, drawW);
+
+          sheetCtx.fillStyle = "rgba(52, 211, 153, 0.28)";
+          sheetCtx.fillRect(drawX, drawY - 6, drawW, 12);
+          sheetCtx.strokeStyle = "#34d399";
+          sheetCtx.lineWidth = 1;
+          sheetCtx.strokeRect(drawX, drawY - 6, drawW, 12);
+
+          // label connector
+          sheetCtx.beginPath();
+          sheetCtx.moveTo(roiX + roiW, drawY);
+          sheetCtx.lineTo(roiX + roiW + 15, drawY);
+          sheetCtx.strokeStyle = "#34d399";
+          sheetCtx.stroke();
+
+          sheetCtx.fillStyle = "#020617";
+          sheetCtx.fillRect(roiX + roiW + 15, drawY - 9, 52, 18);
+          sheetCtx.strokeStyle = "#34d399";
+          sheetCtx.strokeRect(roiX + roiW + 15, drawY - 9, 52, 18);
+
+          sheetCtx.fillStyle = "#34d399";
+          sheetCtx.font = "bold 12px 'JetBrains Mono'";
+          sheetCtx.textAlign = "left";
+          sheetCtx.fillText(`${Math.round(drawW)}`, roiX + roiW + 20, drawY + 4);
+
+          results.push({ layer: idx + 1, w: drawW, status: "OK" });
+        } else {
+          if (layerStabilizer[idx]) delete layerStabilizer[idx];
+        }
       });
 
-      const expected = filled.length;
-      const missingCount = Math.max(0, expected - foundCount);
+      // 6) Update DOM UI
+      const expected = results.length; // layers we consider (including missing if injected)
+      const missingCount = results.filter(r => r.status === "MISSING").length;
 
-      // header status
       const statusGroup = document.getElementById("header-status-group");
-      if (missingCount > 0) {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><span style="color:#ef4444">●</span> FAIL (${missingCount})</div>`;
-        document.querySelector(".glue-compact-header").className = "glue-compact-header status-fail";
-      } else if (expected === 0) {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="loader" class="spin"></i> SCANNING</div>`;
-        document.querySelector(".glue-compact-header").className = "glue-compact-header";
+      const header = document.getElementById("glue-header");
+
+      if (expected === 0) {
+        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="loader"></i> SCANNING</div>`;
+        header.className = "glue-compact-header";
+      } else if (missingCount > 0 || foundCount < expected) {
+        const miss = Math.max(missingCount, expected - foundCount);
+        statusGroup.innerHTML = `<div class="gc-status-badge"><span style="color:#ef4444">●</span> FAIL (${miss})</div>`;
+        header.className = "glue-compact-header status-fail";
       } else {
         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-        document.querySelector(".glue-compact-header").className = "glue-compact-header status-pass";
+        header.className = "glue-compact-header status-pass";
       }
 
       document.getElementById("sh-count").innerText = String(expected);
       document.getElementById("sh-found").innerText = String(foundCount);
 
-      // list UI
       const listCont = document.getElementById("layer-list-cont");
-      if (results.length === 0) {
+      if (expected === 0) {
         if (!listCont.innerHTML.includes("Align camera")) {
           listCont.innerHTML = `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;"><i data-lucide="scan-line"></i><span style="font-size:0.75rem;">Scanning...</span></div>`;
-          lucide.createIcons();
         }
       } else {
         let html = "";
-        const maxWreal = Math.max(...results.map(r => r.w || 0), 1);
-
-        results.forEach(res => {
+        results.forEach((res) => {
           const isMiss = res.status === "MISSING";
           const statusClass = isMiss ? "missing" : "ok";
           const valText = isMiss ? "MISSING" : `${Math.round(res.w)} px`;
-          const pct = Math.min(100, (res.w / maxWreal) * 80 + 10);
+          const pct = maxW > 0 ? Math.min(100, (res.w / maxW) * 80 + 10) : 0;
 
           html += `
             <div class="layer-card ${statusClass}">
@@ -976,7 +1048,6 @@
             </div>
           `;
         });
-
         listCont.innerHTML = html;
       }
 
@@ -984,16 +1055,57 @@
       lucide.createIcons();
     }
 
+    function analyzeGapWidthRow(data, w, h, cy) {
+      const rowStart = cy * w * 4;
+
+      const bandLeft = Math.floor(w * 0.25);
+      const bandRight = Math.floor(w * 0.75);
+
+      let minLuma = 255;
+      let minX = ((bandLeft + bandRight) >> 1);
+      let sumL = 0;
+      let cnt = 0;
+
+      for (let x = bandLeft; x < bandRight; x += 2) {
+        const i = rowStart + x * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        sumL += luma; cnt++;
+        if (luma < minLuma) { minLuma = luma; minX = x; }
+      }
+
+      const meanL = cnt ? (sumL / cnt) : minLuma;
+      const contrast = Math.max(0, meanL - minLuma);
+      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      let left = minX;
+      while (left > 0) {
+        const i = rowStart + left * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        left--;
+      }
+
+      let right = minX;
+      while (right < w - 1) {
+        const i = rowStart + right * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        right++;
+      }
+
+      return { left, right, width: Math.max(0, right - left) };
+    }
+
     function toggleSheetCapture() {
-      const btn = document.getElementById('btn-sheet-cap');
+      const btn = document.getElementById("btn-sheet-cap");
       if (sheetFrozen) {
         sheetFrozen = false;
         btn.innerHTML = '<i data-lucide="camera"></i>';
-        btn.classList.remove('frozen');
+        btn.classList.remove("frozen");
       } else {
         sheetFrozen = true;
         btn.innerHTML = '<i data-lucide="rotate-ccw"></i>';
-        btn.classList.add('frozen');
+        btn.classList.add("frozen");
       }
       lucide.createIcons();
     }
@@ -1002,268 +1114,30 @@
       sheetFrozen = false;
       sheetResults = [];
       layerStabilizer = {};
-      sheetCtx.clearRect(0,0,sheetCanvas.width, sheetCanvas.height);
-      document.getElementById('sh-count').innerText="0";
-      document.getElementById('sh-found').innerText="0";
-      document.getElementById('layer-list-cont').innerHTML =
+      sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
+
+      document.getElementById("sh-count").innerText = "0";
+      document.getElementById("sh-found").innerText = "0";
+
+      const header = document.getElementById("glue-header");
+      header.className = "glue-compact-header";
+      document.getElementById("header-status-group").innerHTML =
+        `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
+
+      document.getElementById("layer-list-cont").innerHTML =
         `<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:100%; color:#475569; gap:10px;">
-           <i data-lucide="scan-line" width="32"></i>
-           <span style="font-size:0.75rem;">Align camera to scan</span>
-         </div>`;
-      const btn = document.getElementById('btn-sheet-cap');
+          <i data-lucide="scan-line" width="32"></i>
+          <span style="font-size:0.75rem;">Align camera to scan</span>
+        </div>`;
+
+      const btn = document.getElementById("btn-sheet-cap");
       btn.innerHTML = '<i data-lucide="camera"></i>';
-      btn.classList.remove('frozen');
+      btn.classList.remove("frozen");
+
       lucide.createIcons();
     }
 
-    // ---------- Glue helpers ----------
-    function rgbaToGray(rgba, w, h) {
-      const out = new Uint8Array(w * h);
-      for (let i = 0, p = 0; p < out.length; p++, i += 4) {
-        out[p] = (rgba[i] * 0.299 + rgba[i + 1] * 0.587 + rgba[i + 2] * 0.114) | 0;
-      }
-      return out;
-    }
-
-    // Separable box blur (stable)
-    function boxBlurGray(src, w, h, r = 1) {
-      if (r <= 0) return src;
-      const tmp = new Uint8Array(w * h);
-      const dst = new Uint8Array(w * h);
-      const win = 2 * r + 1;
-
-      // horizontal
-      for (let y = 0; y < h; y++) {
-        let acc = 0;
-        const row = y * w;
-
-        for (let x = -r; x <= r; x++) {
-          const xx = Math.min(w - 1, Math.max(0, x));
-          acc += src[row + xx];
-        }
-        for (let x = 0; x < w; x++) {
-          tmp[row + x] = (acc / win) | 0;
-          const xOut = x - r;
-          const xIn  = x + r + 1;
-          if (xOut >= 0) acc -= src[row + xOut];
-          if (xIn < w) acc += src[row + xIn];
-        }
-      }
-
-      // vertical
-      for (let x = 0; x < w; x++) {
-        let acc = 0;
-        for (let y = -r; y <= r; y++) {
-          const yy = Math.min(h - 1, Math.max(0, y));
-          acc += tmp[yy * w + x];
-        }
-        for (let y = 0; y < h; y++) {
-          dst[y * w + x] = (acc / win) | 0;
-          const yOut = y - r;
-          const yIn  = y + r + 1;
-          if (yOut >= 0) acc -= tmp[yOut * w + x];
-          if (yIn < h) acc += tmp[yIn * w + x];
-        }
-      }
-
-      return dst;
-    }
-
-    function otsuThreshold(gray) {
-      const hist = new Uint32Array(256);
-      for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
-
-      const total = gray.length;
-      let sum = 0;
-      for (let i = 0; i < 256; i++) sum += i * hist[i];
-
-      let sumB = 0, wB = 0;
-      let varMax = 0, thr = 128;
-
-      for (let t = 0; t < 256; t++) {
-        wB += hist[t];
-        if (wB === 0) continue;
-        const wF = total - wB;
-        if (wF === 0) break;
-
-        sumB += t * hist[t];
-        const mB = sumB / wB;
-        const mF = (sum - sumB) / wF;
-        const v = wB * wF * (mB - mF) * (mB - mF);
-
-        if (v > varMax) { varMax = v; thr = t; }
-      }
-      return thr;
-    }
-
-    function binarize(gray, w, h, thr, darkIsFG = true) {
-      const bin = new Uint8Array(w * h);
-      for (let i = 0; i < bin.length; i++) {
-        const isFG = darkIsFG ? (gray[i] < thr) : (gray[i] > thr);
-        bin[i] = isFG ? 1 : 0;
-      }
-      return bin;
-    }
-
-    function invertBinary(bin) {
-      const out = new Uint8Array(bin.length);
-      for (let i = 0; i < bin.length; i++) out[i] = bin[i] ? 0 : 1;
-      return out;
-    }
-
-    function countOnes(bin) {
-      let c = 0;
-      for (let i = 0; i < bin.length; i++) c += bin[i];
-      return c;
-    }
-
-    function morphErode(src, w, h, it = 1) {
-      let cur = src;
-      for (let k = 0; k < it; k++) {
-        const dst = new Uint8Array(w * h);
-        for (let y = 1; y < h - 1; y++) {
-          for (let x = 1; x < w - 1; x++) {
-            const i = y * w + x;
-            const v =
-              cur[i] &
-              cur[i - 1] & cur[i + 1] &
-              cur[i - w] & cur[i + w] &
-              cur[i - w - 1] & cur[i - w + 1] &
-              cur[i + w - 1] & cur[i + w + 1];
-            dst[i] = v ? 1 : 0;
-          }
-        }
-        cur = dst;
-      }
-      return cur;
-    }
-
-    function morphDilate(src, w, h, it = 1) {
-      let cur = src;
-      for (let k = 0; k < it; k++) {
-        const dst = new Uint8Array(w * h);
-        for (let y = 1; y < h - 1; y++) {
-          for (let x = 1; x < w - 1; x++) {
-            const i = y * w + x;
-            const v =
-              cur[i] |
-              cur[i - 1] | cur[i + 1] |
-              cur[i - w] | cur[i + w] |
-              cur[i - w - 1] | cur[i - w + 1] |
-              cur[i + w - 1] | cur[i + w + 1];
-            dst[i] = v ? 1 : 0;
-          }
-        }
-        cur = dst;
-      }
-      return cur;
-    }
-
-    function morphOpen(src, w, h, it = 1) { return morphDilate(morphErode(src, w, h, it), w, h, it); }
-    function morphClose(src, w, h, it = 1) { return morphErode(morphDilate(src, w, h, it), w, h, it); }
-
-    function connectedComponents(bin, w, h) {
-      const vis = new Uint8Array(w * h);
-      const comps = [];
-      const stack = [];
-
-      for (let y = 0; y < h; y++) {
-        for (let x = 0; x < w; x++) {
-          const idx = y * w + x;
-          if (!bin[idx] || vis[idx]) continue;
-
-          let minX = x, maxX = x, minY = y, maxY = y, area = 0;
-          stack.length = 0;
-          stack.push(idx);
-          vis[idx] = 1;
-
-          while (stack.length) {
-            const p = stack.pop();
-            area++;
-
-            const px = p % w;
-            const py = (p / w) | 0;
-
-            if (px < minX) minX = px;
-            if (px > maxX) maxX = px;
-            if (py < minY) minY = py;
-            if (py > maxY) maxY = py;
-
-            const n1 = p - 1, n2 = p + 1, n3 = p - w, n4 = p + w;
-            if (px > 0 && bin[n1] && !vis[n1]) { vis[n1] = 1; stack.push(n1); }
-            if (px < w - 1 && bin[n2] && !vis[n2]) { vis[n2] = 1; stack.push(n2); }
-            if (py > 0 && bin[n3] && !vis[n3]) { vis[n3] = 1; stack.push(n3); }
-            if (py < h - 1 && bin[n4] && !vis[n4]) { vis[n4] = 1; stack.push(n4); }
-          }
-
-          comps.push({ minX, maxX, minY, maxY, area });
-        }
-      }
-      return comps;
-    }
-
-    function stabilizeBoxesByIndex(boxes, factor = 0.25) {
-      const out = [];
-      for (let i = 0; i < boxes.length; i++) {
-        const b = boxes[i];
-        const prev = layerStabilizer[i];
-        if (!prev) {
-          layerStabilizer[i] = { ...b };
-          out.push({ ...b });
-        } else {
-          prev.x = lerp(prev.x, b.x, factor);
-          prev.y = lerp(prev.y, b.y, factor);
-          prev.w = lerp(prev.w, b.w, factor);
-          prev.h = lerp(prev.h, b.h, factor);
-          out.push({ x: prev.x, y: prev.y, w: prev.w, h: prev.h });
-        }
-      }
-      const keep = boxes.length;
-      Object.keys(layerStabilizer).forEach(k => { if (+k >= keep) delete layerStabilizer[k]; });
-      return out;
-    }
-
-    function fillMissingByPitch(boxes, sh) {
-      if (boxes.length <= 1) return boxes.map(b => ({ ...b, missing: false }));
-
-      const centers = boxes.map(b => (b.y + b.h / 2));
-      const diffs = [];
-      for (let i = 0; i < centers.length - 1; i++) diffs.push(centers[i + 1] - centers[i]);
-      diffs.sort((a, b) => a - b);
-
-      const mid = (diffs.length / 2) | 0;
-      const pitch = diffs.length % 2 ? diffs[mid] : (diffs[mid - 1] + diffs[mid]) / 2;
-
-      if (pitch < sh * 0.03 || pitch > sh * 0.35) return boxes.map(b => ({ ...b, missing: false }));
-
-      const filled = [];
-      filled.push({ ...boxes[0], missing: false });
-
-      for (let i = 0; i < boxes.length - 1; i++) {
-        const a = boxes[i];
-        const b = boxes[i + 1];
-
-        const ca = a.y + a.h / 2;
-        const cb = b.y + b.h / 2;
-        const d = cb - ca;
-
-        if (d > pitch * 1.6) {
-          const missCount = Math.max(1, Math.round(d / pitch) - 1);
-          for (let m = 1; m <= missCount; m++) {
-            const cy = ca + m * pitch;
-            filled.push({ x: a.x, y: cy - a.h / 2, w: a.w, h: a.h, missing: true });
-          }
-        }
-        filled.push({ ...b, missing: false });
-      }
-
-      filled.sort((p, q) => (p.y + p.h/2) - (q.y + q.h/2));
-      return filled;
-    }
-
-    // =========================================================
-    // --- COLEX LOGIC ---
-    // =========================================================
+    // --- COLEX LOGIC (unchanged from your version) ---
     window.addEventListener('deviceorientation', (event) => {
       lastOri = { beta: event.beta || 0, gamma: event.gamma || 0, alpha: event.alpha || 0 };
     });
@@ -1281,16 +1155,15 @@
     function readOneSample() {
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
       const W = 100, H = 100;
-      if (procCanvas.width !== W) { procCanvas.width=W; procCanvas.height=H; }
+      if (procCanvas.width !== W) { procCanvas.width = W; procCanvas.height = H; }
       const sx = (video.videoWidth - W) / 2;
       const sy = (video.videoHeight - H) / 2;
       procCtx.drawImage(video, sx, sy, W, H, 0, 0, W, H);
       const frame = procCtx.getImageData(0, 0, W, H);
-      const data = frame.data;
-
+      const d = frame.data;
       let rList = [], gList = [], bList = [];
-      for (let i = 0; i < data.length; i += 20) {
-        rList.push(data[i]); gList.push(data[i + 1]); bList.push(data[i + 2]);
+      for (let i = 0; i < d.length; i += 20) {
+        rList.push(d[i]); gList.push(d[i + 1]); bList.push(d[i + 2]);
       }
       const r = getSmartAverage(rList);
       const g = getSmartAverage(gList);
@@ -1327,7 +1200,9 @@
             b: (sumB / frames).toFixed(1)
           }
         };
-      } finally { isTorchBusy = false; }
+      } finally {
+        isTorchBusy = false;
+      }
     }
 
     async function lockRef() {
@@ -1376,6 +1251,7 @@
       document.getElementById(`${type}-l`).innerText = lab.L;
       document.getElementById(`${type}-a`).innerText = lab.a;
       document.getElementById(`${type}-b`).innerText = lab.b;
+
       const lVal = Math.max(0, Math.min(100, parseFloat(lab.L)));
       const marker = document.getElementById(`marker-${type}`);
       marker.classList.add("visible");
@@ -1384,6 +1260,7 @@
 
     function resetAll() {
       savedRefLab = null; savedSamLab = null;
+
       ["ref", "sam"].forEach((type) => {
         document.getElementById(`card-${type}`).classList.remove("active-ref", "active-sam");
         document.getElementById(`preview-${type}`).style.background = "#334155";
@@ -1392,8 +1269,10 @@
         document.getElementById(`${type}-b`).innerText = "-";
         document.getElementById(`marker-${type}`).classList.remove("visible");
       });
+
       ghostOverlay.classList.remove("active");
-      setTimeout(() => { ghostOverlay.src = ""; }, 200);
+      setTimeout(() => { ghostOverlay.src = ""; }, 300);
+
       document.getElementById("delta-val").innerText = "--";
       document.getElementById("result-dashboard").className = "result-dashboard";
       document.getElementById("delta-msg").innerText = "READY";
@@ -1411,8 +1290,8 @@
 
         const dash = document.getElementById("result-dashboard");
         document.getElementById("delta-val").innerText = dE.toFixed(2);
-        dash.classList.remove("status-match", "status-close", "status-diff");
 
+        dash.classList.remove("status-match", "status-close", "status-diff");
         if (dE <= 1.0) { dash.classList.add("status-match"); document.getElementById("delta-msg").innerText = "EXACT"; }
         else if (dE <= 2.5) { dash.classList.add("status-close"); document.getElementById("delta-msg").innerText = "CLOSE"; }
         else { dash.classList.add("status-diff"); document.getElementById("delta-msg").innerText = "DIFF"; }
@@ -1426,11 +1305,12 @@
       const da = parseFloat(ref.a) - parseFloat(curr.a);
       const db = parseFloat(ref.b) - parseFloat(curr.b);
       const th = 1.0;
+
       const container = document.getElementById("advice-content");
       const placeholder = document.getElementById("advice-placeholder");
       container.innerHTML = "";
-      let actions = [];
 
+      let actions = [];
       if (dL > th) actions.push({ icon: "sun", text: "Lighten", det: "+White", col: "#fff" });
       else if (dL < -th) actions.push({ icon: "moon", text: "Darken", det: "+Black", col: "#94a3b8" });
 
@@ -1449,13 +1329,16 @@
         div.innerHTML = `<div class="adv-icon-row" style="color:${a.col}"><i data-lucide="${a.icon}" width="14"></i> ${a.text}</div><div class="adv-detail">${a.det}</div>`;
         container.appendChild(div);
       });
+
       lucide.createIcons();
     }
 
     function drawABGraph() {
       const w = plotCanvas.width, h = plotCanvas.height;
       const cx = w / 2, cy = h / 2;
-      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0); else plotCtx.clearRect(0, 0, w, h);
+
+      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0);
+      else plotCtx.clearRect(0, 0, w, h);
 
       if (savedRefLab) drawDot(savedRefLab, "#000", "#3b82f6");
       if (savedSamLab) drawDot(savedSamLab, "#000", "#ffffff");
@@ -1463,16 +1346,26 @@
       if (savedRefLab && savedSamLab) {
         const rx = cx + parseFloat(savedRefLab.a), ry = cy - parseFloat(savedRefLab.b);
         const sx = cx + parseFloat(savedSamLab.a), sy = cy - parseFloat(savedSamLab.b);
-        plotCtx.beginPath(); plotCtx.strokeStyle = "rgba(0,0,0,0.5)"; plotCtx.lineWidth = 1; plotCtx.setLineDash([2, 2]);
-        plotCtx.moveTo(rx, ry); plotCtx.lineTo(sx, sy); plotCtx.stroke(); plotCtx.setLineDash([]);
+        plotCtx.beginPath();
+        plotCtx.strokeStyle = "rgba(0,0,0,0.5)";
+        plotCtx.lineWidth = 1;
+        plotCtx.setLineDash([2, 2]);
+        plotCtx.moveTo(rx, ry); plotCtx.lineTo(sx, sy);
+        plotCtx.stroke();
+        plotCtx.setLineDash([]);
       }
     }
 
     function drawDot(lab, stroke, fill) {
-      const cx = plotCanvas.width/2, cy = plotCanvas.height/2;
+      const cx = plotCanvas.width / 2, cy = plotCanvas.height / 2;
       const x = cx + parseFloat(lab.a), y = cy - parseFloat(lab.b);
-      plotCtx.beginPath(); plotCtx.fillStyle = fill; plotCtx.arc(x, y, 6, 0, Math.PI * 2); plotCtx.fill();
-      plotCtx.lineWidth = 2; plotCtx.strokeStyle = stroke; plotCtx.stroke();
+      plotCtx.beginPath();
+      plotCtx.fillStyle = fill;
+      plotCtx.arc(x, y, 6, 0, Math.PI * 2);
+      plotCtx.fill();
+      plotCtx.lineWidth = 2;
+      plotCtx.strokeStyle = stroke;
+      plotCtx.stroke();
     }
 
     function renderColorMap() {
@@ -1488,93 +1381,122 @@
           const dist = Math.sqrt(dx * dx + dy * dy);
           const normDist = Math.min(1, dist / maxDist);
           const angleRad = Math.atan2(-dy, dx);
-          let angleDeg = angleRad * (180 / Math.PI); if (angleDeg < 0) angleDeg += 360;
+          let angleDeg = angleRad * (180 / Math.PI);
+          if (angleDeg < 0) angleDeg += 360;
+
           const rgb = hslToRgb(angleDeg, normDist * 100, 100 - normDist * 55);
           const idx = (y * w + x) * 4;
 
-          const setPx = (i) => { d[i]=rgb.r; d[i+1]=rgb.g; d[i+2]=rgb.b; d[i+3]=255; };
-          if(idx<d.length) setPx(idx);
-          const idx2 = ((y+1) * w + (x+1)) * 4;
-          if(idx2 < d.length) setPx(idx2);
+          const setPx = (i) => { d[i] = rgb.r; d[i + 1] = rgb.g; d[i + 2] = rgb.b; d[i + 3] = 255; };
+          if (idx < d.length) setPx(idx);
+          const idx2 = ((y + 1) * w + (x + 1)) * 4;
+          if (idx2 < d.length) setPx(idx2);
         }
       }
 
-      // axes
-      for (let x=0; x<w; x++) {
-        const idx=(Math.floor(cy)*w+x)*4; d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40;
+      for (let x = 0; x < w; x++) {
+        const idx = (Math.floor(cy) * w + x) * 4;
+        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
       }
-      for (let y=0; y<h; y++) {
-        const idx=(y*w+Math.floor(cx))*4; d[idx]=255; d[idx+1]=255; d[idx+2]=255; d[idx+3]=40;
+      for (let y = 0; y < h; y++) {
+        const idx = (y * w + Math.floor(cx)) * 4;
+        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
       }
+
       bgImageData = imgData;
     }
 
     function hslToRgb(h, s, l) {
-      s/=100; l/=100;
-      const k = (n) => (n + h/30)%12;
-      const a = s * Math.min(l, 1-l);
-      const f = (n) => l - a * Math.max(-1, Math.min(k(n)-3, Math.min(9-k(n), 1)));
-      return { r:Math.round(255*f(0)), g:Math.round(255*f(8)), b:Math.round(255*f(4)) };
+      s /= 100; l /= 100;
+      const k = (n) => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
     }
 
     function changeMode(m) { deltaMode = m; document.getElementById("algo-lbl").innerText = m; tryCalculate(); }
 
     function rgbToLab(r, g, b) {
-      let R=r/255, G=g/255, B=b/255;
-      R=(R>0.04045)?Math.pow((R+0.055)/1.055,2.4):R/12.92;
-      G=(G>0.04045)?Math.pow((G+0.055)/1.055,2.4):G/12.92;
-      B=(B>0.04045)?Math.pow((B+0.055)/1.055,2.4):B/12.92;
-      let X=(R*0.4124+G*0.3576+B*0.1805)*100, Y=(R*0.2126+G*0.7152+B*0.0722)*100, Z=(R*0.0193+G*0.1192+B*0.9505)*100;
-      X/=95.047; Y/=100.000; Z/=108.883;
-      X=(X>0.008856)?Math.pow(X,1/3):(7.787*X)+16/116;
-      Y=(Y>0.008856)?Math.pow(Y,1/3):(7.787*Y)+16/116;
-      Z=(Z>0.008856)?Math.pow(Z,1/3):(7.787*Z)+16/116;
-      return { L:((116*Y)-16).toFixed(1), a:(500*(X-Y)).toFixed(1), b:(200*(Y-Z)).toFixed(1) };
+      let R = r / 255, G = g / 255, B = b / 255;
+      R = (R > 0.04045) ? Math.pow((R + 0.055) / 1.055, 2.4) : R / 12.92;
+      G = (G > 0.04045) ? Math.pow((G + 0.055) / 1.055, 2.4) : G / 12.92;
+      B = (B > 0.04045) ? Math.pow((B + 0.055) / 1.055, 2.4) : B / 12.92;
+
+      let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) * 100;
+      let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) * 100;
+      let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) * 100;
+
+      X /= 95.047; Y /= 100.000; Z /= 108.883;
+      X = (X > 0.008856) ? Math.pow(X, 1 / 3) : (7.787 * X) + 16 / 116;
+      Y = (Y > 0.008856) ? Math.pow(Y, 1 / 3) : (7.787 * Y) + 16 / 116;
+      Z = (Z > 0.008856) ? Math.pow(Z, 1 / 3) : (7.787 * Z) + 16 / 116;
+
+      return { L: ((116 * Y) - 16).toFixed(1), a: (500 * (X - Y)).toFixed(1), b: (200 * (Y - Z)).toFixed(1) };
     }
 
-    function calculateDeltaE76(l1,l2){ return Math.sqrt(Math.pow(l2.L-l1.L,2)+Math.pow(l2.a-l1.a,2)+Math.pow(l2.b-l1.b,2)); }
-
-    function calculateDeltaE94(l1,l2){
-      const L1=parseFloat(l1.L), a1=parseFloat(l1.a), b1=parseFloat(l1.b);
-      const L2=parseFloat(l2.L), a2=parseFloat(l2.a), b2=parseFloat(l2.b);
-      const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2);
-      const dL=L1-L2, dC=C1-C2, da=a1-a2, db=b1-b2;
-      const dH=Math.sqrt(Math.max(0, da**2+db**2-dC**2));
-      const SC=1+0.045*C1, SH=1+0.015*C1;
-      return Math.sqrt(dL**2+(dC/SC)**2+(dH/SH)**2);
+    function calculateDeltaE76(l1, l2) {
+      return Math.sqrt(Math.pow(l2.L - l1.L, 2) + Math.pow(l2.a - l1.a, 2) + Math.pow(l2.b - l1.b, 2));
     }
 
-    function calculateDeltaE2000(l1,l2){
-      const L1=parseFloat(l1.L),a1=parseFloat(l1.a),b1=parseFloat(l1.b);
-      const L2=parseFloat(l2.L),a2=parseFloat(l2.a),b2=parseFloat(l2.b);
-      const deg2rad=d=>d*Math.PI/180, rad2deg=r=>r*180/Math.PI;
-      const C1=Math.sqrt(a1**2+b1**2), C2=Math.sqrt(a2**2+b2**2), avgC=(C1+C2)/2;
-      const G=0.5*(1-Math.sqrt(avgC**7/(avgC**7+25**7)));
-      const a1p=(1+G)*a1, a2p=(1+G)*a2;
-      const C1p=Math.sqrt(a1p**2+b1**2), C2p=Math.sqrt(a2p**2+b2**2);
-      const h1p=(a1p===0&&b1===0)?0:rad2deg(Math.atan2(b1,a1p))+(rad2deg(Math.atan2(b1,a1p))<0?360:0);
-      const h2p=(a2p===0&&b2===0)?0:rad2deg(Math.atan2(b2,a2p))+(rad2deg(Math.atan2(b2,a2p))<0?360:0);
-      const dLp=L2-L1, dCp=C2p-C1p;
-      let dhp=0; if(C1p*C2p!==0) dhp=(Math.abs(h2p-h1p)<=180)?h2p-h1p:(h2p-h1p>180?h2p-h1p-360:h2p-h1p+360);
-      const dHp=2*Math.sqrt(C1p*C2p)*Math.sin(deg2rad(dhp/2));
-      const avgLp=(L1+L2)/2, avgCp=(C1p+C2p)/2;
-      let avghp=0; if(C1p*C2p!==0) avghp=(Math.abs(h1p-h2p)<=180)?(h1p+h2p)/2:((h1p+h2p<360)?(h1p+h2p+360)/2:(h1p+h2p-360)/2);
-      const T=1-0.17*Math.cos(deg2rad(avghp-30))+0.24*Math.cos(deg2rad(2*avghp))+0.32*Math.cos(deg2rad(3*avghp+6))-0.20*Math.cos(deg2rad(4*avghp-63));
-      const SL=1+((0.015*(avgLp-50)**2)/Math.sqrt(20+(avgLp-50)**2)), SC=1+0.045*avgCp, SH=1+0.015*avgCp*T;
-      const dTheta = 30 * Math.exp( -Math.pow((avghp-275)/25, 2) );
-      const RC=2*Math.sqrt(avgCp**7/(avgCp**7+25**7)), RT=-Math.sin(deg2rad(2*dTheta))*RC;
-      return Math.sqrt((dLp/SL)**2+(dCp/SC)**2+(dHp/SH)**2+RT*(dCp/SC)*(dHp/SH));
+    function calculateDeltaE94(l1, l2) {
+      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2);
+      const dL = L1 - L2, dC = C1 - C2, da = a1 - a2, db = b1 - b2;
+      const dH = Math.sqrt(Math.max(0, da ** 2 + db ** 2 - dC ** 2));
+      const SC = 1 + 0.045 * C1, SH = 1 + 0.015 * C1;
+      return Math.sqrt(dL ** 2 + (dC / SC) ** 2 + (dH / SH) ** 2);
+    }
+
+    function calculateDeltaE2000(l1, l2) {
+      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
+      const deg2rad = d => d * Math.PI / 180, rad2deg = r => r * 180 / Math.PI;
+
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2), avgC = (C1 + C2) / 2;
+      const G = 0.5 * (1 - Math.sqrt(avgC ** 7 / (avgC ** 7 + 25 ** 7)));
+      const a1p = (1 + G) * a1, a2p = (1 + G) * a2;
+
+      const C1p = Math.sqrt(a1p ** 2 + b1 ** 2), C2p = Math.sqrt(a2p ** 2 + b2 ** 2);
+      const h1p = (a1p === 0 && b1 === 0) ? 0 : (rad2deg(Math.atan2(b1, a1p)) + (rad2deg(Math.atan2(b1, a1p)) < 0 ? 360 : 0));
+      const h2p = (a2p === 0 && b2 === 0) ? 0 : (rad2deg(Math.atan2(b2, a2p)) + (rad2deg(Math.atan2(b2, a2p)) < 0 ? 360 : 0));
+
+      const dLp = L2 - L1, dCp = C2p - C1p;
+      let dhp = 0;
+      if (C1p * C2p !== 0) dhp = (Math.abs(h2p - h1p) <= 180) ? h2p - h1p : (h2p - h1p > 180 ? h2p - h1p - 360 : h2p - h1p + 360);
+      const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(deg2rad(dhp / 2));
+
+      const avgLp = (L1 + L2) / 2, avgCp = (C1p + C2p) / 2;
+      let avghp = 0;
+      if (C1p * C2p !== 0) avghp = (Math.abs(h1p - h2p) <= 180) ? (h1p + h2p) / 2 : ((h1p + h2p < 360) ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2);
+
+      const T = 1 - 0.17 * Math.cos(deg2rad(avghp - 30)) + 0.24 * Math.cos(deg2rad(2 * avghp)) + 0.32 * Math.cos(deg2rad(3 * avghp + 6)) - 0.20 * Math.cos(deg2rad(4 * avghp - 63));
+      const SL = 1 + ((0.015 * (avgLp - 50) ** 2) / Math.sqrt(20 + (avgLp - 50) ** 2));
+      const SC = 1 + 0.045 * avgCp;
+      const SH = 1 + 0.015 * avgCp * T;
+
+      const dTheta = 30 * Math.exp(-Math.pow((avghp - 275) / 25, 2));
+      const RC = 2 * Math.sqrt(avgCp ** 7 / (avgCp ** 7 + 25 ** 7));
+      const RT = -Math.sin(deg2rad(2 * dTheta)) * RC;
+
+      return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH));
     }
 
     // --- TORCH ---
     async function setTorch(on) {
       if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
-      try { await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] }); return true; } catch (e) { return false; }
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
     }
 
     function updateTorchUI() {
       const btn = document.getElementById("btn-torch");
       if (!btn) return;
+
       if (isTorchOn) {
         btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
         btn.style.borderColor = "rgba(255,255,255,0.35)";
@@ -1592,16 +1514,24 @@
       try {
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
-          if (!ok && next) { document.body.classList.add("screen-lamp"); isTorchOn = true; updateTorchUI(); return; }
+          if (!ok && next) {
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
           isTorchOn = next;
           if (!isTorchOn) document.body.classList.remove("screen-lamp");
           updateTorchUI();
           return;
         }
+
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
-      } finally { isTorchBusy = false; }
+      } finally {
+        isTorchBusy = false;
+      }
     }
 
     initCamera();
