@@ -567,13 +567,16 @@
 
     let activeTab = 'colex';
     let isProcessing = false;
+
     let savedRefLab = null, savedSamLab = null;
     let bgImageData = null;
     let deltaMode = "2000";
+
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;
-    let isTorchBusy = false;
+    let isTorchOn = false;      // "hold" state from button
+    let torchOpBusy = false;    // only for torch toggle operations
+    let captureBusy = false;    // only for capture pipeline
 
     let sheetFrozen = false;
     let sheetResults = [];
@@ -581,6 +584,74 @@
 
     // Stabilizer for each detected layer index
     let layerStabilizer = {};
+
+    // --- helpers ---
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    // =========================================================
+    // COVER-MAPPING (สำคัญ: ให้ overlay/ROI/target ตรงกับภาพจริง)
+    // video ถูก render ด้วย object-fit: cover → ต้อง map display <-> video
+    // =========================================================
+    function getCoverMetrics() {
+      const vw = video.videoWidth || 0;
+      const vh = video.videoHeight || 0;
+      if (!vw || !vh) return null;
+
+      const r = video.getBoundingClientRect();
+      const dw = r.width || 0;
+      const dh = r.height || 0;
+      if (!dw || !dh) return null;
+
+      const scale = Math.max(dw / vw, dh / vh);
+      const scaledW = vw * scale;
+      const scaledH = vh * scale;
+      const offX = (dw - scaledW) / 2; // usually negative when cropped
+      const offY = (dh - scaledH) / 2;
+
+      return { vw, vh, dw, dh, scale, offX, offY, rect: r };
+    }
+
+    function dispToVideoXY(mx, my, m) {
+      const x = (mx - m.offX) / m.scale;
+      const y = (my - m.offY) / m.scale;
+      return { x, y };
+    }
+
+    function dispRectToVideoRect(rx, ry, rw, rh, m) {
+      const p0 = dispToVideoXY(rx, ry, m);
+      const p1 = dispToVideoXY(rx + rw, ry + rh, m);
+
+      let x = Math.min(p0.x, p1.x);
+      let y = Math.min(p0.y, p1.y);
+      let w = Math.abs(p1.x - p0.x);
+      let h = Math.abs(p1.y - p0.y);
+
+      // clamp within video
+      x = clamp(x, 0, m.vw - 1);
+      y = clamp(y, 0, m.vh - 1);
+      w = clamp(w, 1, m.vw - x);
+      h = clamp(h, 1, m.vh - y);
+
+      return { x, y, w, h };
+    }
+
+    function syncSheetCanvasToDisplay() {
+      // sheetCanvas วาดใน "display pixels" ให้ตรงกับ video ที่ถูก cover/crop
+      const m = getCoverMetrics();
+      if (!m) return;
+
+      const nw = Math.max(1, Math.round(m.dw));
+      const nh = Math.max(1, Math.round(m.dh));
+
+      if (sheetCanvas.width !== nw || sheetCanvas.height !== nh) {
+        sheetCanvas.width = nw;
+        sheetCanvas.height = nh;
+        // clear old drawings
+        sheetCtx.clearRect(0, 0, nw, nh);
+      }
+    }
 
     // --- LAYOUT ---
     function applyAutoFitLayout() {
@@ -615,6 +686,9 @@
         renderColorMap();
         drawABGraph();
       }
+
+      // keep overlay canvas synced
+      syncSheetCanvasToDisplay();
     }
     window.addEventListener("resize", applyAutoFitLayout);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
@@ -633,7 +707,7 @@
       document.getElementById('vp-camera').classList.add('full-width');
       document.getElementById('ctl-color-algo').classList.add('display-none');
 
-      // clear glue canvas overlay every tab switch
+      // clear glue overlay every tab switch
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
 
       // Buttons inside Viewport
@@ -647,7 +721,7 @@
         document.getElementById('panel-colex').style.display = 'flex';
         document.getElementById('target-box').classList.remove('display-none');
       } else if (mode === 'gluegap') {
-        // Reset ghost when switching to GlueGap (as requested)
+        // Reset ghost when switching to GlueGap
         ghostOverlay.classList.remove("active");
         setTimeout(() => { ghostOverlay.src = ""; }, 0);
 
@@ -678,8 +752,9 @@
         updateTorchUI();
 
         video.onloadedmetadata = () => {
-          sheetCanvas.width = video.videoWidth;
-          sheetCanvas.height = video.videoHeight;
+          // overlay canvas in display coords
+          syncSheetCanvasToDisplay();
+
           applyAutoFitLayout();
           isProcessing = true;
           requestAnimationFrame(loop);
@@ -691,6 +766,10 @@
 
     function loop() {
       if (!isProcessing) return;
+
+      // keep overlay synced (handles browser bars / rotations)
+      if (activeTab === 'gluegap') syncSheetCanvasToDisplay();
+
       if (activeTab === 'colex') {
         drawABGraph();
       } else if (activeTab === 'gluegap') {
@@ -699,10 +778,57 @@
       requestAnimationFrame(loop);
     }
 
-    // --- helper ---
-    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+    // =========================================================
+    // CAPTURE LIGHTING (หลักการเดียวกัน)
+    // - ถ้า Torch มี: เปิดชั่วคราวตอน capture แล้วคืนค่าเดิม
+    // - ถ้าไม่มี: ใช้ screen-flash (ไม่เปลี่ยน UI)
+    // =========================================================
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
 
+    function pulseScreenFlash() {
+      document.body.classList.add("screen-flash");
+      setTimeout(() => document.body.classList.remove("screen-flash"), 120);
+    }
+
+    async function withCaptureLighting(fn) {
+      // preserve hold state
+      const wasHold = isTorchOn;
+
+      // If user already holds torch ON → do not touch it
+      if (wasHold) {
+        pulseScreenFlash();
+        return await fn();
+      }
+
+      // If torch supported → pulse torch ON for capture only
+      if (torchSupported && videoTrack?.applyConstraints) {
+        const okOn = await setTorch(true);
+        if (okOn) {
+          // short settle time
+          await wait(60);
+          try {
+            pulseScreenFlash();
+            return await fn();
+          } finally {
+            await setTorch(false);
+          }
+        }
+      }
+
+      // Fallback screen lamp/flash only
+      pulseScreenFlash();
+      return await fn();
+    }
+
+    // --- helper (signal processing) ---
     function movingAverage(arr, radius) {
       const out = new Float32Array(arr.length);
       for (let i = 0; i < arr.length; i++) {
@@ -739,7 +865,6 @@
         if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) candidates.push({ index: i, value: arr[i] });
       }
 
-      // local prominence check
       const finalPeaks = [];
       const range = 18;
       for (const cand of candidates) {
@@ -762,70 +887,73 @@
     }
 
     // =========================================================
-    // GLUE GAP (Improved Accuracy)
-    // - Build per-row "gap score" using dark-gap width + contrast
-    // - Peak detect on that score profile (more stable than raw luma)
+    // GLUE GAP (Improved Accuracy + COVER-MAPPING)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
-      const w = video.videoWidth;
-      const h = video.videoHeight;
+      const m = getCoverMetrics();
+      if (!m) return;
 
-      if (sheetCanvas.width !== w || sheetCanvas.height !== h) {
-        sheetCanvas.width = w; sheetCanvas.height = h;
-      }
+      const dw = sheetCanvas.width;
+      const dh = sheetCanvas.height;
+      if (!dw || !dh) return;
 
-      // ROI: centered, tall enough, but keep clear of capture button area
-      const roiW = Math.round(w * 0.70);
-      const roiH = Math.round(h * 0.62);
-      const roiX = Math.round((w - roiW) / 2);
+      // ROI in DISPLAY coords (so overlay matches what user sees)
+      const roiW_disp = Math.round(dw * 0.70);
+      const roiH_disp = Math.round(dh * 0.62);
+      const roiX_disp = Math.round((dw - roiW_disp) / 2);
 
-      // keep bottom safe zone ~ button diameter + margin (converted into video px proportion)
-      const bottomSafe = Math.round(h * 0.22);
-      let roiY = Math.round((h - roiH) / 2 - bottomSafe * 0.25);
-      roiY = clamp(roiY, 0, h - roiH);
+      const bottomSafe_disp = Math.round(dh * 0.22);
+      let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.25);
+      roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
 
-      // HUD overlay
-      sheetCtx.clearRect(0, 0, w, h);
+      // Map ROI to VIDEO coords for processing
+      const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
+      const roiW_v = Math.max(1, Math.round(roiV.w));
+      const roiH_v = Math.max(1, Math.round(roiV.h));
+      const roiX_v = Math.round(roiV.x);
+      const roiY_v = Math.round(roiV.y);
+
+      // HUD overlay draw (DISPLAY coords)
+      sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
-      sheetCtx.fillRect(0, 0, w, h);
-      sheetCtx.clearRect(roiX, roiY, roiW, roiH);
+      sheetCtx.fillRect(0, 0, dw, dh);
+      sheetCtx.clearRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
 
       sheetCtx.lineWidth = 2;
       sheetCtx.strokeStyle = "rgba(255, 255, 255, 0.30)";
       sheetCtx.setLineDash([10, 10]);
-      sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
+      sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
       sheetCtx.setLineDash([]);
 
       sheetCtx.beginPath();
-      sheetCtx.moveTo(roiX + roiW / 2, roiY);
-      sheetCtx.lineTo(roiX + roiW / 2, roiY + roiH);
+      sheetCtx.moveTo(roiX_disp + roiW_disp / 2, roiY_disp);
+      sheetCtx.lineTo(roiX_disp + roiW_disp / 2, roiY_disp + roiH_disp);
       sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.18)";
       sheetCtx.stroke();
       sheetCtx.restore();
 
-      // prepare processing canvas
-      if (procCanvas.width !== roiW || procCanvas.height !== roiH) {
-        procCanvas.width = roiW; procCanvas.height = roiH;
+      // prepare processing canvas (VIDEO coords)
+      if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
+        procCanvas.width = roiW_v; procCanvas.height = roiH_v;
       }
-      procCtx.drawImage(video, roiX, roiY, roiW, roiH, 0, 0, roiW, roiH);
-      const imgData = procCtx.getImageData(0, 0, roiW, roiH);
+      procCtx.drawImage(video, roiX_v, roiY_v, roiW_v, roiH_v, 0, 0, roiW_v, roiH_v);
+      const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
       // 1) Build score profile per row (y)
-      const profile = new Float32Array(roiH);
-      const bandLeft = Math.floor(roiW * 0.30);
-      const bandRight = Math.floor(roiW * 0.70);
-      const maxScanLeft = Math.floor(roiW * 0.15);
-      const maxScanRight = Math.floor(roiW * 0.85);
+      const profile = new Float32Array(roiH_v);
+      const bandLeft = Math.floor(roiW_v * 0.30);
+      const bandRight = Math.floor(roiW_v * 0.70);
+      const maxScanLeft = Math.floor(roiW_v * 0.15);
+      const maxScanRight = Math.floor(roiW_v * 0.85);
 
-      for (let y = 0; y < roiH; y++) {
-        const rowStart = y * roiW * 4;
+      for (let y = 0; y < roiH_v; y++) {
+        const rowStart = y * roiW_v * 4;
 
-        // find darkest point in band
         let minLuma = 255;
         let minX = (bandLeft + bandRight) >> 1;
         let sumL = 0;
@@ -841,10 +969,8 @@
         const meanL = cnt ? (sumL / cnt) : minLuma;
         const contrast = Math.max(0, meanL - minLuma);
 
-        // dynamic threshold (robust under highlight / exposure changes)
         const thr = clamp(minLuma + Math.max(18, contrast * 0.60), 0, 245);
 
-        // expand from minX to estimate dark gap width
         let L = minX;
         while (L > maxScanLeft) {
           const i = rowStart + L * 4;
@@ -862,8 +988,6 @@
         }
 
         const width = Math.max(0, R - L);
-
-        // score = width boosted by contrast (helps reject random dark speckles)
         const cBoost = clamp(contrast / 50, 0.0, 1.5);
         profile[y] = width * (0.65 + cBoost);
       }
@@ -871,14 +995,14 @@
       // 2) Smooth profile
       const smoothed = movingAverage(profile, 3);
 
-      // 3) Dynamic peak params (based on robust stats)
+      // 3) Dynamic peak params
       const { med, mad } = robustStats(smoothed);
       const prominence = Math.max(10, mad * 3.2);
-      const minDist = Math.max(10, Math.floor(roiH * 0.055));
+      const minDist = Math.max(10, Math.floor(roiH_v * 0.055));
 
       let peaks = findPeaksDynamic(smoothed, prominence, minDist);
 
-      // 4) Fill missing layers (pitch inference) – keep your original concept
+      // 4) Fill missing layers
       peaks.sort((a, b) => a.index - b.index);
       if (peaks.length > 2) {
         const distances = [];
@@ -896,8 +1020,8 @@
 
             if (dist > pitch * 1.55) {
               const missingCount = Math.round(dist / pitch) - 1;
-              for (let m = 1; m <= missingCount; m++) {
-                filled.push({ index: Math.floor(curr.index + m * pitch), value: 0, isMissing: true });
+              for (let mm = 1; mm <= missingCount; mm++) {
+                filled.push({ index: Math.floor(curr.index + mm * pitch), value: 0, isMissing: true });
               }
             }
             filled.push(next);
@@ -906,7 +1030,11 @@
         }
       }
 
-      // 5) Draw + Compute results
+      // scale factors from VIDEO ROI to DISPLAY ROI
+      const sx = roiW_disp / roiW_v;
+      const sy = roiH_disp / roiH_v;
+
+      // 5) Draw + results (DRAW in DISPLAY coords)
       const results = [];
       let foundCount = 0;
       let maxW = 0;
@@ -914,10 +1042,9 @@
       const peakMinScore = Math.max(med + prominence * 0.60, 10);
 
       peaks.forEach((peak, idx) => {
-        const localY = peak.index;
-        const drawY = roiY + localY;
+        const localY_v = peak.index;
+        const drawY = roiY_disp + localY_v * sy;
 
-        // "missing" injected
         if (peak.isMissing) {
           if (layerStabilizer[idx]) delete layerStabilizer[idx];
 
@@ -925,29 +1052,28 @@
           sheetCtx.setLineDash([5, 5]);
           sheetCtx.lineWidth = 2;
           sheetCtx.strokeStyle = "#ef4444";
-          sheetCtx.moveTo(roiX, drawY);
-          sheetCtx.lineTo(roiX + roiW, drawY);
+          sheetCtx.moveTo(roiX_disp, drawY);
+          sheetCtx.lineTo(roiX_disp + roiW_disp, drawY);
           sheetCtx.stroke();
           sheetCtx.setLineDash([]);
 
+          // label
           sheetCtx.fillStyle = "#ef4444";
-          sheetCtx.fillRect(roiX + roiW + 5, drawY - 10, 80, 20);
+          sheetCtx.fillRect(roiX_disp + roiW_disp + 8, drawY - 10, 80, 20);
           sheetCtx.fillStyle = "#fff";
           sheetCtx.font = "bold 10px 'Inter'";
-          sheetCtx.fillText("MISSING", roiX + roiW + 15, drawY + 4);
+          sheetCtx.fillText("MISSING", roiX_disp + roiW_disp + 18, drawY + 4);
 
           results.push({ layer: idx + 1, w: 0, status: "MISSING" });
           return;
         }
 
-        // reject weak peaks (helps eliminate 1/1 false positives)
-        if (smoothed[localY] < peakMinScore) {
+        if (smoothed[localY_v] < peakMinScore) {
           if (layerStabilizer[idx]) delete layerStabilizer[idx];
           return;
         }
 
-        // analyze gap width with same dynamic threshold but using slightly wider search
-        const gap = analyzeGapWidthRow(data, roiW, roiH, localY);
+        const gap = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
 
         if (gap.width > 3) {
           foundCount++;
@@ -964,8 +1090,8 @@
           }
           layerStabilizer[idx] = st;
 
-          const drawX = roiX + st.left;
-          const drawW = st.width;
+          const drawX = roiX_disp + st.left * sx;
+          const drawW = st.width * sx;
 
           maxW = Math.max(maxW, drawW);
 
@@ -975,22 +1101,21 @@
           sheetCtx.lineWidth = 1;
           sheetCtx.strokeRect(drawX, drawY - 6, drawW, 12);
 
-          // label connector
           sheetCtx.beginPath();
-          sheetCtx.moveTo(roiX + roiW, drawY);
-          sheetCtx.lineTo(roiX + roiW + 15, drawY);
+          sheetCtx.moveTo(roiX_disp + roiW_disp, drawY);
+          sheetCtx.lineTo(roiX_disp + roiW_disp + 15, drawY);
           sheetCtx.strokeStyle = "#34d399";
           sheetCtx.stroke();
 
           sheetCtx.fillStyle = "#020617";
-          sheetCtx.fillRect(roiX + roiW + 15, drawY - 9, 52, 18);
+          sheetCtx.fillRect(roiX_disp + roiW_disp + 15, drawY - 9, 52, 18);
           sheetCtx.strokeStyle = "#34d399";
-          sheetCtx.strokeRect(roiX + roiW + 15, drawY - 9, 52, 18);
+          sheetCtx.strokeRect(roiX_disp + roiW_disp + 15, drawY - 9, 52, 18);
 
           sheetCtx.fillStyle = "#34d399";
           sheetCtx.font = "bold 12px 'JetBrains Mono'";
           sheetCtx.textAlign = "left";
-          sheetCtx.fillText(`${Math.round(drawW)}`, roiX + roiW + 20, drawY + 4);
+          sheetCtx.fillText(`${Math.round(drawW)}`, roiX_disp + roiW_disp + 20, drawY + 4);
 
           results.push({ layer: idx + 1, w: drawW, status: "OK" });
         } else {
@@ -999,7 +1124,7 @@
       });
 
       // 6) Update DOM UI
-      const expected = results.length; // layers we consider (including missing if injected)
+      const expected = results.length;
       const missingCount = results.filter(r => r.status === "MISSING").length;
 
       const statusGroup = document.getElementById("header-status-group");
@@ -1137,7 +1262,7 @@
       lucide.createIcons();
     }
 
-    // --- COLEX LOGIC (unchanged from your version) ---
+    // --- COLEX LOGIC ---
     window.addEventListener('deviceorientation', (event) => {
       lastOri = { beta: event.beta || 0, gamma: event.gamma || 0, alpha: event.alpha || 0 };
     });
@@ -1152,15 +1277,38 @@
       return Math.round(sum / target.length);
     }
 
+    // IMPORTANT: readOneSample now samples from the TARGET-BOX center in DISPLAY,
+    // then maps it into VIDEO coords (fixes object-fit cover mismatch).
     function readOneSample() {
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
+
+      const m = getCoverMetrics();
+      if (!m) return null;
+
+      const tb = document.getElementById("target-box");
+      const tbR = tb.getBoundingClientRect();
+      const vR = m.rect;
+
+      // center of target box relative to video display
+      const cx_disp = (tbR.left + tbR.right) / 2 - vR.left;
+      const cy_disp = (tbR.top + tbR.bottom) / 2 - vR.top;
+
+      const p = dispToVideoXY(cx_disp, cy_disp, m);
+
+      // sample size in VIDEO px
       const W = 100, H = 100;
       if (procCanvas.width !== W) { procCanvas.width = W; procCanvas.height = H; }
-      const sx = (video.videoWidth - W) / 2;
-      const sy = (video.videoHeight - H) / 2;
+
+      let sx = Math.round(p.x - W / 2);
+      let sy = Math.round(p.y - H / 2);
+
+      sx = clamp(sx, 0, m.vw - W);
+      sy = clamp(sy, 0, m.vh - H);
+
       procCtx.drawImage(video, sx, sy, W, H, 0, 0, W, H);
       const frame = procCtx.getImageData(0, 0, W, H);
       const d = frame.data;
+
       let rList = [], gList = [], bList = [];
       for (let i = 0; i < d.length; i += 20) {
         rList.push(d[i]); gList.push(d[i + 1]); bList.push(d[i + 2]);
@@ -1168,20 +1316,20 @@
       const r = getSmartAverage(rList);
       const g = getSmartAverage(gList);
       const b = getSmartAverage(bList);
+
       const rgb = `rgb(${r},${g},${b})`;
       const lab = rgbToLab(r, g, b);
       return { rgb, lab };
     }
 
-    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
-
     async function captureSmartSample() {
-      if (isTorchBusy) return null;
-      isTorchBusy = true;
+      if (captureBusy) return null;
+      captureBusy = true;
       try {
         const frames = 10;
         let sumL = 0, sumA = 0, sumB = 0;
         let lastRGB = "";
+
         for (let i = 0; i < frames; i++) {
           const sample = readOneSample();
           if (sample) {
@@ -1192,6 +1340,7 @@
           }
           await wait(30);
         }
+
         return {
           rgb: lastRGB,
           lab: {
@@ -1201,20 +1350,23 @@
           }
         };
       } finally {
-        isTorchBusy = false;
+        captureBusy = false;
       }
     }
 
     async function lockRef() {
       const btn = document.getElementById("btn-lock-ref");
-      if (btn.disabled) return;
+      if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
       const ghostData = captureGhostImage();
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
-      const sample = await captureSmartSample();
+      const sample = await withCaptureLighting(async () => {
+        return await captureSmartSample();
+      });
+
       btn.disabled = false;
       if (!sample) return;
 
@@ -1226,10 +1378,13 @@
 
     async function lockSam() {
       const btn = document.getElementById("btn-lock-sam");
-      if (btn.disabled) return;
+      if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
-      const sample = await captureSmartSample();
+      const sample = await withCaptureLighting(async () => {
+        return await captureSmartSample();
+      });
+
       btn.disabled = false;
       if (!sample) return;
 
@@ -1482,17 +1637,7 @@
       return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH));
     }
 
-    // --- TORCH ---
-    async function setTorch(on) {
-      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
-      try {
-        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
-        return true;
-      } catch (e) {
-        return false;
-      }
-    }
-
+    // --- TORCH (hold button) ---
     function updateTorchUI() {
       const btn = document.getElementById("btn-torch");
       if (!btn) return;
@@ -1508,13 +1653,15 @@
     }
 
     async function toggleTorchHold() {
-      if (isTorchBusy) return;
-      isTorchBusy = true;
+      if (torchOpBusy || captureBusy) return;
+      torchOpBusy = true;
+
       const next = !isTorchOn;
       try {
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
+            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1526,11 +1673,12 @@
           return;
         }
 
+        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
       } finally {
-        isTorchBusy = false;
+        torchOpBusy = false;
       }
     }
 
