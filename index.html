@@ -679,11 +679,6 @@
     let sheetFrozen = false;
     let sheetResults = [];
 
-    const SHEET_ROI_W = 60;
-    // ปรับค่าสำหรับ High Density 20 Layers
-    const GAP_SMOOTH_RADIUS = 2;  
-    const MIN_GAP_DIST_RATIO = 0.025; 
-
     // --- LAYOUT ---
     function setCompactMode() {
       const frame = document.querySelector(".app-frame");
@@ -803,7 +798,10 @@
       requestAnimationFrame(loop);
     }
 
-    // --- SHEET AR LOGIC (High Density 20 Layers) ---
+    // =========================================================
+    // --- UPDATED GLUE GAP LOGIC (Local Contrast & Waveform) ---
+    // =========================================================
+
     function processSheetFrame() {
       if (sheetFrozen) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
@@ -811,191 +809,255 @@
       const w = video.videoWidth;
       const h = video.videoHeight;
 
+      // Setup Canvas
       if(sheetCanvas.width !== w || sheetCanvas.height !== h) {
         sheetCanvas.width = w; sheetCanvas.height = h;
       }
       
-      const roiX = (w - SHEET_ROI_W) / 2;
+      // ROI Setting (แถบกลางภาพ)
+      const roiW = 60; 
+      const roiX = (w - roiW) / 2;
 
-      if(procCanvas.width !== SHEET_ROI_W || procCanvas.height !== h) {
-        procCanvas.width = SHEET_ROI_W; procCanvas.height = h;
+      // ดึงภาพเฉพาะส่วน ROI มาวิเคราะห์
+      if(procCanvas.width !== roiW || procCanvas.height !== h) {
+        procCanvas.width = roiW; procCanvas.height = h;
       }
+      procCtx.drawImage(video, roiX, 0, roiW, h, 0, 0, roiW, h);
+      const data = procCtx.getImageData(0, 0, roiW, h).data;
 
-      procCtx.drawImage(video, roiX, 0, SHEET_ROI_W, h, 0, 0, SHEET_ROI_W, h);
-      const data = procCtx.getImageData(0, 0, SHEET_ROI_W, h).data;
-
-      // 1) Luma Profile Detection (หา Dark Bands)
-      const rawSignal = new Float32Array(h);
-      let minVal = 9999, maxVal = -9999;
-
+      // 1. สร้าง Vertical Profile (แปลงภาพเป็นกราฟความเข้มแสงแนวตั้ง)
+      // ยิ่งค่ามาก = ยิ่งมืด (Inverted Luma) เพื่อให้ร่องกาวเป็นยอดกราฟ (Peak)
+      const profile = new Float32Array(h);
       for(let y = 0; y < h; y++) {
-        let rowSum = 0;
-        for(let x = 0; x < SHEET_ROI_W; x++) {
-          const idx = (y * SHEET_ROI_W + x) * 4;
-          // คำนวณความสว่าง
-          const g = (data[idx]*0.299 + data[idx+1]*0.587 + data[idx+2]*0.114);
-          rowSum += g;
+        let sum = 0;
+        for(let x = 0; x < roiW; x++) {
+          const i = (y * roiW + x) * 4;
+          // สูตร Luma: 0.299R + 0.587G + 0.114B
+          const luma = (data[i]*0.299 + data[i+1]*0.587 + data[i+2]*0.114);
+          sum += luma;
         }
-        const avgLuma = rowSum / SHEET_ROI_W;
-        
-        // Invert: ยิ่งมืด ค่า Signal ยิ่งสูง (เพื่อหา Peak)
-        const invertedVal = 255 - avgLuma; 
-        rawSignal[y] = invertedVal;
+        // Invert: 255 - avg (เพื่อให้จุดมืดมีค่าสูง)
+        profile[y] = 255 - (sum / roiW);
       }
 
-      // 2) Smoothing Signal
-      const smoothSignal = new Float32Array(h);
-      for(let y = 0; y < h; y++) {
-        let sum = 0; 
-        let count = 0;
-        for(let k = -GAP_SMOOTH_RADIUS; k <= GAP_SMOOTH_RADIUS; k++) {
-           const cy = y + k;
-           if(cy >= 0 && cy < h) {
-             sum += rawSignal[cy];
-             count++;
-           }
-        }
-        const val = sum/count;
-        smoothSignal[y] = val;
-        
-        if(val < minVal) minVal = val;
-        if(val > maxVal) maxVal = val;
-      }
+      // 2. Smooth Profile (ลด Noise)
+      const smoothed = smoothArray(profile, 4); // รัศมี Smooth 4px
 
-      // 3) Peak Picking (Threshold = 20% of Dynamic Range)
-      const signalRange = maxVal - minVal;
-      const threshold = minVal + (signalRange * 0.20); 
-      const minPixelDist = h * MIN_GAP_DIST_RATIO;
+      // 3. Find Peaks (หาจุดที่เป็นร่องกาว)
+      // ใช้ Prominence: จุดยอดต้องสูงกว่าพื้นที่รอบข้างอย่างน้อย 15 หน่วย
+      const minProminence = 15; 
+      const minDist = h * 0.02; // ระยะห่างขั้นต่ำระหว่างร่อง (2% ของความสูง)
+      
+      const peaks = findPeaks(smoothed, minProminence, minDist);
 
-      const gaps = [];
-      for(let y = GAP_SMOOTH_RADIUS; y < h - GAP_SMOOTH_RADIUS; y++) {
-        const val = smoothSignal[y];
-        
-        if(val > threshold) {
-           if(val > smoothSignal[y-1] && val > smoothSignal[y+1]) {
-             // ตรวจสอบระยะห่าง
-             if(gaps.length === 0 || (y - gaps[gaps.length-1].y > minPixelDist)) {
-               gaps.push({ y: y, strength: val });
-             } else {
-               // ถ้าใกล้กันเกินไป ให้เก็บค่าที่เข้มกว่า
-               const lastGap = gaps[gaps.length-1];
-               if(val > lastGap.strength) {
-                 lastGap.y = y;
-                 lastGap.strength = val;
-               }
-             }
-           }
-        }
-      }
-
-      // --- RENDERING ---
+      // --- RENDERING & MEASURING ---
       sheetCtx.clearRect(0,0,w,h);
       
       const results = [];
-      const totalGaps = gaps.length;
-      
       let totalW = 0;
       let foundCount = 0;
 
-      for(let i = 0; i < totalGaps; i++) {
-        const gapY = gaps[i].y;
+      peaks.forEach((peak, i) => {
+        // Measure Width (วัดความกว้างแนวนอน ณ จุด Y ที่เจอ)
+        // ส่งข้อมูลภาพเต็มความกว้าง (video) ไปวัดโดยใช้ ROI เดิม เพื่อความเร็ว
+        const measured = measureGrooveWidthAdvanced(data, roiW, peak.index);
         
-        // Measure Groove
-        const yStart = Math.max(0, gapY - 5);
-        const yEnd = Math.min(h, gapY + 5);
-        const groove = measureGrooveWidth(data, SHEET_ROI_W, yStart, yEnd);
-        
-        let widthVal = 0;
         let status = "NO_READ";
+        let widthVal = 0;
 
-        if(groove.status === 'OK' && groove.width > 0) {
-           widthVal = groove.width;
-           status = "OK";
-           totalW += widthVal;
-           foundCount++;
+        if (measured.quality > 0.5 && measured.width > 2) {
+             widthVal = measured.width;
+             status = "OK";
+             totalW += widthVal;
+             foundCount++;
         }
 
-        results.push({ layer: i+1, y: gapY, w: widthVal, status });
+        results.push({ layer: i+1, y: peak.index, w: widthVal, status });
 
-        // Draw Visuals (Compact Box)
-        const boxW = 120;
-        const boxH = 20; 
+        // Draw Visuals
+        const gapY = peak.index;
+        const boxW = 100;
+        const boxH = 18; 
         const boxX = (w/2) - (boxW/2);
         const boxY = gapY - (boxH/2);
 
-        // Gap Line
+        // Line
         sheetCtx.beginPath();
         sheetCtx.moveTo(0, gapY);
         sheetCtx.lineTo(w, gapY);
-        sheetCtx.strokeStyle = "rgba(0, 255, 65, 0.4)";
+        sheetCtx.strokeStyle = (status === 'OK') ? "rgba(0, 255, 65, 0.6)" : "rgba(248, 113, 113, 0.5)";
         sheetCtx.lineWidth = 1;
         sheetCtx.stroke();
 
-        // Label Box
-        sheetCtx.fillStyle = (status === 'OK') ? "rgba(0, 255, 65, 0.15)" : "rgba(248, 113, 113, 0.15)";
+        // Label
+        sheetCtx.fillStyle = (status === 'OK') ? "rgba(0, 0, 0, 0.6)" : "rgba(100, 0, 0, 0.6)";
         sheetCtx.strokeStyle = (status === 'OK') ? "#00ff41" : "#f87171";
-        sheetCtx.lineWidth = 1; 
+        sheetCtx.lineWidth = 1;
         sheetCtx.fillRect(boxX, boxY, boxW, boxH);
         sheetCtx.strokeRect(boxX, boxY, boxW, boxH);
 
-        // Text
         sheetCtx.fillStyle = "#fff";
-        sheetCtx.font = "bold 12px 'Inter', sans-serif";
+        sheetCtx.font = "bold 11px 'Inter'";
         sheetCtx.textBaseline = "middle";
         sheetCtx.textAlign = "center";
-        const valStr = (status==='OK') ? Math.round(widthVal) : "N/A";
-        sheetCtx.fillText(`Gap ${i+1}: ${valStr}`, w/2, gapY);
-      }
+        const txt = (status==='OK') ? `W: ${widthVal.toFixed(1)} px` : `Layer ${i+1}`;
+        sheetCtx.fillText(txt, w/2, gapY);
+      });
 
       // Update Stats
-      const missing = Math.max(0, totalGaps - foundCount);
+      const expected = peaks.length; // หรือกำหนดตายตัวถ้าทราบจำนวนชั้น
+      const missing = Math.max(0, expected - foundCount);
       const avg = foundCount > 0 ? (totalW / foundCount) : 0;
 
-      document.getElementById('sh-count').innerText = String(totalGaps);
+      document.getElementById('sh-count').innerText = String(expected);
       document.getElementById('sh-found').innerText = String(foundCount);
       document.getElementById('sh-missing').innerText = String(missing);
       document.getElementById('sh-avg').innerText = (foundCount > 0 ? avg.toFixed(1) : "-");
 
-      renderGlueChart(results);
+      // ส่ง smoothed profile ไปวาดกราฟ Waveform
+      renderGlueChart(results, smoothed, 0, 255);
       renderGlueTable(results);
 
       sheetResults = results;
     }
 
-    function measureGrooveWidth(data, w, yStart, yEnd) {
-      const profile = new Float32Array(w);
-      let minVal = 255, maxVal = 0;
-      let minX = 0;
-
-      for(let x = 0; x < w; x++) {
-        let colSum = 0, count = 0;
-        for(let y = yStart + 2; y < yEnd - 2; y++) {
-          const idx = (y * w + x) * 4;
-          colSum += (data[idx]*0.299 + data[idx+1]*0.587 + data[idx+2]*0.114);
-          count++;
+    // --- HELPER: Smooth Array (Simple Box Blur) ---
+    function smoothArray(arr, radius) {
+      const res = new Float32Array(arr.length);
+      for(let i = 0; i < arr.length; i++) {
+        let sum = 0;
+        let count = 0;
+        for(let r = -radius; r <= radius; r++) {
+          const idx = i + r;
+          if(idx >= 0 && idx < arr.length) {
+            sum += arr[idx];
+            count++;
+          }
         }
-        const val = count ? colSum/count : 0;
-        profile[x] = val;
-        if(val < minVal) { minVal = val; minX = x; }
-        if(val > maxVal) { maxVal = val; }
+        res[i] = sum / count;
       }
-      if(maxVal - minVal < 10) return { width: 0, status: 'FAIL' };
-      const threshold = minVal + (maxVal - minVal) * 0.4;
-      let xL = minX, xR = minX;
-      while(xL > 0 && profile[xL] < threshold) xL--;
-      while(xR < w - 1 && profile[xR] < threshold) xR++;
-      const width = Math.max(0, xR - xL);
-      if (width <= 0) return { width: 0, status: 'FAIL' };
-      return { width, status: 'OK' };
+      return res;
     }
 
-    // --- NEW RENDER FUNCTIONS ---
-    function renderGlueChart(results) {
+    // --- HELPER: Peak Detection (Local Maxima) ---
+    function findPeaks(arr, prominence, minDist) {
+      // 1. Find Local Maxima
+      const candidates = [];
+      for(let i = 1; i < arr.length - 1; i++) {
+        if(arr[i] > arr[i-1] && arr[i] > arr[i+1]) {
+           candidates.push({ index: i, value: arr[i] });
+        }
+      }
+
+      // 2. Filter by "Prominence"
+      const finalPeaks = [];
+      candidates.forEach(cand => {
+         // หาค่าต่ำสุดในช่วง local (ซ้ายขวา 20px)
+         let localMin = 255;
+         const range = 20;
+         for(let k = -range; k <= range; k++) {
+            const idx = cand.index + k;
+            if(idx>=0 && idx<arr.length) {
+               if(arr[idx] < localMin) localMin = arr[idx];
+            }
+         }
+         
+         if((cand.value - localMin) > prominence) {
+            finalPeaks.push(cand);
+         }
+      });
+
+      // 3. Filter by Distance
+      finalPeaks.sort((a,b) => b.value - a.value);
+      
+      const result = [];
+      finalPeaks.forEach(p => {
+         const tooClose = result.some(existing => Math.abs(existing.index - p.index) < minDist);
+         if(!tooClose) {
+            result.push(p);
+         }
+      });
+
+      // คืนค่าโดยเรียงตามตำแหน่ง Y (บนลงล่าง)
+      return result.sort((a,b) => a.index - b.index);
+    }
+
+    // --- HELPER: Measure Groove Width (FWHM Style) ---
+    function measureGrooveWidthAdvanced(data, w, centerY) {
+       // สร้าง Horizontal Profile ณ จุด centerY
+       const rowProfile = new Float32Array(w);
+       let maxVal = -999;
+       let minVal = 999;
+       let maxIndex = 0;
+
+       for(let x = 0; x < w; x++) {
+          let sum = 0;
+          for(let dy = -1; dy <= 1; dy++) {
+             const y = Math.min(Math.max(0, centerY + dy), 1000);
+             const idx = (y * w + x) * 4;
+             const val = (data[idx]*0.299 + data[idx+1]*0.587 + data[idx+2]*0.114);
+             sum += val;
+          }
+          const avgLuma = sum / 3;
+          const valInv = 255 - avgLuma;
+          rowProfile[x] = valInv;
+
+          if(valInv > maxVal) { maxVal = valInv; maxIndex = x; }
+          if(valInv < minVal) minVal = valInv;
+       }
+
+       const contrast = maxVal - minVal;
+       if (contrast < 15) return { width: 0, quality: 0 };
+
+       const halfHeight = minVal + (contrast * 0.5);
+
+       let leftX = maxIndex;
+       while(leftX > 0 && rowProfile[leftX] > halfHeight) {
+          leftX--;
+       }
+
+       let rightX = maxIndex;
+       while(rightX < w - 1 && rowProfile[rightX] > halfHeight) {
+          rightX++;
+       }
+
+       const width = rightX - leftX;
+       const quality = Math.min(1.0, contrast / 50);
+
+       return { width, quality };
+    }
+
+    // --- HELPER: Render Glue Chart (Waveform + Bars) ---
+    function renderGlueChart(results, signal, minSig, maxSig) {
       const w = glueProfileCanvas.offsetWidth;
       const h = glueProfileCanvas.offsetHeight;
       if (glueProfileCanvas.width !== w) { glueProfileCanvas.width = w; glueProfileCanvas.height = h; }
       
       glueProfileCtx.clearRect(0, 0, w, h);
+
+      // 1. วาดเส้น Signal Profile (Waveform)
+      if(signal && signal.length > 0) {
+        glueProfileCtx.beginPath();
+        glueProfileCtx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+        glueProfileCtx.lineWidth = 1.5;
+        
+        const range = maxSig - minSig;
+        
+        for(let i=0; i<signal.length; i++) {
+           const val = signal[i];
+           // Normalize 0-1
+           const norm = (range > 0) ? (val - minSig) / range : 0.5; 
+           // Map signal value (strength) to height
+           const plotY = h - (norm * h * 0.9) - (h*0.05); 
+           const plotX = (i / signal.length) * w;
+
+           if(i===0) glueProfileCtx.moveTo(plotX, plotY);
+           else glueProfileCtx.lineTo(plotX, plotY);
+        }
+        glueProfileCtx.stroke();
+      }
+
+      // 2. วาดแท่งผลลัพธ์ (Bars)
       if (!results || results.length === 0) return;
 
       const barGap = 2;
@@ -1004,15 +1066,25 @@
       
       results.forEach((r, i) => {
          const val = r.w;
-         const barH = (val / maxW) * h;
+         const barH = (val / maxW) * (h * 0.6); // ลดความสูงลงหน่อยเพื่อไม่ให้บังกราฟเส้น
          const x = i * (barW + barGap);
          const y = h - barH;
          
-         glueProfileCtx.fillStyle = (r.status === 'OK') ? '#34d399' : '#f87171';
+         glueProfileCtx.fillStyle = (r.status === 'OK') ? 'rgba(52, 211, 153, 0.8)' : 'rgba(248, 113, 113, 0.8)';
+         
+         // วาด Bar
          if(r.status !== 'OK') {
              glueProfileCtx.fillRect(x, h - 4, Math.max(1, barW), 4);
          } else {
              glueProfileCtx.fillRect(x, y, Math.max(1, barW), barH);
+             
+             // เพิ่มตัวเลขบนกราฟแท่ง
+             glueProfileCtx.fillStyle = "#fff";
+             glueProfileCtx.font = "bold 9px 'Inter'";
+             glueProfileCtx.textAlign = "center";
+             if(barW > 12) {
+                glueProfileCtx.fillText(Math.round(val), x + barW/2, y - 4);
+             }
          }
       });
     }
@@ -1074,7 +1146,7 @@
       if(glueProfileCtx) glueProfileCtx.clearRect(0,0, glueProfileCanvas.width, glueProfileCanvas.height);
     }
 
-    // --- COLOR HELPERS ---
+    // --- COLOR HELPERS (UNCHANGED) ---
     function getSmartAverage(arr) {
       if (arr.length === 0) return 0;
       arr.sort((a, b) => a - b);
