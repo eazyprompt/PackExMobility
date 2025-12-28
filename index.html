@@ -703,7 +703,7 @@
     // =========================================================
     // NEW: Robust (Median+MAD) + Multi-frame confidence for "LOW AREA" highlight
     // =========================================================
-    const AREA_ROBUST_K = 2.5;        // z < -K => low-outlier (robust)
+    const AREA_ROBUST_K = 1.5;        // z < -K => low-outlier (robust)
     const AREA_ENTER_FRAMES = 6;      // ต้องเข้าหลายเฟรมติดกันก่อน "ติดแดง"
     const AREA_EXIT_FRAMES  = 8;      // ต้องไม่เข้าหลายเฟรมติดกันก่อน "กลับเขียว"
     const AREA_MAX_MISSING  = 10;     // ถ้าชั้นหายไปนาน ล้างสถานะ
