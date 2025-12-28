@@ -993,38 +993,50 @@
     // =========================================================
     // NEW: Transition logic (แดง->เขียว = Gap, แดง->แดง = No Gap)
     // =========================================================
-    function classifyGapByTransition(smoothed, peaks, idx, med, mad, minDist, maxY) {
-      const y0 = peaks[idx].index;
-      const yNext = (idx + 1 < peaks.length) ? peaks[idx + 1].index : Math.min(maxY, y0 + minDist);
+// ✅ Replace your existing classifyGapByTransition(...) with this softer version
+function classifyGapByTransition(smoothed, peaks, idx, med, mad, minDist, maxY) {
+  const y0 = peaks[idx].index;
+  const yNext = (idx + 1 < peaks.length) ? peaks[idx + 1].index : Math.min(maxY, y0 + minDist);
 
-      const start = Math.min(maxY, y0 + 2);
-      const end   = Math.max(start + 2, Math.min(maxY, yNext - 2));
+  const start = Math.min(maxY, y0 + 2);
+  const end   = Math.max(start + 2, Math.min(maxY, yNext - 2));
 
-      let valleyMin = Infinity;
-      for (let y = start; y <= end; y++) {
-        valleyMin = Math.min(valleyMin, smoothed[y]);
-      }
+  let valleyMin = Infinity;
+  for (let y = start; y <= end; y++) valleyMin = Math.min(valleyMin, smoothed[y]);
 
-      const peakVal = smoothed[y0];
-      const prominence = peakVal - valleyMin;
+  const peakVal = smoothed[y0];
+  const prominence = peakVal - valleyMin;
 
-      // “ลงเป็นเขียว” ต้องต่ำพอ
-      const valleyThr = Math.max(25, med + mad * 0.6);
+  // ==============================
+  //  SOFTENING KNOBS (ปรับได้)
+  // ==============================
+  const SENS = 1.0;        // เพิ่มให้ "จับ Gap ง่ายขึ้น" เช่น 1.15 / 1.30
+  const RED_GUARD = 0.9;   // ลดลง = "แดงติดกัน" จะไม่สรุป No Gap ง่าย
 
-      // “ช่องว่าง” ต้องชัดพอ
-      const promThr = Math.max(120, mad * 5.0);
+  // เดิมคุณใช้: valleyThr = max(25, med + mad*0.6)
+  // ✅ Soft: เพิ่มเพดาน valleyThr ให้สูงขึ้น (ยอมให้ "เขียว" ไม่ต้องมืดมาก)
+  const valleyThr = Math.max(30, med + mad * (0.85 * SENS));
 
-      // แดงติดกัน (peak ใกล้กัน) = ลอนต่อเนื่อง
-      const closeRed = (idx + 1 < peaks.length) && ((yNext - y0) < Math.max(8, minDist * 0.75));
+  // เดิมคุณใช้: promThr = max(120, mad*5.0)
+  // ✅ Soft: ลด promThr ลง (ให้ prominence น้อยกว่ายังถือว่า Gap ได้)
+  const promThr = Math.max(70, mad * (3.2 / SENS));
 
-      const hasGap = (valleyMin <= valleyThr) && (prominence >= promThr);
+  // ระยะที่ถือว่า "แดงติดกัน"
+  // เดิม: < max(8, minDist*0.75)
+  // ✅ Soft: ต้องใกล้กว่านี้จริงๆถึงเรียกติดกัน
+  const closeRed = (idx + 1 < peaks.length) && ((yNext - y0) < Math.max(6, minDist * (0.55 * RED_GUARD)));
 
-      // แดง->แดง และไม่เห็น valley ชัด => No Gap
-      if (closeRed && !hasGap) return false;
+  // เงื่อนไข Gap
+  const hasGap = (valleyMin <= valleyThr) && (prominence >= promThr);
 
-      return hasGap;
-    }
+  // ✅ Soft rule:
+  // ถ้าแดงติดกัน "แต่" valley ลงพอสมควร ให้ยังไม่ตัดเป็น No Gap ทันที
+  const valleyLooksLikeGap = (valleyMin <= (valleyThr * 1.08)); // เผื่ออีกนิด
+  if (closeRed && !hasGap && !valleyLooksLikeGap) return false;
 
+  return hasGap || valleyLooksLikeGap; // ช่วยลด false No Gap
+}
+   
     // =========================================================
     //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
