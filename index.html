@@ -496,8 +496,8 @@
 
   .lightctl{
     position:absolute;
-    right: 12px;   /* ✅ ย้ายไปขวา */
-  left: auto;    /* ✅ ปิดซ้าย */
+    right: 12px;
+    left: auto;
     top: 50%;
     transform: translateY(-50%);
     z-index: 40;
@@ -519,7 +519,6 @@
     -webkit-user-select:none;
     user-select:none;
 
-    /* hidden by default; shown only in gluegap tab */
     opacity: 0;
     transform: translateY(-50%) translateX(-6px);
     transition: opacity .18s ease, transform .18s ease;
@@ -831,7 +830,7 @@
                 </div>
                 <div class="sum-item">
                    <div class="sum-val text-ng" id="sum-ng">0</div>
-                   <div class="sum-lbl">No Gap</div>
+                   <div class="sum-lbl">Warning (Red Frames)</div>
                 </div>
               </div>
             </div>
@@ -1617,10 +1616,17 @@
         });
       });
 
-      // Update Header & Summary (based on GlueGap OK/NG only)
+      // ✅ Update Header & Summary (sum-ng = count RED frames)
       const expected = results.length;
+
+      // RED = กรอบที่ถูกวาดเป็นสีแดง (NG หรือ lowArea=true)
+      const redCount = results.filter(r => (r.status === "NG") || (r.lowArea === true)).length;
+
+      // GREEN (Glue Gap) = ที่เหลือ
+      const gapCount = expected - redCount;
+
+      // (คง header logic เดิมไว้: FAIL เมื่อมี NG จริงๆ)
       const ngCount = results.filter(r => r.status === "NG").length;
-      const okCount = expected - ngCount;
 
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
@@ -1637,8 +1643,8 @@
       }
 
       document.getElementById('sum-total').innerText = expected;
-      document.getElementById('sum-gap').innerText = okCount;
-      document.getElementById('sum-ng').innerText = ngCount;
+      document.getElementById('sum-gap').innerText = gapCount; // ✅ green count
+      document.getElementById('sum-ng').innerText = redCount;  // ✅ red count
 
       // --- STATS CALCULATION (Area-based; use OK layers only) ---
       const validAreas = results.filter(r => r.status !== "NG").map(r => r.area);
