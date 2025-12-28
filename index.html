@@ -11,10 +11,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
+<!-- iPhone Add to Home Screen (ตัวหลัก) -->
 <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -189,6 +195,8 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
+    .btn-vp-capture { display: none; } 
+
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -199,19 +207,21 @@
       min-height: 0;
     }
     
+    /* MODIFIED: Add scrolling to panel content */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto;
+      overflow-y: auto; /* Enable vertical scroll */
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* GLUE DASHBOARD */
+    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
+    /* Ensure Glue Dashboard takes full height of scrollable parent */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height:100%; min-height: 400px; 
+        height:100%; min-height: 400px; /* Safe min-height */
         background:#0f172a; 
         overflow:hidden; 
         width:100%; 
@@ -220,13 +230,14 @@
     .glue-body-split { 
         flex: 1; 
         display: flex; 
-        flex-direction: row; 
+        flex-direction: row; /* Horizontal Split */
         overflow: hidden; 
         position: relative; 
     }
 
+    /* 70% Left - Main Area */
     .glue-main-area {
-        flex: 7; 
+        flex: 7; /* 70% */
         display: flex; 
         flex-direction: column;
         overflow: hidden;
@@ -234,8 +245,9 @@
         border-right: 1px solid var(--border-subtle);
     }
 
+    /* 30% Right - Summary Area */
     .glue-summary-area {
-        flex: 3;
+        flex: 3; /* 30% */
         background: #172554;
         display: flex;
         flex-direction: column;
@@ -245,6 +257,7 @@
         padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
 
+    /* Summary Stat Items */
     .sum-item {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.08);
@@ -261,10 +274,11 @@
     .text-ok { color: var(--success); }
     .text-ng { color: var(--danger); }
 
+    /* Header Button Style */
     .btn-header-cap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: #3b82f6; 
+        background: #3b82f6; /* Primary blue */
         color: #fff;
         border: none;
         display: flex; align-items: center; justify-content: center;
@@ -279,6 +293,7 @@
         box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
+    /* Glue Header Layout */
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -383,6 +398,7 @@
 
     .display-none { display: none !important; }
 
+    /* --- ENHANCED LEFT PANEL STYLES --- */
     .glue-list-header {
       padding: 12px 16px;
       background: #0f172a;
@@ -403,6 +419,7 @@
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
+    /* Distribution Canvas Container */
     .dist-container {
       flex: 1;
       position: relative;
@@ -428,6 +445,7 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
+/* Bigger bottom-tab icons + labels (only tab-bar) */
 .tab-bar .tab-item svg{
   width: 26px;
   height: 26px;
@@ -435,27 +453,30 @@
 }
 
 .tab-bar .tab-lbl{
-  font-size: 0.72rem;   
+  font-size: 0.72rem;   /* เดิม 0.65rem */
   font-weight: 800;
   letter-spacing: 0.2px;
 }
 
+/* Make touch area feel more balanced */
 .tab-bar{
-  height: 66px;               
+  height: 66px;                 /* เดิม var(--tab-h)=60px */
   padding-top: 6px;
   padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
 }
 
+/* keep the icon lift effect but not too subtle */
 .tab-bar .tab-item.active svg{
   transform: translateY(-3px) scale(1.05);
 }
-
+/* iOS Add-to-Home-Screen (standalone) fixes */
 @media (display-mode: standalone) {
   html, body {
-    -webkit-text-size-adjust: 100%;  
+    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
     text-size-adjust: 100%;
   }
 
+  /* lucide renders as <svg>, lock size only in bottom tabs */
   .tab-bar .tab-item svg{
     width: 30px;
     height: 30px;
@@ -477,6 +498,7 @@
   }
 }
 
+/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
 .tab-item svg { transition: transform 0.2s; }
 .tab-item.active svg { transform: translateY(-2px); }
 
@@ -986,7 +1008,7 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: IMPROVED "NO GAP" DETECTION
+    //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1035,7 +1057,7 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // Profile Scan (Darkness)
+      // Profile Scan
       const profile = new Float32Array(roiH_v);
       const centerStart = Math.floor(roiW_v * 0.35);
       const centerEnd = Math.floor(roiW_v * 0.65);
@@ -1050,31 +1072,23 @@
           sumLuma += luma;
         }
         const avgLuma = sumLuma / centerW;
-        // Invert: Higher = Darker
         const darkness = Math.max(0, 255 - avgLuma);
         profile[y] = Math.pow(darkness, 1.5); 
       }
 
       const smoothed = movingAverage(profile, 4);
       const { med, mad } = robustStats(smoothed);
-      
-      // Dynamic Thresholds
-      const darknessThreshold = Math.max(100, mad * 3.5); // Must be at least this dark to be a "Good Gap"
-      const peakProminence = Math.max(30, mad * 1.5);     // Peak detection sensitivity
+      const layerThreshold = Math.max(30, mad * 1.5); 
+      const gapThreshold = Math.max(100, mad * 4.5);
       const minDist = Math.floor(roiH_v / 12); 
 
-      let peaks = findPeaksDynamic(smoothed, peakProminence, minDist);
+      let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
       
       const results = [];
       let maxW = 0;
-
-      // -- NEW: Width Constraint --
-      // A valid gap must be at least 5% of the ROI width
-      // This catches "crushed" gaps which are dark but very thin
-      const MIN_GAP_WIDTH_PX = roiW_v * 0.05; 
 
       peaks.forEach((peak, idx) => {
         if (peak.index > roiH_v * 0.96) return; 
@@ -1095,39 +1109,24 @@
         const widthPx = Math.round(dispW); 
 
         const peakValue = smoothed[localY_v];
-        
-        // --- LOGIC IMPROVEMENT ---
-        // Condition 1: Must be dark enough (Deep)
-        const isDeepEnough = peakValue >= darknessThreshold;
-        
-        // Condition 2: Must be wide enough (Open)
-        // Note: use 'gapGeo.width' (raw pixels) for logic, 'dispW' for drawing
-        const isWideEnough = gapGeo.width >= MIN_GAP_WIDTH_PX;
-
         let status = "OK";
-        let boxColor = "#34d399"; // Green
+        let boxColor = "#34d399"; 
         let bgColor = "rgba(52, 211, 153, 0.2)";
-        let labelText = `#${idx + 1}`; 
+        let labelText = `#${idx + 1} (${widthPx}px)`; 
         let xOffset = 65;
 
-        if (!isDeepEnough || !isWideEnough) {
+        if (peakValue < gapThreshold) {
             status = "NG";
-            boxColor = "#ef4444"; // Red
+            boxColor = "#ef4444"; 
             bgColor = "rgba(239, 68, 68, 0.2)";
-            
-            // Helpful failure label
-            if (!isWideEnough) labelText = `NG (CRUSHED)`;
-            else labelText = `NG (DIM)`;
-            
-            xOffset = 90;
+            labelText = `NO GAP ${idx + 1}`;
+            xOffset = 80;
         }
 
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
-        sheetCtx.lineWidth = 2;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
-        
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
