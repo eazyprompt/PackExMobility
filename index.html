@@ -6,20 +6,9 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   />
-  <title>PackEx</title>
+  <title>PackEx: Smart Inspection Tool</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
-
-<!-- iPhone Add to Home Screen (ตัวหลัก) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
+  <link rel="icon" type="image/png" href="./logo.png" />
   <meta name="theme-color" content="#020617" />
 
   <link
@@ -207,21 +196,22 @@
       min-height: 0;
     }
     
-    /* MODIFIED: Add scrolling to panel content */
+    /* SCROLL FIX: Allow scrolling inside panel */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto; /* Enable vertical scroll */
+      overflow-y: auto; 
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+      -webkit-overflow-scrolling: touch;
+      /* Extra padding at bottom to clear Floating Tab Bar */
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 32px);
     }
 
-    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
-    /* Ensure Glue Dashboard takes full height of scrollable parent */
+    /* --- GLUE DASHBOARD LAYOUT --- */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height:100%; min-height: 400px; /* Safe min-height */
+        height: auto; 
+        min-height: 100%;
         background:#0f172a; 
         overflow:hidden; 
         width:100%; 
@@ -230,14 +220,15 @@
     .glue-body-split { 
         flex: 1; 
         display: flex; 
-        flex-direction: row; /* Horizontal Split */
+        flex-direction: row; 
         overflow: hidden; 
         position: relative; 
+        padding-bottom: 20px;
     }
 
-    /* 70% Left - Main Area */
+    /* 70% Left - Main Area (Graph) */
     .glue-main-area {
-        flex: 7; /* 70% */
+        flex: 7; 
         display: flex; 
         flex-direction: column;
         overflow: hidden;
@@ -247,14 +238,14 @@
 
     /* 30% Right - Summary Area */
     .glue-summary-area {
-        flex: 3; /* 30% */
+        flex: 3;
         background: #172554;
         display: flex;
         flex-direction: column;
         padding: 16px 12px;
         gap: 16px;
         overflow-y: auto;
-        padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
+        padding-bottom: 20px;
     }
 
     /* Summary Stat Items */
@@ -278,7 +269,7 @@
     .btn-header-cap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: #3b82f6; /* Primary blue */
+        background: #3b82f6; 
         color: #fff;
         border: none;
         display: flex; align-items: center; justify-content: center;
@@ -444,64 +435,6 @@
       .btn-act { padding: 10px; }
       .result-dashboard { padding: 12px 14px; }
     }
-
-/* Bigger bottom-tab icons + labels (only tab-bar) */
-.tab-bar .tab-item svg{
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.4;
-}
-
-.tab-bar .tab-lbl{
-  font-size: 0.72rem;   /* เดิม 0.65rem */
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
-
-/* Make touch area feel more balanced */
-.tab-bar{
-  height: 66px;                 /* เดิม var(--tab-h)=60px */
-  padding-top: 6px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-}
-
-/* keep the icon lift effect but not too subtle */
-.tab-bar .tab-item.active svg{
-  transform: translateY(-3px) scale(1.05);
-}
-/* iOS Add-to-Home-Screen (standalone) fixes */
-@media (display-mode: standalone) {
-  html, body {
-    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
-    text-size-adjust: 100%;
-  }
-
-  /* lucide renders as <svg>, lock size only in bottom tabs */
-  .tab-bar .tab-item svg{
-    width: 30px;
-    height: 30px;
-    stroke-width: 2.6;
-    display: block;
-    flex-shrink: 0;
-  }
-
-  .tab-bar .tab-lbl{
-    font-size: 0.75rem;
-    font-weight: 800;
-    line-height: 1;
-  }
-
-  .tab-bar{
-    height: 68px;
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-  }
-}
-
-/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
-.tab-item svg { transition: transform 0.2s; }
-.tab-item.active svg { transform: translateY(-2px); }
-
   </style>
 </head>
 
@@ -1135,9 +1068,12 @@
       });
 
       // Update Header & Summary
-      const expected = results.length;
+      // BOX COUNT FIX: Box = Gap + 1 (Fencepost)
+      const gapCount = results.length;
+      const boxCount = gapCount > 0 ? gapCount + 1 : 0;
+      
       const ngCount = results.filter(r => r.status === "NG").length;
-      const okCount = expected - ngCount;
+      const okCount = gapCount - ngCount; // OK gaps
       
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
@@ -1145,7 +1081,7 @@
       if (ngCount > 0) {
          statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
          header.className = "glue-compact-header status-fail";
-      } else if (expected >= 7 && expected <= 8) {
+      } else if (boxCount >= 6 && boxCount <= 7) { // Assuming 6-7 boxes is valid range
          statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
          header.className = "glue-compact-header status-pass";
       } else {
@@ -1153,7 +1089,7 @@
          header.className = "glue-compact-header";
       }
 
-      document.getElementById('sum-total').innerText = expected;
+      document.getElementById('sum-total').innerText = boxCount;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
@@ -1214,7 +1150,7 @@
         const w = distCanvas.width;
         const h = distCanvas.height;
         const padX = 20; 
-        const padY = 20;
+        const padY = 40; // Increased padding to lift graph above tab bar
 
         // Range
         const safeSD = Math.max(stdDev, mean * 0.1); 
@@ -1318,7 +1254,7 @@
         distCtx.fillStyle = "#64748b";
         distCtx.font = "10px Inter";
         distCtx.textAlign = "center";
-        distCtx.fillText(Math.round(mean), cx, h - 5);
+        distCtx.fillText(Math.round(mean), cx, h - 10);
     }
 
     function analyzeGapWidthRow(data, w, h, cy) {
