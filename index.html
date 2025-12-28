@@ -8,15 +8,19 @@
   />
   <title>PackEx</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617" />
+  <meta name="theme-color" content="#020617" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -191,7 +195,7 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    .btn-vp-capture { display: none; } 
+    .btn-vp-capture { display: none; }
 
     .panel {
       flex: 1;
@@ -202,7 +206,7 @@
       padding: 0;
       min-height: 0;
     }
-     
+
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
@@ -212,53 +216,52 @@
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* GLUE DASHBOARD */
-    .glue-dashboard { 
-        display:flex; flex-direction:column; 
-        height:100%; min-height: 400px;
-        background:#0f172a; 
-        overflow:hidden; 
-        width:100%; 
+    .glue-dashboard {
+      display:flex; flex-direction:column;
+      height:100%; min-height: 400px;
+      background:#0f172a;
+      overflow:hidden;
+      width:100%;
     }
-     
-    .glue-body-split { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: row; 
-        overflow: hidden; 
-        position: relative; 
+
+    .glue-body-split {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      position: relative;
     }
 
     .glue-main-area {
-        flex: 7; 
-        display: flex; 
-        flex-direction: column;
-        overflow: hidden;
-        background: #020617;
-        border-right: 1px solid var(--border-subtle);
+      flex: 7;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #020617;
+      border-right: 1px solid var(--border-subtle);
     }
 
     .glue-summary-area {
-        flex: 3;
-        background: #172554;
-        display: flex;
-        flex-direction: column;
-        padding: 16px 12px;
-        gap: 16px;
-        overflow-y: auto;
-        padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
+      flex: 3;
+      background: #172554;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+      gap: 16px;
+      overflow-y: auto;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
 
     .sum-item {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
     }
     .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
@@ -266,21 +269,21 @@
     .text-ng { color: var(--danger); }
 
     .btn-header-cap {
-        width: 44px; height: 44px;
-        border-radius: 12px;
-        background: #3b82f6; 
-        color: #fff;
-        border: none;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        transition: 0.2s;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: 0.2s;
     }
     .btn-header-cap:active { transform: scale(0.92); }
     .btn-header-cap.frozen {
-        background: #ef4444; 
-        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      background: #ef4444;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
     .glue-compact-header{
@@ -300,7 +303,7 @@
     }
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
-    
+
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -431,8 +434,11 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
+    /* Bigger bottom-tab icons + labels (only tab-bar) */
     .tab-bar .tab-item svg{
-      width: 26px; height: 26px; stroke-width: 2.4;
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.4;
     }
 
     .tab-bar .tab-lbl{
@@ -450,25 +456,36 @@
     .tab-bar .tab-item.active svg{
       transform: translateY(-3px) scale(1.05);
     }
+
     @media (display-mode: standalone) {
       html, body {
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
       }
+
       .tab-bar .tab-item svg{
-        width: 30px; height: 30px; stroke-width: 2.6;
-        display: block; flex-shrink: 0;
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.6;
+        display: block;
+        flex-shrink: 0;
       }
+
       .tab-bar .tab-lbl{
-        font-size: 0.75rem; font-weight: 800; line-height: 1;
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1;
       }
+
       .tab-bar{
-        height: 68px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+        height: 68px;
+        padding-top: 6px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
       }
     }
+
     .tab-item svg { transition: transform 0.2s; }
     .tab-item.active svg { transform: translateY(-2px); }
-
   </style>
 </head>
 
@@ -591,7 +608,7 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-              
+
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -602,7 +619,7 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-                
+
                 <div class="dist-container" id="dist-wrapper">
                    <canvas id="dist-canvas"></canvas>
                    <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
@@ -611,7 +628,7 @@
                    </div>
                 </div>
               </div>
-              
+
               <div class="glue-summary-area">
                 <div class="sum-item">
                    <div class="sum-val" id="sum-total">0</div>
@@ -656,11 +673,11 @@
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-    
+
     // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
-    
+
     // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
@@ -678,9 +695,9 @@
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;      
-    let torchOpBusy = false;    
-    let captureBusy = false;    
+    let isTorchOn = false;
+    let torchOpBusy = false;
+    let captureBusy = false;
 
     let sheetFrozen = false;
     let sheetResults = [];
@@ -764,14 +781,12 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-        
-        // Resize Dist Canvas
+
         const wrap = document.getElementById("dist-wrapper");
         if(wrap && wrap.offsetWidth) {
-            distCanvas.width = wrap.offsetWidth;
-            distCanvas.height = wrap.offsetHeight;
+          distCanvas.width = wrap.offsetWidth;
+          distCanvas.height = wrap.offsetHeight;
         }
-
       } else {
         const header = document.querySelector("header");
         const headerH = header ? header.offsetHeight : 64;
@@ -829,7 +844,6 @@
         resetSheetUI();
       }
 
-      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
       if(pc) pc.scrollTop = 0;
 
@@ -975,7 +989,58 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: GLUE GAP + FLUTING (WAVE) DETECTION
+    // ✅ NEW: Detect flute/texture inside the dark band
+    // If flute exists inside => treat as NO GAP (NG)
+    // =========================================================
+    function detectFluteInside(data, w, h, cy, left, right) {
+      left = Math.max(0, left - 4);
+      right = Math.min(w - 1, right + 4);
+
+      const bandW = right - left;
+      if (bandW < Math.max(18, Math.floor(w * 0.06))) {
+        return { isFlute: false, energy: 0, std: 0 };
+      }
+
+      const ySpan = 2;     // rows: cy-2..cy+2
+      const xStep = 2;
+
+      const samples = [];
+      const y0 = Math.max(0, cy - ySpan);
+      const y1 = Math.min(h - 1, cy + ySpan);
+
+      for (let yy = y0; yy <= y1; yy++) {
+        const rowStart = yy * w * 4;
+        for (let x = left; x <= right; x += xStep) {
+          const i = rowStart + x * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          samples.push(luma);
+        }
+      }
+
+      if (samples.length < 20) return { isFlute: false, energy: 0, std: 0 };
+
+      let mean = 0;
+      for (const v of samples) mean += v;
+      mean /= samples.length;
+
+      let varSum = 0;
+      for (const v of samples) varSum += (v - mean) * (v - mean);
+      const std = Math.sqrt(varSum / samples.length);
+
+      let energySum = 0;
+      for (let i = 1; i < samples.length; i++) energySum += Math.abs(samples[i] - samples[i - 1]);
+      const energy = energySum / (samples.length - 1);
+
+      // Tuneable thresholds (adjust if needed)
+      const energyThr = 6.5;   // higher -> less sensitive
+      const stdThr = 12.0;     // higher -> less sensitive
+
+      const isFlute = (energy > energyThr && std > stdThr);
+      return { isFlute, energy, std };
+    }
+
+    // =========================================================
+    // UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1040,30 +1105,33 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5); 
+        profile[y] = Math.pow(darkness, 1.5);
       }
 
       const smoothed = movingAverage(profile, 4);
-      const { med, mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
+      const { mad } = robustStats(smoothed);
+      const layerThreshold = Math.max(30, mad * 1.5);
       const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
+      const minDist = Math.floor(roiH_v / 12);
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-      
+
       const results = [];
-      let maxW = 0;
 
       peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return; 
+        if (peak.index > roiH_v * 0.96) return;
 
         const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
+
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
-        
+
+        // ✅ NEW: flute detection inside the dark band
+        const flute = detectFluteInside(data, roiW_v, roiH_v, localY_v, gapGeo.left, gapGeo.right);
+
         let st = layerStabilizer[idx];
         if (!st) st = { width: gapGeo.width };
         else st.width = lerp(st.width, gapGeo.width, 0.2);
@@ -1072,34 +1140,31 @@
         const dispW = Math.max(40, st.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-        maxW = Math.max(maxW, dispW);
-        const widthPx = Math.round(dispW); 
+        const widthPx = Math.round(dispW);
 
         const peakValue = smoothed[localY_v];
-        let status = "OK";
-        let boxColor = "#34d399"; 
-        let bgColor = "rgba(52, 211, 153, 0.2)";
-        let labelText = `#${idx + 1} (${widthPx}px)`; 
-        let xOffset = 65;
-        
-        // --- NEW: Threshold for Fluting (Wavy Texture) ---
-        // If roughness > 5.0, it's likely corrugated/wavy inside the gap
-        const flutingThreshold = 5.0; 
 
-        if (peakValue < gapThreshold) {
-            status = "NG";
-            boxColor = "#ef4444"; 
-            bgColor = "rgba(239, 68, 68, 0.2)";
-            labelText = `NG (LOW) ${idx + 1}`;
-            xOffset = 80;
-        } 
-        else if (gapGeo.roughness > flutingThreshold) {
-            // New Condition: Dark enough, but too rough (wavy)
-            status = "NG";
-            boxColor = "#fbbf24"; // Amber/Orange
-            bgColor = "rgba(251, 191, 36, 0.2)";
-            labelText = `NG (WAVE) ${idx + 1}`;
-            xOffset = 85;
+        // Default = OK (has gap)
+        let status = "OK";
+        let boxColor = "#34d399";
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let labelText = `#${idx + 1} (${widthPx}px)`;
+        let xOffset = 65;
+
+        // ✅ RULE: If flute exists inside => NO GAP (override)
+        if (flute.isFlute) {
+          status = "NG";
+          boxColor = "#ef4444";
+          bgColor = "rgba(239, 68, 68, 0.2)";
+          labelText = `NO GAP ${idx + 1}`;
+          xOffset = 80;
+        } else if (peakValue < gapThreshold) {
+          // Original rule: weak peak => NO GAP
+          status = "NG";
+          boxColor = "#ef4444";
+          bgColor = "rgba(239, 68, 68, 0.2)";
+          labelText = `NO GAP ${idx + 1}`;
+          xOffset = 80;
         }
 
         sheetCtx.fillStyle = bgColor;
@@ -1117,19 +1182,22 @@
       const expected = results.length;
       const ngCount = results.filter(r => r.status === "NG").length;
       const okCount = expected - ngCount;
-      
+
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
       if (ngCount > 0) {
-         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-         header.className = "glue-compact-header status-fail";
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+        header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-         header.className = "glue-compact-header status-pass";
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+        header.className = "glue-compact-header status-pass";
       } else {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-         header.className = "glue-compact-header";
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+        header.className = "glue-compact-header";
       }
 
       document.getElementById('sum-total').innerText = expected;
@@ -1146,161 +1214,141 @@
         const totalW = validGaps.reduce((acc, v) => acc + v, 0);
         avgWidth = totalW / validGaps.length;
 
-        // Variance & SD
         const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
         stdDev = Math.sqrt(variance);
 
-        // Uniformity
         const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
         const avgDev = totalDev / validGaps.length;
         uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
       }
 
-      // Update Stats Header
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-          statsHeader.style.display = "grid";
-          statsHeader.innerHTML = `
-            <div class="stat-box">
-                <div class="stat-title">Avg Width</div>
-                <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-title">Consistency</div>
-                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-                ${Math.round(uniformity)}<span class="stat-unit">%</span>
-                </div>
-            </div>
-          `;
-          document.getElementById("empty-scan-msg").style.display = "none";
+        statsHeader.style.display = "grid";
+        statsHeader.innerHTML = `
+          <div class="stat-box">
+              <div class="stat-title">Avg Width</div>
+              <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
+          </div>
+          <div class="stat-box">
+              <div class="stat-title">Consistency</div>
+              <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+              ${Math.round(uniformity)}<span class="stat-unit">%</span>
+              </div>
+          </div>
+        `;
+        document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-          statsHeader.style.display = "none";
-          document.getElementById("empty-scan-msg").style.display = "flex";
+        statsHeader.style.display = "none";
+        document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
-      // --- DRAW BELL CURVE & HISTOGRAM ---
       drawBellCurve(validGaps, avgWidth, stdDev);
-      
+
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
-        // Clear canvas
-        distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-        
-        if (values.length < 2) return; 
-        
-        const w = distCanvas.width;
-        const h = distCanvas.height;
-        const padX = 20; 
-        const padY = 20;
+      distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
-        // Range
-        const safeSD = Math.max(stdDev, mean * 0.1); 
-        const minX = mean - 3.5 * safeSD;
-        const maxX = mean + 3.5 * safeSD;
-        const rangeX = maxX - minX;
+      if (values.length < 2) return;
 
-        // Helper Map Functions
-        const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
-        const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-        const maxY = getGaussian(mean); // peak prob
-        
-        // --- 1. DRAW HISTOGRAM (BARS) ---
-        const binCount = 8; // Number of bars
-        const binWidth = rangeX / binCount;
-        const bins = new Array(binCount).fill(0);
-        
-        values.forEach(v => {
-            const binIdx = Math.floor((v - minX) / binWidth);
-            if (binIdx >= 0 && binIdx < binCount) {
-                bins[binIdx]++;
-            }
-        });
+      const w = distCanvas.width;
+      const h = distCanvas.height;
+      const padX = 20;
+      const padY = 20;
 
-        // Determine max bin count to scale histogram height
-        // Scale so max bar is approx 70% of canvas height
-        const maxBinVal = Math.max(...bins, 1); 
-        const barScaleY = (h - 2*padY) * 0.7;
+      const safeSD = Math.max(stdDev, mean * 0.1);
+      const minX = mean - 3.5 * safeSD;
+      const maxX = mean + 3.5 * safeSD;
+      const rangeX = maxX - minX;
 
-        distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        
-        bins.forEach((count, i) => {
-             const hBar = (count / maxBinVal) * barScaleY;
-             const xBar = mapX(minX + i * binWidth);
-             const yBar = h - padY - hBar;
-             const wBar = ((w - 2*padX) / binCount) - 2; // -2 for gap
-             
-             if (hBar > 0) {
-                distCtx.fillRect(xBar, yBar, wBar, hBar);
-             }
-        });
+      const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
+      const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
+      const maxY = getGaussian(mean);
 
-        // --- 2. DRAW BELL CURVE (Overlay) ---
-        const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
+      const binCount = 8;
+      const binWidth = rangeX / binCount;
+      const bins = new Array(binCount).fill(0);
+
+      values.forEach(v => {
+        const binIdx = Math.floor((v - minX) / binWidth);
+        if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
+      });
+
+      const maxBinVal = Math.max(...bins, 1);
+      const barScaleY = (h - 2*padY) * 0.7;
+
+      distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+
+      bins.forEach((count, i) => {
+        const hBar = (count / maxBinVal) * barScaleY;
+        const xBar = mapX(minX + i * binWidth);
+        const yBar = h - padY - hBar;
+        const wBar = ((w - 2*padX) / binCount) - 2;
+
+        if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
+      });
+
+      const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
+
+      distCtx.beginPath();
+      distCtx.moveTo(mapX(minX), h - padY);
+
+      const steps = 60;
+      for (let i = 0; i <= steps; i++) {
+        const xVal = minX + (rangeX * (i / steps));
+        const yVal = getGaussian(xVal);
+        distCtx.lineTo(mapX(xVal), mapY(yVal));
+      }
+
+      distCtx.lineTo(mapX(maxX), h - padY);
+      distCtx.closePath();
+
+      const grad = distCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+      grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
+      distCtx.fillStyle = grad;
+      distCtx.fill();
+
+      distCtx.strokeStyle = "#3b82f6";
+      distCtx.lineWidth = 2;
+      distCtx.stroke();
+
+      const cx = mapX(mean);
+      distCtx.beginPath();
+      distCtx.strokeStyle = "rgba(255,255,255,0.3)";
+      distCtx.setLineDash([4, 4]);
+      distCtx.moveTo(cx, padY);
+      distCtx.lineTo(cx, h - padY);
+      distCtx.stroke();
+      distCtx.setLineDash([]);
+
+      values.forEach(val => {
+        const vx = mapX(val);
+        const vy = mapY(getGaussian(val));
+
+        const dev = Math.abs(val - mean);
+        let color = "#34d399";
+        if (dev > 2 * stdDev) color = "#ef4444";
+        else if (dev > 1 * stdDev) color = "#fbbf24";
 
         distCtx.beginPath();
-        distCtx.moveTo(mapX(minX), h - padY);
-        
-        const steps = 60;
-        for (let i = 0; i <= steps; i++) {
-            const xVal = minX + (rangeX * (i / steps));
-            const yVal = getGaussian(xVal);
-            distCtx.lineTo(mapX(xVal), mapY(yVal));
-        }
-        
-        distCtx.lineTo(mapX(maxX), h - padY);
-        distCtx.closePath();
-        
-        // Gradient Fill
-        const grad = distCtx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-        grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
-        distCtx.fillStyle = grad;
+        distCtx.fillStyle = color;
+        distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
         distCtx.fill();
-        
-        distCtx.strokeStyle = "#3b82f6";
-        distCtx.lineWidth = 2;
+        distCtx.shadowColor = color;
+        distCtx.shadowBlur = 6;
         distCtx.stroke();
+        distCtx.shadowBlur = 0;
+      });
 
-        // --- 3. Center Line ---
-        const cx = mapX(mean);
-        distCtx.beginPath();
-        distCtx.strokeStyle = "rgba(255,255,255,0.3)";
-        distCtx.setLineDash([4, 4]);
-        distCtx.moveTo(cx, padY);
-        distCtx.lineTo(cx, h - padY);
-        distCtx.stroke();
-        distCtx.setLineDash([]);
-
-        // --- 4. Individual Measurements (Dots) ---
-        values.forEach(val => {
-            const vx = mapX(val);
-            const vy = mapY(getGaussian(val));
-            
-            const dev = Math.abs(val - mean);
-            let color = "#34d399"; 
-            if (dev > 2 * stdDev) color = "#ef4444"; 
-            else if (dev > 1 * stdDev) color = "#fbbf24"; 
-            
-            distCtx.beginPath();
-            distCtx.fillStyle = color;
-            distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
-            distCtx.fill();
-            distCtx.shadowColor = color;
-            distCtx.shadowBlur = 6;
-            distCtx.stroke();
-            distCtx.shadowBlur = 0;
-        });
-
-        // X-axis label
-        distCtx.fillStyle = "#64748b";
-        distCtx.font = "10px Inter";
-        distCtx.textAlign = "center";
-        distCtx.fillText(Math.round(mean), cx, h - 5);
+      distCtx.fillStyle = "#64748b";
+      distCtx.font = "10px Inter";
+      distCtx.textAlign = "center";
+      distCtx.fillText(Math.round(mean), cx, h - 5);
     }
 
-    // --- UPDATED ANALYZE FUNCTION (Calculates Roughness) ---
     function analyzeGapWidthRow(data, w, h, cy) {
       const rowStart = cy * w * 4;
 
@@ -1338,26 +1386,8 @@
         if (luma > thr) break;
         right++;
       }
-      
-      const width = Math.max(0, right - left);
 
-      // --- CALCULATE ROUGHNESS (FLUTING) ---
-      let roughness = 0;
-      if (width > 4) {
-          let totalChange = 0;
-          let prevPx = -1;
-          for(let x = left + 2; x <= right - 2; x++){
-              const i = rowStart + x * 4;
-              const curPx = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-              if(prevPx !== -1){
-                  totalChange += Math.abs(curPx - prevPx);
-              }
-              prevPx = curPx;
-          }
-          roughness = totalChange / (width - 4);
-      }
-
-      return { left, right, width, roughness };
+      return { left, right, width: Math.max(0, right - left) };
     }
 
     function toggleSheetCapture() {
@@ -1390,7 +1420,6 @@
       document.getElementById("header-status-group").innerHTML =
         `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
 
-      // Reset Stats Header & Show Empty Msg
       document.getElementById("stats-header").style.display = "none";
       document.getElementById("empty-scan-msg").style.display = "flex";
 
@@ -1498,7 +1527,6 @@
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1515,7 +1543,6 @@
       if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1794,7 +1821,6 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
-            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1806,7 +1832,6 @@
           return;
         }
 
-        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
