@@ -444,6 +444,64 @@
       .btn-act { padding: 10px; }
       .result-dashboard { padding: 12px 14px; }
     }
+
+/* Bigger bottom-tab icons + labels (only tab-bar) */
+.tab-bar .tab-item svg{
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
+}
+
+.tab-bar .tab-lbl{
+  font-size: 0.72rem;   /* เดิม 0.65rem */
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Make touch area feel more balanced */
+.tab-bar{
+  height: 66px;                 /* เดิม var(--tab-h)=60px */
+  padding-top: 6px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+}
+
+/* keep the icon lift effect but not too subtle */
+.tab-bar .tab-item.active svg{
+  transform: translateY(-3px) scale(1.05);
+}
+/* iOS Add-to-Home-Screen (standalone) fixes */
+@media (display-mode: standalone) {
+  html, body {
+    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
+    text-size-adjust: 100%;
+  }
+
+  /* lucide renders as <svg>, lock size only in bottom tabs */
+  .tab-bar .tab-item svg{
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.6;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .tab-bar .tab-lbl{
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .tab-bar{
+    height: 68px;
+    padding-top: 6px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+  }
+}
+
+/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
+.tab-item svg { transition: transform 0.2s; }
+.tab-item.active svg { transform: translateY(-2px); }
+
   </style>
 </head>
 
