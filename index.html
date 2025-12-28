@@ -8,311 +8,246 @@
   />
   <title>PackEx</title>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+<!-- iPhone Add to Home Screen (ตัวหลัก) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#020617" />
-  <meta name="theme-color" content="#020617" />
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020617">
+<meta name="theme-color" content="#020617" />
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
-    rel="stylesheet"
-  />
-  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+<link
+  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+  rel="stylesheet"
+/>
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
-  <style>
-    :root {
-      --bg-body: #0f172a;
-      --bg-card: #1e293b;
-      --bg-sidebar: #172554;
-      --border-subtle: rgba(255, 255, 255, 0.12);
-      --text-main: #ffffff;
-      --text-muted: #94a3b8;
-      --primary: #3b82f6;
-      --primary-glow: rgba(59, 130, 246, 0.5);
-      --sample: #ffffff;
-      --success: #34d399;
-      --warn: #fbbf24;
-      --danger: #ef4444;
-      --radius-lg: 18px;
-      --font-ui: "Inter", sans-serif;
-      --font-num: "JetBrains Mono", monospace;
+<style>
+  :root {
+    --bg-body: #0f172a;
+    --bg-card: #1e293b;
+    --bg-sidebar: #172554;
+    --border-subtle: rgba(255, 255, 255, 0.12);
+    --text-main: #ffffff;
+    --text-muted: #94a3b8;
+    --primary: #3b82f6;
+    --primary-glow: rgba(59, 130, 246, 0.5);
+    --sample: #ffffff;
+    --success: #34d399;
+    --warn: #fbbf24;
+    --danger: #ef4444;
+    --radius-lg: 18px;
+    --font-ui: "Inter", sans-serif;
+    --font-num: "JetBrains Mono", monospace;
 
-      --frame-gap: clamp(14px, 5.5vw, 60px);
-      --gap-layout: 16px;
+    --frame-gap: clamp(14px, 5.5vw, 60px);
+    --gap-layout: 16px;
 
-      /* JS-calculated */
-      --viewport-h: 220px;
-      --viz-h: 150px;
-      --app-h: 100dvh;
-      --tab-h: 60px;
-    }
+    /* JS-calculated */
+    --viewport-h: 220px;
+    --viz-h: 150px;
+    --app-h: 100dvh;
+    --tab-h: 60px;
+  }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-    body {
-      background: #020617;
-      color: var(--text-main);
-      font-family: var(--font-ui);
-      margin: 0;
-      width: 100vw;
-      height: var(--app-h);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      overflow: hidden;
-    }
+  body {
+    background: #020617;
+    color: var(--text-main);
+    font-family: var(--font-ui);
+    margin: 0;
+    width: 100vw;
+    height: var(--app-h);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
 
-    body::after{
-      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
-      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
-    }
-    body.screen-flash::after{ opacity: 1; }
-    body.screen-lamp::after{ opacity: 1; }
+  body::after{
+    content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+    opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+  }
+  body.screen-flash::after{ opacity: 1; }
+  body.screen-lamp::after{ opacity: 1; }
 
-    .app-frame {
-      width: calc(100vw - (var(--frame-gap) * 2));
-      height: calc(var(--app-h) - (var(--frame-gap) * 2));
-      max-width: 500px;
-      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
-      background: var(--bg-body);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      position: relative;
-      border-radius: 24px;
-      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-      padding-top: env(safe-area-inset-top);
-      padding-bottom: 0;
-    }
+  .app-frame {
+    width: calc(100vw - (var(--frame-gap) * 2));
+    height: calc(var(--app-h) - (var(--frame-gap) * 2));
+    max-width: 500px;
+    max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    border-radius: 24px;
+    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+    padding-top: env(safe-area-inset-top);
+    padding-bottom: 0;
+  }
 
-    header {
-      min-height: 64px;
-      padding: 0 20px;
-      padding-top: 12px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: var(--bg-body);
-      border-bottom: 1px solid var(--border-subtle);
-      flex-shrink: 0;
-      z-index: 50;
-      gap: 10px;
-      min-width: 0;
-    }
+  header {
+    min-height: 64px;
+    padding: 0 20px;
+    padding-top: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg-body);
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    z-index: 50;
+    gap: 10px;
+    min-width: 0;
+  }
 
-    .brand {
-      font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
-      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    }
-    .brand i { color: var(--primary); }
-    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
-    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
-    .algo-selector {
-      appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
-      padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
-      font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
-    }
-    .btn-icon-header {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
-      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-      cursor: pointer; transition: 0.2s; flex-shrink: 0;
-    }
+  .brand {
+    font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
+    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .brand i { color: var(--primary); }
+  .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
+  .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+  .algo-selector {
+    appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
+    padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+    font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
+  }
+  .btn-icon-header {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
+    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: 0.2s; flex-shrink: 0;
+  }
 
-    .viewport {
-      height: var(--viewport-h);
-      min-height: 0;
-      display: flex;
-      background: #020617;
-      border-bottom: 1px solid var(--border-subtle);
-      flex-shrink: 0;
-      position: relative;
-      transition: height 0.3s ease;
-    }
-    .vp-camera {
-      flex: 1; position: relative; overflow: hidden; display: flex;
-      align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
-      background: #020617; min-width: 0;
-      transition: flex 0.3s ease;
-    }
-    .vp-camera.full-width { border-right: none; }
+  .viewport {
+    height: var(--viewport-h);
+    min-height: 0;
+    display: flex;
+    background: #020617;
+    border-bottom: 1px solid var(--border-subtle);
+    flex-shrink: 0;
+    position: relative;
+    transition: height 0.3s ease;
+  }
+  .vp-camera {
+    flex: 1; position: relative; overflow: hidden; display: flex;
+    align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
+    background: #020617; min-width: 0;
+    transition: flex 0.3s ease;
+  }
+  .vp-camera.full-width { border-right: none; }
 
-    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
-    .ghost-overlay {
-      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-      opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
-    }
-    .ghost-overlay.active { opacity: 0.35; }
-    #sheet-canvas {
-      position: absolute; inset:0; width:100%; height:100%;
-      pointer-events:none; z-index: 20;
-    }
+  video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+  .ghost-overlay {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
+  }
+  .ghost-overlay.active { opacity: 0.35; }
+  #sheet-canvas {
+    position: absolute; inset:0; width:100%; height:100%;
+    pointer-events:none; z-index: 20;
+  }
 
-    /* ✅ LIVE HUD for Glue Gap (Risk + Width) */
-    .glue-live-hud{
-      position:absolute;
-      top: 12px;
-      left: 12px;
-      z-index: 30; /* above sheet-canvas */
-      padding: 10px 10px;
-      border-radius: 14px;
-      background: rgba(2,6,23,0.55);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      min-width: 170px;
-      max-width: 52%;
-      max-height: 46%;
-      overflow:auto;
-      font-family: var(--font-num);
-    }
-    .glue-live-hud .hud-title{
-      font-family: var(--font-ui);
-      font-weight: 900;
-      font-size: 0.65rem;
-      letter-spacing: .6px;
-      color: rgba(255,255,255,0.85);
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 8px;
-      margin-bottom: 8px;
-    }
-    .glue-live-hud .hud-sub{
-      font-family: var(--font-ui);
-      font-weight: 800;
-      font-size: 0.60rem;
-      color: rgba(148,163,184,0.95);
-      margin-bottom: 8px;
-    }
-    .glue-live-hud .hud-row{
-      display:flex;
-      align-items:center;
-      justify-content: space-between;
-      gap: 8px;
-      padding: 7px 8px;
-      border-radius: 10px;
-      margin-bottom: 6px;
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .glue-live-hud .hud-row.ok{ background: rgba(52,211,153,0.10); }
-    .glue-live-hud .hud-row.ng{ background: rgba(239,68,68,0.10); }
-    .glue-live-hud .hud-left{
-      font-family: var(--font-ui);
-      font-weight: 900;
-      font-size: 0.64rem;
-      color: rgba(255,255,255,0.92);
-    }
-    .glue-live-hud .hud-right{
-      text-align:right;
-      font-size: 0.70rem;
-      font-weight: 900;
-      color:#fff;
-      line-height: 1.1;
-    }
-    .glue-live-hud .hud-right small{
-      display:block;
-      font-family: var(--font-ui);
-      font-size: 0.56rem;
-      font-weight: 800;
-      color: rgba(148,163,184,0.92);
-    }
+  .vp-side-panel {
+    flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
+    padding: 16px; overflow-y: auto; flex-shrink: 0;
+    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
+    transition: width 0.3s ease, flex 0.3s ease;
+  }
+  .vp-side-panel.hidden { display: none; }
 
-    .vp-side-panel {
-      flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
-      padding: 16px; overflow-y: auto; flex-shrink: 0;
-      box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
-      transition: width 0.3s ease, flex 0.3s ease;
-    }
-    .vp-side-panel.hidden { display: none; }
+  .vp-header {
+    font-size: 0.7rem; font-weight: 800; color: #60a5fa;
+    text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+  }
+  .advice-item {
+    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
+  }
+  .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+  .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
+  @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-    .vp-header {
-      font-size: 0.7rem; font-weight: 800; color: #60a5fa;
-      text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-    }
-    .advice-item {
-      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
-    }
-    .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-    .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
-    @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+  .hud-overlay {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    pointer-events: none; z-index: 10;
+  }
 
-    .hud-overlay {
-      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-      pointer-events: none; z-index: 10;
-    }
+  .target-box {
+    width: 42px; height: 42px; position: relative;
+    box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
+    border-radius: 12px; transition: transform 0.1s;
+  }
+  .target-box::before {
+    content: ""; position: absolute; inset: -1px;
+    border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
+  }
+  .target-box.flash { transform: scale(0.95); }
+  .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
+  .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+  .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    .target-box {
-      width: 42px; height: 42px; position: relative;
-      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
-      border-radius: 12px; transition: transform 0.1s;
-    }
-    .target-box::before {
-      content: ""; position: absolute; inset: -1px;
-      border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
-    }
-    .target-box.flash { transform: scale(0.95); }
-    .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
-    .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
-    .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
+  .btn-vp-capture { display: none; } 
 
-    .btn-vp-capture { display: none; }
+  .panel {
+    flex: 1;
+    background: var(--bg-body);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    padding: 0;
+    min-height: 0;
+  }
+  
+  /* MODIFIED: Add scrolling to panel content */
+  .panel-content {
+    display: flex; flex-direction: column; gap: var(--gap-layout);
+    margin: 0 auto; width: 100%; height: 100%; min-height: 0;
+    overflow-y: auto; /* Enable vertical scroll */
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+  }
 
-    .panel {
-      flex: 1;
-      background: var(--bg-body);
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      padding: 0;
-      min-height: 0;
-    }
+  /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
+  /* Ensure Glue Dashboard takes full height of scrollable parent */
+  .glue-dashboard { 
+      display:flex; flex-direction:column; 
+      height:100%; min-height: 400px; /* Safe min-height */
+      background:#0f172a; 
+      overflow:hidden; 
+      width:100%; 
+  }
+  
+  .glue-body-split { 
+      flex: 1; 
+      display: flex; 
+      flex-direction: row; /* Horizontal Split */
+      overflow: hidden; 
+      position: relative; 
+  }
 
-    .panel-content {
-      display: flex; flex-direction: column; gap: var(--gap-layout);
-      margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
-    }
-
-    .glue-dashboard {
-      display:flex; flex-direction:column;
-      height:100%; min-height: 400px;
-      background:#0f172a;
-      overflow:hidden;
-      width:100%;
-    }
-
-    .glue-body-split {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .glue-main-area {
-      flex: 7;
-      display: flex;
+  /* 70% Left - Main Area */
+  .glue-main-area {
+      flex: 7; /* 70% */
+      display: flex; 
       flex-direction: column;
       overflow: hidden;
       background: #020617;
       border-right: 1px solid var(--border-subtle);
-    }
+  }
 
-    .glue-summary-area {
-      flex: 3;
+  /* 30% Right - Summary Area */
+  .glue-summary-area {
+      flex: 3; /* 30% */
       background: #172554;
       display: flex;
       flex-direction: column;
@@ -320,9 +255,10 @@
       gap: 16px;
       overflow-y: auto;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
-    }
+  }
 
-    .sum-item {
+  /* Summary Stat Items */
+  .sum-item {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
@@ -332,16 +268,17 @@
       align-items: center;
       text-align: center;
       gap: 4px;
-    }
-    .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
-    .text-ok { color: var(--success); }
-    .text-ng { color: var(--danger); }
+  }
+  .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
+  .text-ok { color: var(--success); }
+  .text-ng { color: var(--danger); }
 
-    .btn-header-cap {
+  /* Header Button Style */
+  .btn-header-cap {
       width: 44px; height: 44px;
       border-radius: 12px;
-      background: #3b82f6;
+      background: #3b82f6; /* Primary blue */
       color: #fff;
       border: none;
       display: flex; align-items: center; justify-content: center;
@@ -349,214 +286,218 @@
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
       transition: 0.2s;
-    }
-    .btn-header-cap:active { transform: scale(0.92); }
-    .btn-header-cap.frozen {
-      background: #ef4444;
+  }
+  .btn-header-cap:active { transform: scale(0.92); }
+  .btn-header-cap.frozen {
+      background: #ef4444; 
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+  }
+
+  /* Glue Header Layout */
+  .glue-compact-header{
+    background: rgba(15, 23, 42, 0.98);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+    padding: 10px 16px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-shrink:0; z-index:10;
+  }
+  .gc-left { display:flex; align-items:center; gap:10px; }
+  .gc-right { display:flex; align-items:center; gap:14px; }
+
+  .gc-status-badge{
+    padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
+    display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
+    background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
+  }
+  .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
+  .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
+  
+  /* Standard Elements */
+  .result-dashboard {
+    display: flex; gap: 12px; justify-content: space-between; align-items: center;
+    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+    border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+    padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
+  }
+  .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+  .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+  .res-badge {
+    padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
+    background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
+    flex-shrink: 0; white-space: nowrap;
+  }
+  .status-match .res-value { color: var(--success); }
+  .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+  .status-close .res-value { color: var(--warn); }
+  .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+  .status-diff .res-value { color: var(--danger); }
+  .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
+
+  .cards-container {
+    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
+    flex-shrink: 1; min-height: 0;
+  }
+  .data-card {
+    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+    padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: center; }
+  .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
+  .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+  .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
+  .l-item:last-child { border: none; }
+  .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+  .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .btn-act {
+    width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
+    color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+    gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
+  }
+  .btn-act:active { transform: scale(0.96); }
+  .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
+  .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
+
+  .viz-section {
+    display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
+  }
+  .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
+  .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
+  .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+  .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
+  .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+  .di-sam { background: var(--sample); }
+  .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
+  .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
+  .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
+  .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+  .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+  .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
+  .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
+  .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  .l-mark.ref { background: var(--primary); z-index: 1; }
+  .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
+  .l-mark.visible { opacity: 1; }
+
+  .tab-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+    background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+    border-top: 1px solid var(--border-subtle); display: flex;
+    justify-content: space-around; align-items: center; z-index: 100;
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .tab-item {
+    flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+  }
+  .tab-item.active { color: var(--primary); }
+  .tab-lbl { font-size: 0.65rem; font-weight: 700; }
+  .tab-item i { transition: transform 0.2s; }
+  .tab-item.active i { transform: translateY(-2px); }
+
+  .display-none { display: none !important; }
+
+  /* --- ENHANCED LEFT PANEL STYLES --- */
+  .glue-list-header {
+    padding: 12px 16px;
+    background: #0f172a;
+    border-bottom: 1px solid var(--border-subtle);
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+  .stat-box {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex; flex-direction: column; gap: 2px;
+  }
+  .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+  .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
+  .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
+
+  /* Distribution Canvas Container */
+  .dist-container {
+    flex: 1;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    overflow: hidden;
+    background: #020617;
+  }
+  #dist-canvas {
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  canvas { display:block; }
+  #proc-canvas { display:none; }
+
+  @media (max-height: 760px) {
+    :root { --gap-layout: 12px; }
+    header { min-height: 58px; padding-top: 10px; }
+    .btn-act { padding: 10px; }
+    .result-dashboard { padding: 12px 14px; }
+  }
+
+  /* Bigger bottom-tab icons + labels (only tab-bar) */
+  .tab-bar .tab-item svg{
+    width: 26px;
+    height: 26px;
+    stroke-width: 2.4;
+  }
+
+  .tab-bar .tab-lbl{
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.2px;
+  }
+
+  .tab-bar{
+    height: 66px;
+    padding-top: 6px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+  }
+
+  .tab-bar .tab-item.active svg{
+    transform: translateY(-3px) scale(1.05);
+  }
+
+  @media (display-mode: standalone) {
+    html, body {
+      -webkit-text-size-adjust: 100%;
+      text-size-adjust: 100%;
     }
 
-    .glue-compact-header{
-      background: rgba(15, 23, 42, 0.98);
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      padding: 10px 16px;
-      display:flex; justify-content:space-between; align-items:center;
-      flex-shrink:0; z-index:10;
-    }
-    .gc-left { display:flex; align-items:center; gap:10px; }
-    .gc-right { display:flex; align-items:center; gap:14px; }
-
-    .gc-status-badge{
-      padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
-      display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
-      background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
-    }
-    .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
-    .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
-
-    .result-dashboard {
-      display: flex; gap: 12px; justify-content: space-between; align-items: center;
-      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-      padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
-    }
-    .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
-    .res-badge {
-      padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
-      background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
-      flex-shrink: 0; white-space: nowrap;
-    }
-    .status-match .res-value { color: var(--success); }
-    .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
-    .status-close .res-value { color: var(--warn); }
-    .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
-    .status-diff .res-value { color: var(--danger); }
-    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
-
-    .cards-container {
-      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
-      flex-shrink: 1; min-height: 0;
-    }
-    .data-card {
-      background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-      padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
-    }
-    .card-top { display: flex; justify-content: space-between; align-items: center; }
-    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
-    .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
-    .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
-    .l-item:last-child { border: none; }
-    .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
-    .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .btn-act {
-      width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
-      color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
-      gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
-    }
-    .btn-act:active { transform: scale(0.96); }
-    .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
-    .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
-
-    .viz-section {
-      display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
-    }
-    .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
-    .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
-    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
-    .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
-    .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
-    .di-sam { background: var(--sample); }
-    .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
-    .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
-    .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
-    .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-    .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
-    .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
-    .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-    .l-mark.ref { background: var(--primary); z-index: 1; }
-    .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
-    .l-mark.visible { opacity: 1; }
-
-    .tab-bar {
-      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
-      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border-subtle); display: flex;
-      justify-content: space-around; align-items: center; z-index: 100;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .tab-item {
-      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
-    }
-    .tab-item.active { color: var(--primary); }
-    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
-    .tab-item i { transition: transform 0.2s; }
-    .tab-item.active i { transform: translateY(-2px); }
-
-    .display-none { display: none !important; }
-
-    .glue-list-header {
-      padding: 12px 16px;
-      background: #0f172a;
-      border-bottom: 1px solid var(--border-subtle);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      flex-shrink: 0;
-    }
-    .stat-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 8px 10px;
-      display: flex; flex-direction: column; gap: 2px;
-    }
-    .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-    .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
-    .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
-
-    .dist-container {
-      flex: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      overflow: hidden;
-      background: #020617;
-    }
-    #dist-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
-    canvas { display:block; }
-    #proc-canvas { display:none; }
-
-    @media (max-height: 760px) {
-      :root { --gap-layout: 12px; }
-      header { min-height: 58px; padding-top: 10px; }
-      .btn-act { padding: 10px; }
-      .result-dashboard { padding: 12px 14px; }
-    }
-
-    /* Bigger bottom-tab icons + labels (only tab-bar) */
     .tab-bar .tab-item svg{
-      width: 26px;
-      height: 26px;
-      stroke-width: 2.4;
+      width: 30px;
+      height: 30px;
+      stroke-width: 2.6;
+      display: block;
+      flex-shrink: 0;
     }
 
     .tab-bar .tab-lbl{
-      font-size: 0.72rem;
+      font-size: 0.75rem;
       font-weight: 800;
-      letter-spacing: 0.2px;
+      line-height: 1;
     }
 
     .tab-bar{
-      height: 66px;
+      height: 68px;
       padding-top: 6px;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
     }
+  }
 
-    .tab-bar .tab-item.active svg{
-      transform: translateY(-3px) scale(1.05);
-    }
-
-    @media (display-mode: standalone) {
-      html, body {
-        -webkit-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-      }
-
-      .tab-bar .tab-item svg{
-        width: 30px;
-        height: 30px;
-        stroke-width: 2.6;
-        display: block;
-        flex-shrink: 0;
-      }
-
-      .tab-bar .tab-lbl{
-        font-size: 0.75rem;
-        font-weight: 800;
-        line-height: 1;
-      }
-
-      .tab-bar{
-        height: 68px;
-        padding-top: 6px;
-        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-      }
-    }
-
-    .tab-item svg { transition: transform 0.2s; }
-    .tab-item.active svg { transform: translateY(-2px); }
-  </style>
+  .tab-item svg { transition: transform 0.2s; }
+  .tab-item.active svg { transform: translateY(-2px); }
+</style>
 </head>
 
 <body>
@@ -582,9 +523,6 @@
         <video id="webcam" autoplay playsinline muted></video>
         <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
         <canvas id="sheet-canvas"></canvas>
-
-        <!-- ✅ LIVE HUD overlay (Risk + Width) -->
-        <div id="glue-live-hud" class="glue-live-hud display-none"></div>
 
         <div class="hud-overlay">
           <div id="target-box" class="target-box">
@@ -681,7 +619,7 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-
+              
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -692,28 +630,28 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-
+                
                 <div class="dist-container" id="dist-wrapper">
-                  <canvas id="dist-canvas"></canvas>
-                  <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
-                    <i data-lucide="scan-line" width="32"></i>
-                    <span style="font-size:0.75rem;">Align camera to scan</span>
-                  </div>
+                   <canvas id="dist-canvas"></canvas>
+                   <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
+                      <i data-lucide="scan-line" width="32"></i>
+                      <span style="font-size:0.75rem;">Align camera to scan</span>
+                   </div>
                 </div>
               </div>
-
+              
               <div class="glue-summary-area">
                 <div class="sum-item">
-                  <div class="sum-val" id="sum-total">0</div>
-                  <div class="sum-lbl">Box Found</div>
+                   <div class="sum-val" id="sum-total">0</div>
+                   <div class="sum-lbl">Box Found</div>
                 </div>
                 <div class="sum-item">
-                  <div class="sum-val text-ok" id="sum-gap">0</div>
-                  <div class="sum-lbl">Glue Gap</div>
+                   <div class="sum-val text-ok" id="sum-gap">0</div>
+                   <div class="sum-lbl">Glue Gap</div>
                 </div>
                 <div class="sum-item">
-                  <div class="sum-val text-ng" id="sum-ng">0</div>
-                  <div class="sum-lbl">No Gap</div>
+                   <div class="sum-val text-ng" id="sum-ng">0</div>
+                   <div class="sum-lbl">No Gap</div>
                 </div>
               </div>
             </div>
@@ -746,20 +684,18 @@
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-
+    
     // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
-
-    // Distribution Plot
+    
+    // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
     const sheetCanvas = document.getElementById("sheet-canvas");
     const sheetCtx = sheetCanvas.getContext("2d");
     const ghostOverlay = document.getElementById("ghost-overlay");
-
-    const glueHud = document.getElementById("glue-live-hud");
 
     let activeTab = 'colex';
     let isProcessing = false;
@@ -770,9 +706,9 @@
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;
-    let torchOpBusy = false;
-    let captureBusy = false;
+    let isTorchOn = false;      
+    let torchOpBusy = false;    
+    let captureBusy = false;    
 
     let sheetFrozen = false;
     let sheetResults = [];
@@ -785,59 +721,6 @@
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
-
-    // ✅ formatting
-    function to2(n){ return Number(n).toFixed(2); }
-
-    // ✅ Risk from peak signal: 0..100 (high = risky/likely No Gap)
-    function calcRiskScore(peakValue, layerThreshold, gapThreshold) {
-      const denom = Math.max(1, (gapThreshold - layerThreshold));
-      const conf = clamp((peakValue - layerThreshold) / denom, 0, 1); // 0..1
-      const risk = clamp((1 - conf) * 100, 0, 100);                   // 0..100
-      return { risk, conf };
-    }
-
-    // ✅ Update live HUD on vp-camera (full-width)
-    function updateGlueLiveHUD(results){
-      if (!glueHud) return;
-
-      const show = (activeTab === "gluegap");
-      glueHud.classList.toggle("display-none", !show);
-      if (!show) return;
-
-      if (!results || results.length === 0){
-        glueHud.innerHTML = `
-          <div class="hud-title">GLUE GAP LIVE <span style="opacity:.6">—</span></div>
-          <div class="hud-sub">No detection</div>
-        `;
-        return;
-      }
-
-      const total = results.length;
-      const ng = results.filter(r => r.status === "NG").length;
-      const ok = total - ng;
-
-      const rows = results.map(r => {
-        const cls = (r.status === "NG") ? "ng" : "ok";
-        const left = `#${r.layer} ${r.status === "NG" ? "NO GAP" : "GAP"}`;
-        const right = `RISK ${to2(r.risk)}<small>W ${to2(r.widthPct)}%</small>`;
-        return `<div class="hud-row ${cls}">
-                  <div class="hud-left">${left}</div>
-                  <div class="hud-right">${right}</div>
-                </div>`;
-      }).join("");
-
-      glueHud.innerHTML = `
-        <div class="hud-title">
-          GLUE GAP LIVE
-          <span style="font-family:var(--font-ui); font-size:.60rem; opacity:.8;">
-            ${ok} OK • ${ng} NG
-          </span>
-        </div>
-        <div class="hud-sub">Risk (0–100) + Width (% of ROI)</div>
-        ${rows}
-      `;
-    }
 
     // =========================================================
     // COVER-MAPPING
@@ -909,12 +792,12 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-
+        
         // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
-        if (wrap && wrap.offsetWidth) {
-          distCanvas.width = wrap.offsetWidth;
-          distCanvas.height = wrap.offsetHeight;
+        if(wrap && wrap.offsetWidth) {
+            distCanvas.width = wrap.offsetWidth;
+            distCanvas.height = wrap.offsetHeight;
         }
 
       } else {
@@ -960,9 +843,6 @@
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       document.getElementById('target-box').classList.add('display-none');
 
-      // ✅ default hide glue hud unless glue tab
-      glueHud?.classList.add("display-none");
-
       if (mode === 'colex') {
         document.getElementById('ctl-color-algo').classList.remove('display-none');
         document.getElementById('vp-side-panel').classList.remove('hidden');
@@ -975,14 +855,11 @@
         document.getElementById('panel-gluegap').classList.remove('display-none');
         document.getElementById('panel-gluegap').style.display = 'flex';
         resetSheetUI();
-
-        // ✅ show hud in gluegap mode (content updates live in loop)
-        glueHud?.classList.remove("display-none");
       }
 
       // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
-      if (pc) pc.scrollTop = 0;
+      if(pc) pc.scrollTop = 0;
 
       applyAutoFitLayout();
       lucide.createIcons();
@@ -1126,7 +1003,96 @@
     }
 
     // =========================================================
-    // GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
+    // NEW: Largest contour AREA (px^2) inside each detected "box"
+    // - No OpenCV, use connected-components on a downsampled mask
+    // =========================================================
+    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1) {
+      x0 = Math.max(0, Math.min(w - 1, x0));
+      x1 = Math.max(0, Math.min(w, x1));
+      y0 = Math.max(0, Math.min(h - 1, y0));
+      y1 = Math.max(0, Math.min(h, y1));
+      if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
+
+      // speed/quality tradeoff
+      const ds = 3; // 2 = more accurate, 3 = faster
+      const gw = Math.floor((x1 - x0) / ds);
+      const gh = Math.floor((y1 - y0) / ds);
+      if (gw < 6 || gh < 6) return 0;
+
+      const mask = new Uint8Array(gw * gh);
+
+      // local threshold: derive from mean & min luma in window
+      let sum = 0, cnt = 0, minL = 255;
+      for (let gy = 0; gy < gh; gy++) {
+        const py = y0 + gy * ds;
+        const row = py * w * 4;
+        for (let gx = 0; gx < gw; gx++) {
+          const px = x0 + gx * ds;
+          const i = row + px * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          sum += luma; cnt++;
+          if (luma < minL) minL = luma;
+        }
+      }
+      const mean = cnt ? sum / cnt : 180;
+      const thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
+
+      // build dark mask
+      for (let gy = 0; gy < gh; gy++) {
+        const py = y0 + gy * ds;
+        const row = py * w * 4;
+        for (let gx = 0; gx < gw; gx++) {
+          const px = x0 + gx * ds;
+          const i = row + px * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          if (luma <= thr) mask[gy * gw + gx] = 1;
+        }
+      }
+
+      // BFS connected components (4-neighbor)
+      const visited = new Uint8Array(gw * gh);
+      const qx = new Int16Array(gw * gh);
+      const qy = new Int16Array(gw * gh);
+
+      let bestArea = 0;
+
+      for (let gy = 0; gy < gh; gy++) {
+        for (let gx = 0; gx < gw; gx++) {
+          const idx = gy * gw + gx;
+          if (!mask[idx] || visited[idx]) continue;
+
+          let head = 0, tail = 0;
+          visited[idx] = 1;
+          qx[tail] = gx; qy[tail] = gy; tail++;
+
+          let area = 0;
+
+          while (head < tail) {
+            const x = qx[head], y = qy[head]; head++;
+            area++;
+
+            const n1 = (y - 1) * gw + x;
+            const n2 = (y + 1) * gw + x;
+            const n3 = y * gw + (x - 1);
+            const n4 = y * gw + (x + 1);
+
+            if (y > 0 && mask[n1] && !visited[n1]) { visited[n1] = 1; qx[tail] = x; qy[tail] = y - 1; tail++; }
+            if (y < gh - 1 && mask[n2] && !visited[n2]) { visited[n2] = 1; qx[tail] = x; qy[tail] = y + 1; tail++; }
+            if (x > 0 && mask[n3] && !visited[n3]) { visited[n3] = 1; qx[tail] = x - 1; qy[tail] = y; tail++; }
+            if (x < gw - 1 && mask[n4] && !visited[n4]) { visited[n4] = 1; qx[tail] = x + 1; qy[tail] = y; tail++; }
+          }
+
+          if (area > bestArea) bestArea = area;
+        }
+      }
+
+      // convert back to approx px^2 (undo downsample)
+      return bestArea * (ds * ds);
+    }
+
+    // =========================================================
+    // UPDATED: GLUE GAP DETECTION
+    // - Replace width(px) label with AREA(px^2) label for each box
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1155,7 +1121,7 @@
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
-      // Draw HUD ROI (Overlay)
+      // Draw HUD (Overlay)
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
@@ -1191,165 +1157,175 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5);
+        profile[y] = Math.pow(darkness, 1.5); 
       }
 
       const smoothed = movingAverage(profile, 4);
       const { mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5);
+      const layerThreshold = Math.max(30, mad * 1.5); 
       const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12);
+      const minDist = Math.floor(roiH_v / 12); 
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-
+      
       const results = [];
 
-      peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return;
+      // Build per-peak vertical segment bounds (each "box frame")
+      const peakYs = peaks.map(p => p.index);
+      const bounds = peakYs.map((y, i) => {
+        const yPrev = i === 0 ? 0 : peakYs[i - 1];
+        const yNext = i === peakYs.length - 1 ? (roiH_v - 1) : peakYs[i + 1];
+        const y0 = Math.floor((yPrev + y) / 2);
+        const y1 = Math.floor((y + yNext) / 2);
+        return { y, y0, y1 };
+      });
 
-        const localY_v = peak.index;
+      bounds.forEach((b, idx) => {
+        if (b.y > roiH_v * 0.96) return;
+
+        const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        // ---- AREA in this "box frame" (segment) ----
+        // Use mid band (25% - 75%) to reduce edge glare/noise
+        const x0 = Math.floor(roiW_v * 0.25);
+        const x1 = Math.floor(roiW_v * 0.75);
+        const y0 = clamp(b.y0, 0, roiH_v - 1);
+        const y1 = clamp(b.y1, 0, roiH_v);
 
+        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1);
+
+        // Stabilize area so numbers don't jump too much
         let st = layerStabilizer[idx];
-        if (!st) st = { width: gapGeo.width };
-        else st.width = lerp(st.width, gapGeo.width, 0.2);
+        if (!st) st = { area: areaPx2 };
+        else st.area = lerp(st.area, areaPx2, 0.25);
         layerStabilizer[idx] = st;
 
-        const dispW = Math.max(40, st.width * sx);
+        const stableArea = Math.max(0, st.area);
+
+        // keep your original width bar visual (optional), but label is AREA only
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
 
-        // ✅ Width as % of ROI (device-independent)
-        const widthPct = (dispW / roiW_disp) * 100;
-
-        // ✅ Risk Score
-        const { risk } = calcRiskScore(peakValue, layerThreshold, gapThreshold);
-
         let status = "OK";
-        let boxColor = "#34d399";
+        let boxColor = "#34d399"; 
         let bgColor = "rgba(52, 211, 153, 0.2)";
+        let xOffset = 78;
 
-        // ✅ On-box label show Risk + Width (no px)
-        let labelText = `RISK ${to2(risk)} • W ${to2(widthPct)}%`;
-        let xOffset = 170;
+        // LABEL: show AREA (px^2) instead of width(px)
+        let labelText = `#${idx + 1}  A:${Math.round(stableArea)} px²`;
 
         if (peakValue < gapThreshold) {
           status = "NG";
           boxColor = "#ef4444";
           bgColor = "rgba(239, 68, 68, 0.2)";
-          labelText = `NO GAP • RISK ${to2(risk)} • W ${to2(widthPct)}%`;
-          xOffset = 205;
+          labelText = `NO GAP ${idx + 1}  A:${Math.round(stableArea)} px²`;
+          xOffset = 120;
         }
 
-        // draw band box
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
 
-        // draw label
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
         results.push({
           layer: idx + 1,
-          widthPct,
-          risk,
-          status
+          status,
+          area: stableArea,
+          peakValue
         });
       });
-
-      // ✅ Live HUD on vp-camera full-width
-      updateGlueLiveHUD(results);
 
       // Update Header & Summary
       const expected = results.length;
       const ngCount = results.filter(r => r.status === "NG").length;
       const okCount = expected - ngCount;
-
+      
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
       if (ngCount > 0) {
-        statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-        header.className = "glue-compact-header status-fail";
+         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+         header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-        header.className = "glue-compact-header status-pass";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+         header.className = "glue-compact-header status-pass";
       } else {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-        header.className = "glue-compact-header";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+         header.className = "glue-compact-header";
       }
 
       document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
-      // --- STATS CALCULATION (based on widthPct) ---
-      const validGaps = results.filter(r => r.status !== "NG").map(r => r.widthPct);
+      // --- STATS CALCULATION (Area-based) ---
+      const validAreas = results.filter(r => r.status !== "NG").map(r => r.area);
 
-      let avgWidth = 0;
+      let avgArea = 0;
       let uniformity = 100;
       let stdDev = 0;
 
-      if (validGaps.length > 0) {
-        const totalW = validGaps.reduce((acc, v) => acc + v, 0);
-        avgWidth = totalW / validGaps.length;
+      if (validAreas.length > 0) {
+        const totalA = validAreas.reduce((acc, v) => acc + v, 0);
+        avgArea = totalA / validAreas.length;
 
-        const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
+        const variance = validAreas.reduce((acc, v) => acc + Math.pow(v - avgArea, 2), 0) / validAreas.length;
         stdDev = Math.sqrt(variance);
 
-        const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
-        const avgDev = totalDev / validGaps.length;
-        uniformity = Math.max(0, 100 - ((avgDev / Math.max(0.0001, avgWidth)) * 100));
+        const totalDev = validAreas.reduce((acc, v) => acc + Math.abs(v - avgArea), 0);
+        const avgDev = totalDev / validAreas.length;
+        uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgArea)) * 100));
       }
 
-      // Update Stats Header
+      // Update Stats Header (Area)
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-        statsHeader.style.display = "grid";
-        statsHeader.innerHTML = `
-          <div class="stat-box">
-            <div class="stat-title">Avg Width</div>
-            <div class="stat-val">${to2(avgWidth)}<span class="stat-unit">%</span></div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Consistency</div>
-            <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-              ${Math.round(uniformity)}<span class="stat-unit">%</span>
+          statsHeader.style.display = "grid";
+          statsHeader.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-title">Avg Area</div>
+                <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
             </div>
-          </div>
-        `;
-        document.getElementById("empty-scan-msg").style.display = "none";
+            <div class="stat-box">
+                <div class="stat-title">Consistency</div>
+                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+                ${Math.round(uniformity)}<span class="stat-unit">%</span>
+                </div>
+            </div>
+          `;
+          document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-        statsHeader.style.display = "none";
-        document.getElementById("empty-scan-msg").style.display = "flex";
+          statsHeader.style.display = "none";
+          document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
-      // Draw bell curve distribution (uses %)
-      drawBellCurve(validGaps, avgWidth, stdDev);
-
+      // --- DRAW BELL CURVE & HISTOGRAM (Area) ---
+      drawBellCurve(validAreas, avgArea, stdDev);
+      
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-
-      if (values.length < 2) return;
-
+      if (values.length < 2) return; 
+      
       const w = distCanvas.width;
       const h = distCanvas.height;
-      const padX = 20;
+      const padX = 20; 
       const padY = 20;
 
-      const safeSD = Math.max(stdDev, Math.max(0.1, mean * 0.10));
+      const safeSD = Math.max(stdDev, mean * 0.1); 
       const minX = mean - 3.5 * safeSD;
       const maxX = mean + 3.5 * safeSD;
       const rangeX = maxX - minX;
@@ -1357,7 +1333,7 @@
       const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
       const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
       const maxY = getGaussian(mean);
-
+      
       // Histogram
       const binCount = 8;
       const binWidth = rangeX / binCount;
@@ -1369,14 +1345,14 @@
       });
 
       const maxBinVal = Math.max(...bins, 1);
-      const barScaleY = (h - 2 * padY) * 0.7;
+      const barScaleY = (h - 2*padY) * 0.7;
 
       distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
       bins.forEach((count, i) => {
         const hBar = (count / maxBinVal) * barScaleY;
         const xBar = mapX(minX + i * binWidth);
         const yBar = h - padY - hBar;
-        const wBar = ((w - 2 * padX) / binCount) - 2;
+        const wBar = ((w - 2*padX) / binCount) - 2;
         if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
       });
 
@@ -1385,14 +1361,12 @@
 
       distCtx.beginPath();
       distCtx.moveTo(mapX(minX), h - padY);
-
       const steps = 60;
       for (let i = 0; i <= steps; i++) {
         const xVal = minX + (rangeX * (i / steps));
         const yVal = getGaussian(xVal);
         distCtx.lineTo(mapX(xVal), mapY(yVal));
       }
-
       distCtx.lineTo(mapX(maxX), h - padY);
       distCtx.closePath();
 
@@ -1420,8 +1394,8 @@
       values.forEach(val => {
         const vx = mapX(val);
         const vy = mapY(getGaussian(val));
-
         const dev = Math.abs(val - mean);
+
         let color = "#34d399";
         if (dev > 2 * stdDev) color = "#ef4444";
         else if (dev > 1 * stdDev) color = "#fbbf24";
@@ -1436,10 +1410,11 @@
         distCtx.shadowBlur = 0;
       });
 
+      // X-axis label = mean area
       distCtx.fillStyle = "#64748b";
       distCtx.font = "10px Inter";
       distCtx.textAlign = "center";
-      distCtx.fillText(to2(mean) + "%", cx, h - 5);
+      distCtx.fillText(`${Math.round(mean)} px²`, cx, h - 5);
     }
 
     function analyzeGapWidthRow(data, w, h, cy) {
@@ -1503,8 +1478,6 @@
       layerStabilizer = {};
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-
-      updateGlueLiveHUD([]);
 
       document.getElementById('sum-total').innerText = "0";
       document.getElementById('sum-gap').innerText = "0";
