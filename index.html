@@ -712,28 +712,13 @@
 
     // ===== Perma-green (lock OK forever) =====
     const PERMAGREEN_WINDOW = 50;    // 50 frames confirm window
-    const PERMAGREEN_RATIO  = 0.70;
+    const PERMAGREEN_RATIO  = 0.70;  // ✅ ตามที่คุณขอ: ต้องเขียว >= 70% ของ 50 เฟรมถึงจะล็อกถาวร
 
-    // ===== Robust low-area detection (legacy thresholds; kept for compatibility) =====
+    // ===== Robust low-area detection (Median + MAD) =====
+    // ใช้ z-score แบบ robust: z = (median - area) / (1.4826*MAD)
+    // hysteresis เพื่อลดแกว่ง
     const AREA_Z_ENTER = 2.2;
     const AREA_Z_EXIT  = 1.6;
-
-    // ===== NEW: Low-area "score" thresholds (log(area_ratio) ensemble) =====
-    // score 0..1 : higher => more confident "area abnormally low" => NO GAP (red)
-    const AREA_SCORE_ENTER = 0.62;   // enter NG via low-area
-    const AREA_SCORE_EXIT  = 0.48;   // exit NG via low-area
-    const AREA_SCORE_STRONG_RED = 0.80; // strong low-area => red dominates (valley can't override)
-    const LOWAREA_STREAK_NEED = 3;   // must be low-area for >= 3 frames before counting as candidate
-
-    // ===== Feature Z thresholds (robust, auto-adapt) =====
-    // Higher profile mean / higher HF / higher std  => more "corrugation" => NO GAP (red)
-    const FEAT_Z_MEAN_ENTER = 1.15, FEAT_Z_MEAN_EXIT = 0.65;
-    const FEAT_Z_HF_ENTER   = 1.10, FEAT_Z_HF_EXIT   = 0.60;
-    const FEAT_Z_STD_ENTER  = 1.00, FEAT_Z_STD_EXIT  = 0.55;
-
-    // Strong "valley very low" indicates true GAP => green hint
-    const VALLEY_Z_GREEN_ENTER = 1.10;
-    const VALLEY_Z_GREEN_EXIT  = 0.70;
 
     // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -968,29 +953,6 @@
       return { med, mad };
     }
 
-    // ===== NEW: quantiles + sigmoid (for low-area score ensemble) =====
-    function quantileSorted(sorted, q){
-      const n = sorted.length;
-      if (!n) return 0;
-      const pos = (n - 1) * q;
-      const base = Math.floor(pos);
-      const rest = pos - base;
-      if ((base + 1) < n) return sorted[base] + rest * (sorted[base + 1] - sorted[base]);
-      return sorted[base];
-    }
-
-    function robustQuantiles(arr){
-      const a = Array.from(arr);
-      a.sort((x,y)=>x-y);
-      const q1 = quantileSorted(a, 0.25);
-      const q3 = quantileSorted(a, 0.75);
-      const p10 = quantileSorted(a, 0.10);
-      const iqr = Math.max(1e-9, q3 - q1);
-      return { q1, q3, iqr, p10 };
-    }
-
-    function sigmoid(x){ return 1 / (1 + Math.exp(-x)); }
-
     function findPeaksDynamic(arr, prominence, minDist) {
       const candidates = [];
       for (let i = 1; i < arr.length - 1; i++) {
@@ -1018,84 +980,6 @@
       return picked;
     }
 
-    // ===============================
-    // EXTRA HELPERS (GlueGap only)
-    // ===============================
-    function median3(a, b, c) {
-      if (a > b) { const t = a; a = b; b = t; }
-      if (b > c) { const t = b; b = c; c = t; }
-      if (a > b) { const t = a; a = b; b = t; }
-      return b;
-    }
-
-    function safeSigmaFromMad(mad, fallback) {
-      const s = 1.4826 * (mad || 0);
-      return (s > 1e-6) ? s : Math.max(1, fallback || 1);
-    }
-
-    // Build robust profile using 3 vertical bands and median-combine.
-    function buildProfileMultiBand(data, w, h, bands) {
-      const prof = new Float32Array(h);
-
-      for (let y = 0; y < h; y++) {
-        const row = y * w * 4;
-
-        let vals = [];
-        for (const [xs, xe] of bands) {
-          const start = Math.max(0, Math.min(w - 1, xs));
-          const end   = Math.max(start + 1, Math.min(w, xe));
-          let sumL = 0, cnt = 0;
-
-          for (let x = start; x < end; x++) {
-            const i = row + x * 4;
-            const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-            sumL += luma; cnt++;
-          }
-
-          const avgL = cnt ? (sumL / cnt) : 255;
-          const darkness = Math.max(0, 255 - avgL);
-          vals.push(Math.pow(darkness, 1.5));
-        }
-
-        prof[y] = median3(vals[0], vals[1], vals[2]);
-      }
-      return prof;
-    }
-
-    // Segment features computed on smoothed profile within [y0,y1)
-    function segmentFeatures1D(smoothed, y0, y1) {
-      y0 = Math.max(0, Math.min(smoothed.length - 1, y0));
-      y1 = Math.max(y0 + 1, Math.min(smoothed.length, y1));
-
-      let n = 0;
-      let mean = 0, m2 = 0;
-      let hfSum = 0;
-      let prev = smoothed[y0];
-      let minV = prev;
-      let maxV = prev;
-
-      for (let y = y0; y < y1; y++) {
-        const v = smoothed[y];
-        n++;
-
-        const d = v - mean;
-        mean += d / n;
-        m2 += d * (v - mean);
-
-        if (y > y0) hfSum += Math.abs(v - prev);
-        prev = v;
-
-        if (v < minV) minV = v;
-        if (v > maxV) maxV = v;
-      }
-
-      const varP = (n > 1) ? (m2 / (n - 1)) : 0;
-      const stdP = Math.sqrt(Math.max(0, varP));
-      const hfP = (n > 1) ? (hfSum / (n - 1)) : 0;
-
-      return { meanP: mean, stdP, hfP, valleyMin: minV, peakMax: maxV };
-    }
-
     // =========================================================
     // Majority vote + perma-green state helpers
     // =========================================================
@@ -1108,17 +992,15 @@
       }
       if (!st.state) st.state = "OK";
 
+      // --- perma-green buffers ---
       if (!st.confirm || st.confirm.length !== PERMAGREEN_WINDOW) {
-        st.confirm = new Uint8Array(PERMAGREEN_WINDOW);
+        st.confirm = new Uint8Array(PERMAGREEN_WINDOW); // 1=green,0=red
         st.confirmSum = 0;
         st.confirmPtr = 0;
         st.confirmCount = 0;
       }
       if (typeof st.everGreen !== "boolean") st.everGreen = false;
       if (typeof st.permaGreen !== "boolean") st.permaGreen = false;
-
-      // NEW: low-area streak buffer
-      if (typeof st.lowStreak !== "number") st.lowStreak = 0;
     }
 
     function pushVote(st, isRedCandidate) {
@@ -1240,8 +1122,7 @@
     }
 
     // =========================================================
-    // GLUE GAP DETECTION (robust + multi-feature + vote + perma-green)
-    // + NEW: low-area outlier (area_ratio/log + MAD+IQR+P10 + streak)
+    // GLUE GAP DETECTION (robust + majority vote + perma-green)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1290,16 +1171,26 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // Profile Scan (ROBUST: 3 bands + median)
-      const bands = [
-        [Math.floor(roiW_v * 0.30), Math.floor(roiW_v * 0.40)],
-        [Math.floor(roiW_v * 0.45), Math.floor(roiW_v * 0.55)],
-        [Math.floor(roiW_v * 0.60), Math.floor(roiW_v * 0.70)],
-      ];
+      // Profile Scan
+      const profile = new Float32Array(roiH_v);
+      const centerStart = Math.floor(roiW_v * 0.35);
+      const centerEnd = Math.floor(roiW_v * 0.65);
+      const centerW = centerEnd - centerStart;
 
-      const profile = buildProfileMultiBand(data, roiW_v, roiH_v, bands);
+      for (let y = 0; y < roiH_v; y++) {
+        let sumLuma = 0;
+        const rowOffset = y * roiW_v * 4;
+        for (let x = centerStart; x < centerEnd; x++) {
+          const i = rowOffset + x * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          sumLuma += luma;
+        }
+        const avgLuma = sumLuma / centerW;
+        const darkness = Math.max(0, 255 - avgLuma);
+        profile[y] = Math.pow(darkness, 1.5);
+      }
+
       const smoothed = movingAverage(profile, 4);
-
       const { mad } = robustStats(smoothed);
       const layerThreshold = Math.max(30, mad * 1.5);
       const gapThreshold = Math.max(100, mad * 4.5);
@@ -1320,18 +1211,9 @@
         return { y, y0, y1 };
       });
 
-      // PASS1: compute stable area per layer + compute segment features
+      // PASS1: compute stable area per layer + store rendering info
       const rows = [];
       const allAreas = [];
-      const allMeanP = [];
-      const allHfP = [];
-      const allStdP = [];
-      const allValley = [];
-
-      // NEW: low-area ensemble inputs (area ratio + log)
-      const allRatios = [];
-      const allLogR = [];
-
       bounds.forEach((b, idx) => {
         if (b.y > roiH_v * 0.96) return;
 
@@ -1355,72 +1237,28 @@
         const A = Math.max(0, st.area);
         const peakValue = smoothed[localY_v];
 
-        // NEW: normalize area by segment geometry to reduce distance/scale effects
-        const segAreaPx2 = Math.max(1, (x1 - x0) * (y1 - y0));
-        const ratio = A / segAreaPx2;          // 0..1 (approx)
-        const logR = Math.log1p(ratio);        // stabilize skew
-
-        // NEW: features inside each layer segment
-        const feat = segmentFeatures1D(smoothed, y0, y1);
-
-        // keep width bar visual
+        // keep your width bar visual
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-        rows.push({
-          idx, A, ratio, logR, segAreaPx2, peakValue, dispX, dispW, drawY,
-          meanP: feat.meanP, hfP: feat.hfP, stdP: feat.stdP, valleyMin: feat.valleyMin
-        });
-
+        rows.push({ idx, A, peakValue, dispX, dispW, drawY });
         allAreas.push(A);
-        allRatios.push(ratio);
-        allLogR.push(logR);
-
-        allMeanP.push(feat.meanP);
-        allHfP.push(feat.hfP);
-        allStdP.push(feat.stdP);
-        allValley.push(feat.valleyMin);
       });
 
       const results = [];
 
-      // Robust area stats (Median + MAD) (kept)
+      // Robust area stats (Median + MAD)
       let medA = 0, madA = 0;
       if (allAreas.length > 0) {
         const rs = robustStats(allAreas);
         medA = rs.med;
         madA = rs.mad;
       }
-      const sigmaA = safeSigmaFromMad(madA, medA * 0.12);
+      // Robust sigma from MAD (avoid 0)
+      const sigmaA = (madA > 1e-6) ? (1.4826 * madA) : Math.max(1, medA * 0.12);
 
-      // NEW: robust stats for log(area_ratio)
-      let medLogR=0, madLogR=0, q1LogR=0, q3LogR=0, iqrLogR=0, p10LogR=0;
-      if (allLogR.length > 0) {
-        const rs = robustStats(allLogR);
-        medLogR = rs.med;
-        madLogR = rs.mad;
-
-        const qs = robustQuantiles(allLogR);
-        q1LogR = qs.q1; q3LogR = qs.q3; iqrLogR = qs.iqr; p10LogR = qs.p10;
-      }
-      const sigmaLogR = safeSigmaFromMad(madLogR, Math.max(1e-6, Math.abs(medLogR) * 0.25 + 0.02));
-      const IQR_K = 1.5;
-
-      // Robust stats for features
-      let medMean=0, madMean=0, medHF=0, madHF=0, medStd=0, madStd=0, medVal=0, madVal=0;
-
-      if (allMeanP.length > 0) { const s = robustStats(allMeanP); medMean = s.med; madMean = s.mad; }
-      if (allHfP.length   > 0) { const s = robustStats(allHfP);   medHF   = s.med; madHF   = s.mad; }
-      if (allStdP.length  > 0) { const s = robustStats(allStdP);  medStd  = s.med; madStd  = s.mad; }
-      if (allValley.length> 0) { const s = robustStats(allValley);medVal  = s.med; madVal  = s.mad; }
-
-      const sigmaMean = safeSigmaFromMad(madMean, medMean * 0.20);
-      const sigmaHF   = safeSigmaFromMad(madHF,   medHF   * 0.30);
-      const sigmaStd  = safeSigmaFromMad(madStd,  medStd  * 0.30);
-      const sigmaVal  = safeSigmaFromMad(madVal,  medVal  * 0.20);
-
-      // PASS2: classification -> vote -> stable state -> perma-green
+      // PASS2: classification using (peakCandidate OR lowAreaCandidate) -> vote -> stable state -> perma-green
       rows.forEach((r) => {
         const idx = r.idx;
         const A = r.A;
@@ -1430,66 +1268,14 @@
         if (!st) st = {};
         ensureVoteState(st);
 
-        // ----- Candidate: multi-feature robust -----
-
-        // 1) Peak candidate (weak hint)
+        // Candidate from peak (gap strength)
         const peakCandidate = (peakValue < gapThreshold);
 
-        // 2) Legacy area low candidate (kept but no longer primary)
-        const zA = (medA - A) / sigmaA; // low area => zA positive
-        const legacyAreaLowCandidate = (st.state === "NG") ? (zA >= AREA_Z_EXIT) : (zA >= AREA_Z_ENTER);
+        // Robust low-area candidate (compare to median)
+        const z = (medA - A) / sigmaA; // low area => z positive
+        const areaLowCandidate = (st.state === "NG") ? (z >= AREA_Z_EXIT) : (z >= AREA_Z_ENTER);
 
-        // 3) NEW: Low-area ensemble score on log(area_ratio)
-        // zLow: lower-than-median => positive
-        const zLow = (medLogR - r.logR) / sigmaLogR;
-
-        // smooth score from MAD z
-        const scoreMad = sigmoid((zLow - 1.0) * 1.2);
-
-        // IQR fence + P10 checks (binary helpers)
-        const fence = q1LogR - IQR_K * iqrLogR;
-        const scoreIqr = (r.logR < fence) ? 1 : 0;
-        const scoreP10 = (r.logR < p10LogR) ? 1 : 0;
-
-        // final score 0..1
-        const areaLowScore = (0.70 * scoreMad) + (0.20 * scoreIqr) + (0.10 * scoreP10);
-
-        // hysteresis thresholds for score, plus streak guard
-        const thr = (st.state === "NG") ? AREA_SCORE_EXIT : AREA_SCORE_ENTER;
-
-        if (areaLowScore >= thr) st.lowStreak++;
-        else st.lowStreak = Math.max(0, st.lowStreak - 1);
-
-        const areaLowCandidate = (st.lowStreak >= LOWAREA_STREAK_NEED);
-
-        // 4) Corrugation-ness from profile features (higher => more NO GAP)
-        const zMean = (r.meanP - medMean) / sigmaMean;
-        const zHF   = (r.hfP   - medHF)   / sigmaHF;
-        const zStd  = (r.stdP  - medStd)  / sigmaStd;
-
-        const meanRed = (st.state === "NG") ? (zMean >= FEAT_Z_MEAN_EXIT) : (zMean >= FEAT_Z_MEAN_ENTER);
-        const hfRed   = (st.state === "NG") ? (zHF   >= FEAT_Z_HF_EXIT)   : (zHF   >= FEAT_Z_HF_ENTER);
-        const stdRed  = (st.state === "NG") ? (zStd  >= FEAT_Z_STD_EXIT)  : (zStd  >= FEAT_Z_STD_ENTER);
-
-        // 5) True GAP signal: valleyMin very low -> green hint
-        const zValleyGreen = (medVal - r.valleyMin) / sigmaVal;
-        const valleyGreenStrong =
-          (st.state === "OK") ? (zValleyGreen >= VALLEY_Z_GREEN_ENTER) : (zValleyGreen >= VALLEY_Z_GREEN_EXIT);
-
-        // Combine: "low area abnormal" should make NG (red) smarter & stronger
-        // Use NEW areaLowCandidate as primary; legacyAreaLowCandidate remains as backup
-        let isRedCandidate = !!(
-          areaLowCandidate ||
-          legacyAreaLowCandidate ||
-          meanRed || hfRed || stdRed ||
-          peakCandidate
-        );
-
-        // IMPORTANT: valley may suppress red ONLY if low-area isn't strongly confident
-        // (so low-area abnormal still wins)
-        if (valleyGreenStrong && areaLowScore < AREA_SCORE_STRONG_RED) {
-          isRedCandidate = false;
-        }
+        const isRedCandidate = !!(peakCandidate || areaLowCandidate);
 
         // vote window
         pushVote(st, isRedCandidate);
@@ -1526,7 +1312,6 @@
         let bgColor = "rgba(52, 211, 153, 0.2)";
         let xOffset = 78;
 
-        // show area + (optional) ratio debug (kept compact)
         let labelText = `#${idx + 1}  A:${Math.round(A)} px²`;
 
         if (status === "NG") {
@@ -1535,6 +1320,7 @@
           labelText = `NO GAP ${idx + 1}  A:${Math.round(A)} px²`;
           xOffset = 120;
         } else if (st.permaGreen) {
+          // optional: show a lock indicator
           labelText = `OK* ${idx + 1}  A:${Math.round(A)} px²`;
           xOffset = 90;
         }
