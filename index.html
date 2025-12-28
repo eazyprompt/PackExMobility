@@ -673,9 +673,11 @@
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Distribution Plot
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -700,19 +702,24 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    // =========================================================
-    // NEW: Robust (Median+MAD) + Multi-frame confidence for "LOW AREA" highlight
-    // =========================================================
-    const AREA_ROBUST_K = 2.0;        // z < -K => low-outlier (robust)
-    const AREA_ENTER_FRAMES = 2;      // ต้องเข้าหลายเฟรมติดกันก่อน "ติดแดง"
-    const AREA_EXIT_FRAMES  = 8;      // ต้องไม่เข้าหลายเฟรมติดกันก่อน "กลับเขียว"
-    const AREA_MAX_MISSING  = 10;     // ถ้าชั้นหายไปนาน ล้างสถานะ
-    const AREA_MIN_FOR_ROBUST = 3;    // ต้องมี OK อย่างน้อยกี่ชั้นถึงจะคำนวณ robust
-
     // Stabilizer for each detected layer index
-    // จะเก็บทั้ง area smoothing + streak/hysteresis
-    // layerStabilizer[idx] = { area, redStreak, greenStreak, lowStable, miss }
     let layerStabilizer = {};
+
+    // =========================================================
+    // NEW: Adaptive robust threshold (Auto K) + Multi-frame confirm
+    // =========================================================
+    let adaptiveAreaK = 2.2;          // start value (auto-updated)
+    const AREA_K_MIN = 1.2;           // clamp lower
+    const AREA_K_MAX = 3.2;           // clamp upper
+    const AREA_K_PERCENTILE = 0.08;   // 8% lower tail defines "low area"
+    const AREA_K_EMA = 0.12;          // how fast K adapts
+    const AREA_MIN_SAMPLES = 4;       // need enough layers to estimate robustly
+
+    const AREA_ENTER_FRAMES = 6;      // must be low this many frames to turn RED
+    const AREA_EXIT_FRAMES  = 3;      // must be OK this many frames to return GREEN
+
+    // Optional safety ratio (helps when MAD is huge)
+    const LOW_AREA_RATIO = 0.55;      // if area < median*ratio => low candidate immediately (still frame-confirmed)
 
     // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -970,9 +977,31 @@
       return { med, mad };
     }
 
-    function robustZ(val, med, mad) {
-      if (!mad) return 0;
-      return 0.6745 * (val - med) / mad;
+    // --- NEW helpers for adaptive K ---
+    function quantileSorted(sortedArr, q) {
+      const n = sortedArr.length;
+      if (n === 0) return 0;
+      const pos = (n - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sortedArr[base + 1] === undefined) return sortedArr[base];
+      return sortedArr[base] + rest * (sortedArr[base + 1] - sortedArr[base]);
+    }
+
+    function updateAdaptiveKFromAreas(areas) {
+      if (!areas || areas.length < AREA_MIN_SAMPLES) return adaptiveAreaK;
+
+      const { med, mad } = robustStats(areas);
+      if (mad <= 1e-6) return adaptiveAreaK;
+
+      const zs = areas.map(a => 0.6745 * (a - med) / mad).sort((x,y)=>x-y);
+      const zLow = quantileSorted(zs, AREA_K_PERCENTILE); // negative
+      let kNew = Math.abs(zLow);
+
+      kNew = clamp(kNew, AREA_K_MIN, AREA_K_MAX);
+      adaptiveAreaK = lerp(adaptiveAreaK, kNew, AREA_K_EMA);
+
+      return adaptiveAreaK;
     }
 
     function findPeaksDynamic(arr, prominence, minDist) {
@@ -1085,7 +1114,11 @@
     }
 
     // =========================================================
-    // UPDATED: GLUE GAP DETECTION + Robust Low-Area Highlight (Median+MAD) + multi-frame confidence
+    // GLUE GAP DETECTION (UPDATED)
+    // - Still uses peakValue to decide NoGap (NG)
+    // - NEW: Low AREA (Median + MAD, adaptive K) makes box RED
+    //   but does NOT change GlueGap counts (only visual warning)
+    // - NEW: Must persist across multiple frames before turning RED
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1097,11 +1130,6 @@
       const dw = sheetCanvas.width;
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
-
-      // bump "missing" counters (for multi-frame confidence)
-      for (const k in layerStabilizer) {
-        layerStabilizer[k].miss = (layerStabilizer[k].miss || 0) + 1;
-      }
 
       // ROI setup
       const roiW_disp = Math.round(dw * 0.50);
@@ -1155,21 +1183,21 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5);
+        profile[y] = Math.pow(darkness, 1.5); 
       }
 
       const smoothed = movingAverage(profile, 4);
       const { mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5);
+      const layerThreshold = Math.max(30, mad * 1.5); 
       const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12);
+      const minDist = Math.floor(roiH_v / 12); 
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
 
-      // Build per-peak vertical segment bounds
+      // Build per-peak vertical segment bounds (each "box frame")
       const peakYs = peaks.map(p => p.index);
       const bounds = peakYs.map((y, i) => {
         const yPrev = i === 0 ? 0 : peakYs[i - 1];
@@ -1179,16 +1207,14 @@
         return { y, y0, y1 };
       });
 
-      // 1) Collect items first (no drawing yet)
-      const items = [];
-
+      // PASS 1: compute stable areas + geometry, store metas
+      const metas = [];
       bounds.forEach((b, idx) => {
         if (b.y > roiH_v * 0.96) return;
 
         const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
-        // AREA in this segment
         const x0 = Math.floor(roiW_v * 0.25);
         const x1 = Math.floor(roiW_v * 0.75);
         const y0 = clamp(b.y0, 0, roiH_v - 1);
@@ -1196,153 +1222,131 @@
 
         const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1);
 
-        // smoothing + initialize stabilizer record
+        // Stabilize area so numbers don't jump too much
         let st = layerStabilizer[idx];
-        if (!st) {
-          st = { area: areaPx2, redStreak: 0, greenStreak: 0, lowStable: false, miss: 0 };
-        } else {
-          st.area = lerp(st.area || 0, areaPx2, 0.25);
-          st.redStreak = st.redStreak || 0;
-          st.greenStreak = st.greenStreak || 0;
-          st.lowStable = !!st.lowStable;
-        }
-        st.miss = 0; // seen this frame
+        if (!st) st = { area: areaPx2, lowCount: 0, okCount: 0, lowConfirmed: false };
+        else st.area = lerp(st.area, areaPx2, 0.25);
         layerStabilizer[idx] = st;
 
-        const stableArea = Math.max(0, st.area || 0);
+        const stableArea = Math.max(0, st.area);
 
-        // keep your original width bar geometry (visual)
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
 
-        // existing NG logic
-        let status = "OK";
-        if (peakValue < gapThreshold) status = "NG";
-
-        items.push({
+        metas.push({
           idx,
           localY_v,
           drawY,
           dispX,
           dispW,
-          peakValue,
-          status,
-          area: stableArea,
-          lowNow: false,      // per-frame low
-          lowStable: false,   // multi-frame stable low
-          z: 0
+          stableArea,
+          peakValue
         });
       });
 
-      // 2) Robust LOW-AREA detection (Median+MAD) on OK items only
-      const okItems = items.filter(it => it.status === "OK");
-      if (okItems.length >= AREA_MIN_FOR_ROBUST) {
-        const okAreas = okItems.map(it => it.area);
-        const rs = robustStats(okAreas);
-        const medA = rs.med;
-        const madA = rs.mad;
+      // Robust area stats for this frame (use stable areas)
+      const allAreasThisFrame = metas.map(x => x.stableArea).filter(a => a > 0);
+      const hasEnough = allAreasThisFrame.length >= AREA_MIN_SAMPLES;
 
-        okItems.forEach(it => {
-          const z = robustZ(it.area, medA, madA);
-          it.z = z;
-          it.lowNow = (madA > 0) ? (z < -AREA_ROBUST_K) : false;
+      // Update adaptive K
+      const kAuto = hasEnough ? updateAdaptiveKFromAreas(allAreasThisFrame) : adaptiveAreaK;
 
-          // update multi-frame confidence (hysteresis)
-          const st = layerStabilizer[it.idx];
-          if (it.lowNow) {
-            st.redStreak = (st.redStreak || 0) + 1;
-            st.greenStreak = 0;
-          } else {
-            st.greenStreak = (st.greenStreak || 0) + 1;
-            st.redStreak = 0;
-          }
-
-          if (!st.lowStable && st.redStreak >= AREA_ENTER_FRAMES) st.lowStable = true;
-          if (st.lowStable && st.greenStreak >= AREA_EXIT_FRAMES) st.lowStable = false;
-
-          it.lowStable = !!st.lowStable;
-        });
-      } else {
-        // not enough OK layers => do not mark low-outliers
-        okItems.forEach(it => {
-          it.lowNow = false;
-          it.lowStable = false;
-          it.z = 0;
-          const st = layerStabilizer[it.idx];
-          if (st) { st.redStreak = 0; st.greenStreak = 0; st.lowStable = false; }
-        });
+      // Compute median/MAD for current frame (for z-score)
+      let medA = 0, madA = 0;
+      if (hasEnough) {
+        const statsA = robustStats(allAreasThisFrame);
+        medA = statsA.med;
+        madA = statsA.mad;
       }
 
-      // 3) Cleanup stabilizers that disappeared too long
-      for (const k in layerStabilizer) {
-        if ((layerStabilizer[k].miss || 0) > AREA_MAX_MISSING) delete layerStabilizer[k];
-      }
-
-      // 4) Draw overlays using:
-      //    - NG => RED
-      //    - OK + lowStable => RED (after multi-frame confidence)
-      //    - OK normal => GREEN
       const results = [];
-      items.forEach((it) => {
-        const idx = it.idx;
-        const drawY = it.drawY;
-        const dispX = it.dispX;
-        const dispW = it.dispW;
 
-        let status = it.status;
+      // PASS 2: decide colors (NG vs OK) + LowArea confirm, then draw
+      metas.forEach(meta => {
+        const idx = meta.idx;
+        const stableArea = meta.stableArea;
+        const peakValue = meta.peakValue;
+
+        // Primary GlueGap status (as before)
+        let isNoGap = (peakValue < gapThreshold);
+
+        // Low-area candidate via robust z-score + optional ratio
+        let lowCandidate = false;
+        if (hasEnough && madA > 1e-6) {
+          const z = 0.6745 * (stableArea - medA) / madA; // negative => low
+          lowCandidate = (z < -kAuto);
+          if (stableArea < medA * LOW_AREA_RATIO) lowCandidate = true;
+        }
+
+        // Multi-frame confirmation per layer
+        let st = layerStabilizer[idx] || { area: stableArea, lowCount: 0, okCount: 0, lowConfirmed: false };
+        if (lowCandidate) {
+          st.lowCount = (st.lowCount || 0) + 1;
+          st.okCount = 0;
+        } else {
+          st.okCount = (st.okCount || 0) + 1;
+          st.lowCount = 0;
+        }
+
+        if (!st.lowConfirmed && st.lowCount >= AREA_ENTER_FRAMES) st.lowConfirmed = true;
+        if (st.lowConfirmed && st.okCount >= AREA_EXIT_FRAMES) st.lowConfirmed = false;
+
+        layerStabilizer[idx] = st;
+
+        const isLowConfirmed = !!st.lowConfirmed;
+
+        // Colors:
+        // - NoGap => red
+        // - Else if LowArea confirmed => red (requested)
+        // - Else => green
+        let status = isNoGap ? "NG" : "OK";
         let boxColor = "#34d399";
         let bgColor = "rgba(52, 211, 153, 0.2)";
         let xOffset = 78;
 
-        // base label
-        let labelText = `#${idx + 1}  A:${Math.round(it.area)} px²`;
-
-        // NG is strongest
-        if (status === "NG") {
+        let prefix = `#${idx + 1}`;
+        if (isNoGap) {
           boxColor = "#ef4444";
           bgColor = "rgba(239, 68, 68, 0.2)";
-          labelText = `NO GAP ${idx + 1}  A:${Math.round(it.area)} px²`;
+          prefix = `NO GAP ${idx + 1}`;
           xOffset = 120;
-        } else {
-          // OK but stable low-area outlier -> show red after confidence
-          if (it.lowStable) {
-            boxColor = "#ef4444";
-            bgColor = "rgba(239, 68, 68, 0.18)";
-            // ถ้าอยากให้ขึ้นคำว่า LOW ให้ปลดคอมเมนต์บรรทัดล่าง
-            // labelText = `LOW #${idx + 1}  A:${Math.round(it.area)} px²`;
-          }
+        } else if (isLowConfirmed) {
+          boxColor = "#ef4444";
+          bgColor = "rgba(239, 68, 68, 0.18)";
+          prefix = `LOW ${idx + 1}`;
+          xOffset = 96;
         }
 
-        // draw bar
+        const labelText = `${prefix}  A:${Math.round(stableArea)} px²`;
+
+        // Draw box + label
         sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.fillRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
         sheetCtx.strokeStyle = boxColor;
         sheetCtx.lineWidth = 2;
-        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.setLineDash([]);
+        sheetCtx.strokeRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
 
-        // draw label
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, meta.drawY + 4);
 
         results.push({
           layer: idx + 1,
-          status,
-          area: it.area,
-          peakValue: it.peakValue,
-          lowAreaStable: !!it.lowStable,
-          z: it.z
+          status,               // OK/NG based on glue gap peak
+          area: stableArea,
+          lowArea: isLowConfirmed
         });
       });
 
-      // Update Header & Summary
+      // Update Header & Summary (based on GlueGap OK/NG only)
       const expected = results.length;
       const ngCount = results.filter(r => r.status === "NG").length;
       const okCount = expected - ngCount;
-      
+
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
@@ -1361,7 +1365,7 @@
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
-      // --- STATS CALCULATION (Area-based) ---
+      // --- STATS CALCULATION (Area-based; use OK layers only) ---
       const validAreas = results.filter(r => r.status !== "NG").map(r => r.area);
 
       let avgArea = 0;
@@ -1380,7 +1384,7 @@
         uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgArea)) * 100));
       }
 
-      // Update Stats Header (Area)
+      // Update Stats Header (show adaptive K for visibility)
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
           statsHeader.style.display = "grid";
@@ -1390,7 +1394,7 @@
                 <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Consistency</div>
+                <div class="stat-title">Consistency <span style="opacity:.7">(K=${adaptiveAreaK.toFixed(2)})</span></div>
                 <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
                 ${Math.round(uniformity)}<span class="stat-unit">%</span>
                 </div>
@@ -1404,7 +1408,7 @@
 
       // --- DRAW BELL CURVE & HISTOGRAM (Area) ---
       drawBellCurve(validAreas, avgArea, stdDev);
-      
+
       lucide.createIcons();
     }
 
@@ -1482,7 +1486,7 @@
       distCtx.stroke();
       distCtx.setLineDash([]);
 
-      // Dots (ยังใช้ stdDev เหมือนเดิม)
+      // Dots
       values.forEach(val => {
         const vx = mapX(val);
         const vy = mapY(getGaussian(val));
@@ -1567,6 +1571,8 @@
       sheetFrozen = false;
       sheetResults = [];
       layerStabilizer = {};
+      adaptiveAreaK = 2.2;
+
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
