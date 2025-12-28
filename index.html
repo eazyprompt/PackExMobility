@@ -11,10 +11,16 @@
 <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
+<!-- iPhone Add to Home Screen (ตัวหลัก) -->
 <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -31,6 +37,8 @@
       --text-main: #ffffff;
       --text-muted: #94a3b8;
       --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --sample: #ffffff;
       --success: #34d399;
       --warn: #fbbf24;
       --danger: #ef4444;
@@ -187,6 +195,8 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
+    .btn-vp-capture { display: none; } 
+
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -197,19 +207,21 @@
       min-height: 0;
     }
     
+    /* MODIFIED: Add scrolling to panel content */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto;
+      overflow-y: auto; /* Enable vertical scroll */
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* Glue Dashboard */
+    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
+    /* Ensure Glue Dashboard takes full height of scrollable parent */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height:100%; min-height: 400px;
+        height:100%; min-height: 400px; /* Safe min-height */
         background:#0f172a; 
         overflow:hidden; 
         width:100%; 
@@ -218,13 +230,14 @@
     .glue-body-split { 
         flex: 1; 
         display: flex; 
-        flex-direction: row; 
+        flex-direction: row; /* Horizontal Split */
         overflow: hidden; 
         position: relative; 
     }
 
+    /* 70% Left - Main Area */
     .glue-main-area {
-        flex: 7;
+        flex: 7; /* 70% */
         display: flex; 
         flex-direction: column;
         overflow: hidden;
@@ -232,8 +245,9 @@
         border-right: 1px solid var(--border-subtle);
     }
 
+    /* 30% Right - Summary Area */
     .glue-summary-area {
-        flex: 3;
+        flex: 3; /* 30% */
         background: #172554;
         display: flex;
         flex-direction: column;
@@ -243,6 +257,7 @@
         padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
 
+    /* Summary Stat Items */
     .sum-item {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.08);
@@ -259,10 +274,11 @@
     .text-ok { color: var(--success); }
     .text-ng { color: var(--danger); }
 
+    /* Header Button Style */
     .btn-header-cap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: #3b82f6;
+        background: #3b82f6; /* Primary blue */
         color: #fff;
         border: none;
         display: flex; align-items: center; justify-content: center;
@@ -277,6 +293,7 @@
         box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
+    /* Glue Header Layout */
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -295,6 +312,7 @@
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
     
+    /* Standard Elements */
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -380,6 +398,7 @@
 
     .display-none { display: none !important; }
 
+    /* --- ENHANCED LEFT PANEL STYLES --- */
     .glue-list-header {
       padding: 12px 16px;
       background: #0f172a;
@@ -400,6 +419,7 @@
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
+    /* Distribution Canvas Container */
     .dist-container {
       flex: 1;
       position: relative;
@@ -433,27 +453,30 @@
 }
 
 .tab-bar .tab-lbl{
-  font-size: 0.72rem;   
+  font-size: 0.72rem;   /* เดิม 0.65rem */
   font-weight: 800;
   letter-spacing: 0.2px;
 }
 
+/* Make touch area feel more balanced */
 .tab-bar{
-  height: 66px;               
+  height: 66px;                 /* เดิม var(--tab-h)=60px */
   padding-top: 6px;
   padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
 }
 
+/* keep the icon lift effect but not too subtle */
 .tab-bar .tab-item.active svg{
   transform: translateY(-3px) scale(1.05);
 }
-
+/* iOS Add-to-Home-Screen (standalone) fixes */
 @media (display-mode: standalone) {
   html, body {
-    -webkit-text-size-adjust: 100%; 
+    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
     text-size-adjust: 100%;
   }
 
+  /* lucide renders as <svg>, lock size only in bottom tabs */
   .tab-bar .tab-item svg{
     width: 30px;
     height: 30px;
@@ -475,6 +498,7 @@
   }
 }
 
+/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
 .tab-item svg { transition: transform 0.2s; }
 .tab-item.active svg { transform: translateY(-2px); }
 
@@ -984,7 +1008,7 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: VISUALIZING RED-RED VS RED-GREEN
+    //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1086,55 +1110,26 @@
 
         const peakValue = smoothed[localY_v];
         let status = "OK";
-        let isGap = true;
+        let boxColor = "#34d399"; 
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let labelText = `#${idx + 1} (${widthPx}px)`; 
+        let xOffset = 65;
 
-        // Check if logic is Gap (Green) or No Gap (Red)
         if (peakValue < gapThreshold) {
             status = "NG";
-            isGap = false;
+            boxColor = "#ef4444"; 
+            bgColor = "rgba(239, 68, 68, 0.2)";
+            labelText = `NO GAP ${idx + 1}`;
+            xOffset = 80;
         }
 
-        const boxX = dispX;
-        const centerY = drawY;
-        const boxW = dispW;
-        
-        // --- VISUALIZATION LOGIC MODIFIED HERE ---
-        // 1. ORANGE BOX (Main Layer Container)
-        sheetCtx.strokeStyle = "#f59e0b"; // Orange (Amber-500)
-        sheetCtx.lineWidth = 2;
-        sheetCtx.strokeRect(boxX - 4, centerY - 16, boxW + 8, 30); // Draw surrounding box
-
-        // 2. RED STEP (Top Flute - Always Red)
-        sheetCtx.strokeStyle = "#ef4444"; // Red (Red-500)
-        sheetCtx.lineWidth = 2;
-        sheetCtx.strokeRect(boxX, centerY - 12, boxW, 8); // Top part
-
-        // 3. GAP EVALUATION (Bottom Part)
-        // If OK -> Green (Red-Green Sequence)
-        // If NG -> Red (Red-Red Sequence)
-        if (isGap) {
-             // GREEN GAP
-             sheetCtx.strokeStyle = "#22c55e"; // Green
-             sheetCtx.fillStyle = "rgba(34, 197, 94, 0.2)";
-             sheetCtx.fillRect(boxX, centerY - 2, boxW, 10);
-             sheetCtx.strokeRect(boxX, centerY - 2, boxW, 10);
-             
-             // Label OK
-             sheetCtx.fillStyle = "#22c55e";
-             sheetCtx.font = "bold 12px 'JetBrains Mono'";
-             sheetCtx.fillText(`GAP OK`, roiX_disp - 80, centerY + 4);
-        } else {
-             // RED FLUTE (No Gap)
-             sheetCtx.strokeStyle = "#ef4444"; // Red
-             sheetCtx.fillStyle = "rgba(239, 68, 68, 0.2)";
-             sheetCtx.fillRect(boxX, centerY - 2, boxW, 10);
-             sheetCtx.strokeRect(boxX, centerY - 2, boxW, 10);
-
-             // Label NG
-             sheetCtx.fillStyle = "#ef4444";
-             sheetCtx.font = "bold 12px 'JetBrains Mono'";
-             sheetCtx.fillText(`NO GAP`, roiX_disp - 80, centerY + 4);
-        }
+        sheetCtx.fillStyle = bgColor;
+        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.strokeStyle = boxColor;
+        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.fillStyle = boxColor;
+        sheetCtx.font = "bold 12px 'JetBrains Mono'";
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
         results.push({ layer: idx + 1, w: dispW, status: status });
       });
