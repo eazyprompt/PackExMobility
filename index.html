@@ -8,18 +8,13 @@
   />
   <title>PackEx</title>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
-
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#020617">
+<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020617">
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -194,8 +189,6 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    .btn-vp-capture { display: none; } 
-
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -205,7 +198,7 @@
       padding: 0;
       min-height: 0;
     }
-
+    
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
@@ -215,9 +208,10 @@
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
+    /* GLUE DASHBOARD */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height:100%; min-height: 400px;
+        height:100%; min-height: 400px; 
         background:#0f172a; 
         overflow:hidden; 
         width:100%; 
@@ -226,13 +220,13 @@
     .glue-body-split { 
         flex: 1; 
         display: flex; 
-        flex-direction: row;
+        flex-direction: row; 
         overflow: hidden; 
         position: relative; 
     }
 
     .glue-main-area {
-        flex: 7;
+        flex: 7; 
         display: flex; 
         flex-direction: column;
         overflow: hidden;
@@ -270,7 +264,7 @@
     .btn-header-cap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: #3b82f6;
+        background: #3b82f6; 
         color: #fff;
         border: none;
         display: flex; align-items: center; justify-content: center;
@@ -302,7 +296,8 @@
     }
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
-
+    
+    /* Standard Elements */
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -433,51 +428,58 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
-    .tab-bar .tab-item svg{
-      width: 26px;
-      height: 26px;
-      stroke-width: 2.4;
-    }
-    .tab-bar .tab-lbl{
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-    .tab-bar{
-      height: 66px;
-      padding-top: 6px;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-    }
-    .tab-bar .tab-item.active svg{
-      transform: translateY(-3px) scale(1.05);
-    }
+.tab-bar .tab-item svg{
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
+}
 
-    @media (display-mode: standalone) {
-      html, body {
-        -webkit-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-      }
-      .tab-bar .tab-item svg{
-        width: 30px;
-        height: 30px;
-        stroke-width: 2.6;
-        display: block;
-        flex-shrink: 0;
-      }
-      .tab-bar .tab-lbl{
-        font-size: 0.75rem;
-        font-weight: 800;
-        line-height: 1;
-      }
-      .tab-bar{
-        height: 68px;
-        padding-top: 6px;
-        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-      }
-    }
+.tab-bar .tab-lbl{
+  font-size: 0.72rem;   
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
 
-    .tab-item svg { transition: transform 0.2s; }
-    .tab-item.active svg { transform: translateY(-2px); }
+.tab-bar{
+  height: 66px;               
+  padding-top: 6px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+}
+
+.tab-bar .tab-item.active svg{
+  transform: translateY(-3px) scale(1.05);
+}
+
+@media (display-mode: standalone) {
+  html, body {
+    -webkit-text-size-adjust: 100%;  
+    text-size-adjust: 100%;
+  }
+
+  .tab-bar .tab-item svg{
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.6;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .tab-bar .tab-lbl{
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .tab-bar{
+    height: 68px;
+    padding-top: 6px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+  }
+}
+
+.tab-item svg { transition: transform 0.2s; }
+.tab-item.active svg { transform: translateY(-2px); }
+
   </style>
 </head>
 
@@ -600,6 +602,7 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
+              
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -610,6 +613,7 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
+                
                 <div class="dist-container" id="dist-wrapper">
                    <canvas id="dist-canvas"></canvas>
                    <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
@@ -664,9 +668,11 @@
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -694,6 +700,7 @@
     // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
+    // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
@@ -769,11 +776,13 @@
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
         
+        // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
         if(wrap && wrap.offsetWidth) {
             distCanvas.width = wrap.offsetWidth;
             distCanvas.height = wrap.offsetHeight;
         }
+
       } else {
         const header = document.querySelector("header");
         const headerH = header ? header.offsetHeight : 64;
@@ -831,6 +840,7 @@
         resetSheetUI();
       }
 
+      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
       if(pc) pc.scrollTop = 0;
 
@@ -976,7 +986,7 @@
     }
 
     // =========================================================
-    //  GLUE GAP DETECTION (FIXED)
+    //  UPDATED LOGIC: IMPROVED "NO GAP" DETECTION
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1025,7 +1035,7 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // Profile Scan (find layer rows)
+      // Profile Scan (Darkness)
       const profile = new Float32Array(roiH_v);
       const centerStart = Math.floor(roiW_v * 0.35);
       const centerEnd = Math.floor(roiW_v * 0.65);
@@ -1040,105 +1050,89 @@
           sumLuma += luma;
         }
         const avgLuma = sumLuma / centerW;
+        // Invert: Higher = Darker
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5);
+        profile[y] = Math.pow(darkness, 1.5); 
       }
 
       const smoothed = movingAverage(profile, 4);
-      const { mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5);
-      const minDist = Math.floor(roiH_v / 12);
+      const { med, mad } = robustStats(smoothed);
+      
+      // Dynamic Thresholds
+      const darknessThreshold = Math.max(100, mad * 3.5); // Must be at least this dark to be a "Good Gap"
+      const peakProminence = Math.max(30, mad * 1.5);     // Peak detection sensitivity
+      const minDist = Math.floor(roiH_v / 12); 
 
-      const peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
+      let peaks = findPeaksDynamic(smoothed, peakProminence, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-
-      // ---------- PASS 1: collect layer candidates + width ----------
-      const layers = [];
-      for (let p = 0; p < peaks.length; p++) {
-        const peak = peaks[p];
-        if (peak.index > roiH_v * 0.96) continue;
-
-        const localY_v = peak.index;
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
-        layers.push({ localY_v, widthV: gapGeo.width });
-      }
-
-      // ---------- decide threshold + force 1 NO GAP outlier ----------
-      const widthsV = layers.map(l => l.widthV).filter(v => Number.isFinite(v));
-      let widthThrV = 14;
-      let forceNoIdx = -1;
-
-      if (widthsV.length >= 4) {
-        const rs = robustStats(widthsV);
-        const medW = rs.med;
-        const madW = Math.max(rs.mad, 2);
-
-        let minV = Infinity, minI = -1;
-        layers.forEach((l, i) => {
-          if (l.widthV < minV) { minV = l.widthV; minI = i; }
-        });
-
-        // strong outlier => only one NO GAP
-        const strongOutlier = (medW - minV) > Math.max(10, madW * 2.6);
-
-        if (strongOutlier) {
-          forceNoIdx = minI;
-        } else {
-          // fallback: mid(Q1,Q3)
-          const s = [...widthsV].sort((a,b) => a-b);
-          const q1 = s[Math.floor((s.length - 1) * 0.25)];
-          const q3 = s[Math.floor((s.length - 1) * 0.75)];
-          widthThrV = Math.max(14, (q1 + q3) * 0.5);
-        }
-      } else if (widthsV.length >= 2) {
-        const s = [...widthsV].sort((a,b) => a-b);
-        const medW = s[Math.floor(s.length / 2)];
-        widthThrV = Math.max(14, medW * 0.85);
-      }
-
-      // ---------- PASS 2: draw + classify ----------
+      
       const results = [];
       let maxW = 0;
 
-      layers.forEach((l, idx) => {
-        const localY_v = l.localY_v;
-        const drawY = roiY_disp + localY_v * sy;
+      // -- NEW: Width Constraint --
+      // A valid gap must be at least 5% of the ROI width
+      // This catches "crushed" gaps which are dark but very thin
+      const MIN_GAP_WIDTH_PX = roiW_v * 0.05; 
 
-        // stabilizer
+      peaks.forEach((peak, idx) => {
+        if (peak.index > roiH_v * 0.96) return; 
+
+        const localY_v = peak.index;
+        const drawY = roiY_disp + localY_v * sy;
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        
         let st = layerStabilizer[idx];
-        if (!st) st = { width: l.widthV };
-        else st.width = lerp(st.width, l.widthV, 0.2);
+        if (!st) st = { width: gapGeo.width };
+        else st.width = lerp(st.width, gapGeo.width, 0.2);
         layerStabilizer[idx] = st;
 
         const dispW = Math.max(40, st.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         maxW = Math.max(maxW, dispW);
-        const widthPx = Math.round(dispW);
+        const widthPx = Math.round(dispW); 
 
-        // decide GAP/NO GAP by width
-        let isGap = (l.widthV >= widthThrV);
-        if (forceNoIdx !== -1) {
-          isGap = (idx !== forceNoIdx);
+        const peakValue = smoothed[localY_v];
+        
+        // --- LOGIC IMPROVEMENT ---
+        // Condition 1: Must be dark enough (Deep)
+        const isDeepEnough = peakValue >= darknessThreshold;
+        
+        // Condition 2: Must be wide enough (Open)
+        // Note: use 'gapGeo.width' (raw pixels) for logic, 'dispW' for drawing
+        const isWideEnough = gapGeo.width >= MIN_GAP_WIDTH_PX;
+
+        let status = "OK";
+        let boxColor = "#34d399"; // Green
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let labelText = `#${idx + 1}`; 
+        let xOffset = 65;
+
+        if (!isDeepEnough || !isWideEnough) {
+            status = "NG";
+            boxColor = "#ef4444"; // Red
+            bgColor = "rgba(239, 68, 68, 0.2)";
+            
+            // Helpful failure label
+            if (!isWideEnough) labelText = `NG (CRUSHED)`;
+            else labelText = `NG (DIM)`;
+            
+            xOffset = 90;
         }
-
-        const status = isGap ? "OK" : "NG";
-        const boxColor = isGap ? "#34d399" : "#ef4444";
-        const bgColor  = isGap ? "rgba(52, 211, 153, 0.2)" : "rgba(239, 68, 68, 0.2)";
-        const labelText = isGap ? `#${idx + 1} (${widthPx}px)` : `NO GAP ${idx + 1}`;
-        const xOffset = isGap ? 65 : 80;
 
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
+        sheetCtx.lineWidth = 2;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
+        
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: idx + 1, w: dispW, status });
+        results.push({ layer: idx + 1, w: dispW, status: status });
       });
 
       // Update Header & Summary
@@ -1165,7 +1159,7 @@
       document.getElementById('sum-ng').innerText = ngCount;
 
       // --- STATS CALCULATION ---
-      const validGaps = results.filter(r => r.status === "OK").map(r => r.w);
+      const validGaps = results.filter(r => r.status !== "NG").map(r => r.w);
       let avgWidth = 0;
       let uniformity = 100;
       let stdDev = 0;
@@ -1174,14 +1168,17 @@
         const totalW = validGaps.reduce((acc, v) => acc + v, 0);
         avgWidth = totalW / validGaps.length;
 
+        // Variance & SD
         const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
         stdDev = Math.sqrt(variance);
 
+        // Uniformity
         const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
         const avgDev = totalDev / validGaps.length;
         uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
       }
 
+      // Update Stats Header
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
           statsHeader.style.display = "grid";
@@ -1203,62 +1200,81 @@
           document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
+      // --- DRAW BELL CURVE & HISTOGRAM ---
       drawBellCurve(validGaps, avgWidth, stdDev);
+      
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
+        // Clear canvas
         distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-        if (values.length < 2) return;
-
+        
+        if (values.length < 2) return; 
+        
         const w = distCanvas.width;
         const h = distCanvas.height;
         const padX = 20; 
         const padY = 20;
 
+        // Range
         const safeSD = Math.max(stdDev, mean * 0.1); 
         const minX = mean - 3.5 * safeSD;
         const maxX = mean + 3.5 * safeSD;
         const rangeX = maxX - minX;
 
+        // Helper Map Functions
         const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
         const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-        const maxY = getGaussian(mean);
-
-        const binCount = 8;
+        const maxY = getGaussian(mean); // peak prob
+        
+        // --- 1. DRAW HISTOGRAM (BARS) ---
+        const binCount = 8; // Number of bars
         const binWidth = rangeX / binCount;
         const bins = new Array(binCount).fill(0);
         
         values.forEach(v => {
             const binIdx = Math.floor((v - minX) / binWidth);
-            if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
+            if (binIdx >= 0 && binIdx < binCount) {
+                bins[binIdx]++;
+            }
         });
 
-        const maxBinVal = Math.max(...bins, 1);
+        // Determine max bin count to scale histogram height
+        // Scale so max bar is approx 70% of canvas height
+        const maxBinVal = Math.max(...bins, 1); 
         const barScaleY = (h - 2*padY) * 0.7;
 
         distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        
         bins.forEach((count, i) => {
              const hBar = (count / maxBinVal) * barScaleY;
              const xBar = mapX(minX + i * binWidth);
              const yBar = h - padY - hBar;
-             const wBar = ((w - 2*padX) / binCount) - 2;
-             if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
+             const wBar = ((w - 2*padX) / binCount) - 2; // -2 for gap
+             
+             if (hBar > 0) {
+                distCtx.fillRect(xBar, yBar, wBar, hBar);
+             }
         });
 
+        // --- 2. DRAW BELL CURVE (Overlay) ---
         const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
         distCtx.beginPath();
         distCtx.moveTo(mapX(minX), h - padY);
+        
         const steps = 60;
         for (let i = 0; i <= steps; i++) {
             const xVal = minX + (rangeX * (i / steps));
             const yVal = getGaussian(xVal);
             distCtx.lineTo(mapX(xVal), mapY(yVal));
         }
+        
         distCtx.lineTo(mapX(maxX), h - padY);
         distCtx.closePath();
-
+        
+        // Gradient Fill
         const grad = distCtx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
         grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
@@ -1269,6 +1285,7 @@
         distCtx.lineWidth = 2;
         distCtx.stroke();
 
+        // --- 3. Center Line ---
         const cx = mapX(mean);
         distCtx.beginPath();
         distCtx.strokeStyle = "rgba(255,255,255,0.3)";
@@ -1278,11 +1295,12 @@
         distCtx.stroke();
         distCtx.setLineDash([]);
 
+        // --- 4. Individual Measurements (Dots) ---
         values.forEach(val => {
             const vx = mapX(val);
             const vy = mapY(getGaussian(val));
+            
             const dev = Math.abs(val - mean);
-
             let color = "#34d399"; 
             if (dev > 2 * stdDev) color = "#ef4444"; 
             else if (dev > 1 * stdDev) color = "#fbbf24"; 
@@ -1297,6 +1315,7 @@
             distCtx.shadowBlur = 0;
         });
 
+        // X-axis label
         distCtx.fillStyle = "#64748b";
         distCtx.font = "10px Inter";
         distCtx.textAlign = "center";
@@ -1374,6 +1393,7 @@
       document.getElementById("header-status-group").innerHTML =
         `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
 
+      // Reset Stats Header & Show Empty Msg
       document.getElementById("stats-header").style.display = "none";
       document.getElementById("empty-scan-msg").style.display = "flex";
 
@@ -1481,7 +1501,9 @@
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
+      // MODIFIED: No Flash
       const sample = await captureSmartSample();
+
       btn.disabled = false;
       if (!sample) return;
 
@@ -1496,7 +1518,9 @@
       if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
+      // MODIFIED: No Flash
       const sample = await captureSmartSample();
+
       btn.disabled = false;
       if (!sample) return;
 
@@ -1773,6 +1797,7 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
+            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1784,6 +1809,7 @@
           return;
         }
 
+        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
