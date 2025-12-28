@@ -20,7 +20,6 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="theme-color" content="#020617">
-  <meta name="theme-color" content="#020617" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -439,19 +438,16 @@
       height: 26px;
       stroke-width: 2.4;
     }
-
     .tab-bar .tab-lbl{
       font-size: 0.72rem;
       font-weight: 800;
       letter-spacing: 0.2px;
     }
-
     .tab-bar{
       height: 66px;
       padding-top: 6px;
       padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
     }
-
     .tab-bar .tab-item.active svg{
       transform: translateY(-3px) scale(1.05);
     }
@@ -461,7 +457,6 @@
         -webkit-text-size-adjust: 100%;
         text-size-adjust: 100%;
       }
-
       .tab-bar .tab-item svg{
         width: 30px;
         height: 30px;
@@ -469,13 +464,11 @@
         display: block;
         flex-shrink: 0;
       }
-
       .tab-bar .tab-lbl{
         font-size: 0.75rem;
         font-weight: 800;
         line-height: 1;
       }
-
       .tab-bar{
         height: 68px;
         padding-top: 6px;
@@ -485,7 +478,6 @@
 
     .tab-item svg { transition: transform 0.2s; }
     .tab-item.active svg { transform: translateY(-2px); }
-
   </style>
 </head>
 
@@ -608,7 +600,6 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -619,7 +610,6 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-
                 <div class="dist-container" id="dist-wrapper">
                    <canvas id="dist-canvas"></canvas>
                    <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
@@ -628,7 +618,7 @@
                    </div>
                 </div>
               </div>
-
+              
               <div class="glue-summary-area">
                 <div class="sum-item">
                    <div class="sum-val" id="sum-total">0</div>
@@ -673,12 +663,10 @@
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-
-    // Colex Plot
+    
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
-
-    // Distribution Plot
+    
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -695,9 +683,9 @@
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;
-    let torchOpBusy = false;
-    let captureBusy = false;
+    let isTorchOn = false;      
+    let torchOpBusy = false;    
+    let captureBusy = false;    
 
     let sheetFrozen = false;
     let sheetResults = [];
@@ -706,7 +694,6 @@
     // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
-    // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
@@ -781,12 +768,11 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-
-        // Resize Dist Canvas
+        
         const wrap = document.getElementById("dist-wrapper");
-        if (wrap && wrap.offsetWidth) {
-          distCanvas.width = wrap.offsetWidth;
-          distCanvas.height = wrap.offsetHeight;
+        if(wrap && wrap.offsetWidth) {
+            distCanvas.width = wrap.offsetWidth;
+            distCanvas.height = wrap.offsetHeight;
         }
       } else {
         const header = document.querySelector("header");
@@ -846,7 +832,7 @@
       }
 
       const pc = document.querySelector('.panel-content');
-      if (pc) pc.scrollTop = 0;
+      if(pc) pc.scrollTop = 0;
 
       applyAutoFitLayout();
       lucide.createIcons();
@@ -990,7 +976,7 @@
     }
 
     // =========================================================
-    // GLUE GAP DETECTION (FIXED): decide by real GAP width
+    //  GLUE GAP DETECTION (FIXED)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1039,7 +1025,7 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // Profile Scan
+      // Profile Scan (find layer rows)
       const profile = new Float32Array(roiH_v);
       const centerStart = Math.floor(roiW_v * 0.35);
       const centerEnd = Math.floor(roiW_v * 0.65);
@@ -1068,90 +1054,118 @@
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
 
-      // ---- NEW: collect widths and decide GAP/NO by width distribution ----
-      const temp = [];
-
-      peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return;
+      // ---------- PASS 1: collect layer candidates + width ----------
+      const layers = [];
+      for (let p = 0; p < peaks.length; p++) {
+        const peak = peaks[p];
+        if (peak.index > roiH_v * 0.96) continue;
 
         const localY_v = peak.index;
-        const drawY = roiY_disp + localY_v * sy;
-
-        const rawWidthV = analyzeGapWidthAround(data, roiW_v, roiH_v, localY_v);
-
-        let st = layerStabilizer[idx];
-        if (!st) st = { widthV: rawWidthV };
-        else st.widthV = lerp(st.widthV, rawWidthV, 0.2);
-        layerStabilizer[idx] = st;
-
-        const dispW = Math.max(40, st.widthV * sx);
-        const dispX = roiX_disp + (roiW_disp - dispW) / 2;
-
-        temp.push({ idx, localY_v, drawY, dispX, dispW, widthV: st.widthV });
-      });
-
-      // Adaptive threshold for GAP width
-      const widthsV = temp.map(t => t.widthV);
-
-      // baseline minimum: proportion of ROI width (adjust if needed)
-      let widthThrV = Math.max(18, roiW_v * 0.18);
-
-      if (widthsV.length >= 3) {
-        const rs = robustStats(widthsV);
-        widthThrV = Math.max(widthThrV, rs.med + (rs.mad * 3.0));
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        layers.push({ localY_v, widthV: gapGeo.width });
       }
 
+      // ---------- decide threshold + force 1 NO GAP outlier ----------
+      const widthsV = layers.map(l => l.widthV).filter(v => Number.isFinite(v));
+      let widthThrV = 14;
+      let forceNoIdx = -1;
+
+      if (widthsV.length >= 4) {
+        const rs = robustStats(widthsV);
+        const medW = rs.med;
+        const madW = Math.max(rs.mad, 2);
+
+        let minV = Infinity, minI = -1;
+        layers.forEach((l, i) => {
+          if (l.widthV < minV) { minV = l.widthV; minI = i; }
+        });
+
+        // strong outlier => only one NO GAP
+        const strongOutlier = (medW - minV) > Math.max(10, madW * 2.6);
+
+        if (strongOutlier) {
+          forceNoIdx = minI;
+        } else {
+          // fallback: mid(Q1,Q3)
+          const s = [...widthsV].sort((a,b) => a-b);
+          const q1 = s[Math.floor((s.length - 1) * 0.25)];
+          const q3 = s[Math.floor((s.length - 1) * 0.75)];
+          widthThrV = Math.max(14, (q1 + q3) * 0.5);
+        }
+      } else if (widthsV.length >= 2) {
+        const s = [...widthsV].sort((a,b) => a-b);
+        const medW = s[Math.floor(s.length / 2)];
+        widthThrV = Math.max(14, medW * 0.85);
+      }
+
+      // ---------- PASS 2: draw + classify ----------
       const results = [];
+      let maxW = 0;
 
-      temp.forEach(t => {
-        const widthPx = Math.round(t.dispW);
-        const isGap = t.widthV >= widthThrV;
+      layers.forEach((l, idx) => {
+        const localY_v = l.localY_v;
+        const drawY = roiY_disp + localY_v * sy;
 
-        const status = isGap ? "GAP" : "NO";
+        // stabilizer
+        let st = layerStabilizer[idx];
+        if (!st) st = { width: l.widthV };
+        else st.width = lerp(st.width, l.widthV, 0.2);
+        layerStabilizer[idx] = st;
+
+        const dispW = Math.max(40, st.width * sx);
+        const dispX = roiX_disp + (roiW_disp - dispW) / 2;
+
+        maxW = Math.max(maxW, dispW);
+        const widthPx = Math.round(dispW);
+
+        // decide GAP/NO GAP by width
+        let isGap = (l.widthV >= widthThrV);
+        if (forceNoIdx !== -1) {
+          isGap = (idx !== forceNoIdx);
+        }
+
+        const status = isGap ? "OK" : "NG";
         const boxColor = isGap ? "#34d399" : "#ef4444";
         const bgColor  = isGap ? "rgba(52, 211, 153, 0.2)" : "rgba(239, 68, 68, 0.2)";
-        const labelText = isGap ? `#${t.idx + 1} (${widthPx}px)` : `NO GAP ${t.idx + 1}`;
+        const labelText = isGap ? `#${idx + 1} (${widthPx}px)` : `NO GAP ${idx + 1}`;
         const xOffset = isGap ? 65 : 80;
 
         sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(t.dispX, t.drawY - 8, t.dispW, 16);
+        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
-        sheetCtx.strokeRect(t.dispX, t.drawY - 8, t.dispW, 16);
+        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, t.drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: t.idx + 1, w: t.dispW, status });
+        results.push({ layer: idx + 1, w: dispW, status });
       });
 
       // Update Header & Summary
       const expected = results.length;
-      const gapCount = results.filter(r => r.status === "GAP").length;
-      const noGapCount = expected - gapCount;
-
+      const ngCount = results.filter(r => r.status === "NG").length;
+      const okCount = expected - ngCount;
+      
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      if (noGapCount > 0) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-        header.className = "glue-compact-header status-fail";
+      if (ngCount > 0) {
+         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+         header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-        header.className = "glue-compact-header status-pass";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+         header.className = "glue-compact-header status-pass";
       } else {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-        header.className = "glue-compact-header";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+         header.className = "glue-compact-header";
       }
 
       document.getElementById('sum-total').innerText = expected;
-      document.getElementById('sum-gap').innerText = gapCount;
-      document.getElementById('sum-ng').innerText = noGapCount;
+      document.getElementById('sum-gap').innerText = okCount;
+      document.getElementById('sum-ng').innerText = ngCount;
 
       // --- STATS CALCULATION ---
-      const validGaps = results.filter(r => r.status === "GAP").map(r => r.w);
+      const validGaps = results.filter(r => r.status === "OK").map(r => r.w);
       let avgWidth = 0;
       let uniformity = 100;
       let stdDev = 0;
@@ -1170,130 +1184,125 @@
 
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-        statsHeader.style.display = "grid";
-        statsHeader.innerHTML = `
-          <div class="stat-box">
-            <div class="stat-title">Avg Width</div>
-            <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Consistency</div>
-            <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-              ${Math.round(uniformity)}<span class="stat-unit">%</span>
+          statsHeader.style.display = "grid";
+          statsHeader.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-title">Avg Width</div>
+                <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
             </div>
-          </div>
-        `;
-        document.getElementById("empty-scan-msg").style.display = "none";
+            <div class="stat-box">
+                <div class="stat-title">Consistency</div>
+                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+                ${Math.round(uniformity)}<span class="stat-unit">%</span>
+                </div>
+            </div>
+          `;
+          document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-        statsHeader.style.display = "none";
-        document.getElementById("empty-scan-msg").style.display = "flex";
+          statsHeader.style.display = "none";
+          document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
       drawBellCurve(validGaps, avgWidth, stdDev);
-
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
-      distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+        distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+        if (values.length < 2) return;
 
-      if (values.length < 2) return;
+        const w = distCanvas.width;
+        const h = distCanvas.height;
+        const padX = 20; 
+        const padY = 20;
 
-      const w = distCanvas.width;
-      const h = distCanvas.height;
-      const padX = 20;
-      const padY = 20;
+        const safeSD = Math.max(stdDev, mean * 0.1); 
+        const minX = mean - 3.5 * safeSD;
+        const maxX = mean + 3.5 * safeSD;
+        const rangeX = maxX - minX;
 
-      const safeSD = Math.max(stdDev, mean * 0.1);
-      const minX = mean - 3.5 * safeSD;
-      const maxX = mean + 3.5 * safeSD;
-      const rangeX = maxX - minX;
+        const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
+        const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
+        const maxY = getGaussian(mean);
 
-      const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
-      const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-      const maxY = getGaussian(mean);
+        const binCount = 8;
+        const binWidth = rangeX / binCount;
+        const bins = new Array(binCount).fill(0);
+        
+        values.forEach(v => {
+            const binIdx = Math.floor((v - minX) / binWidth);
+            if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
+        });
 
-      const binCount = 8;
-      const binWidth = rangeX / binCount;
-      const bins = new Array(binCount).fill(0);
+        const maxBinVal = Math.max(...bins, 1);
+        const barScaleY = (h - 2*padY) * 0.7;
 
-      values.forEach(v => {
-        const binIdx = Math.floor((v - minX) / binWidth);
-        if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
-      });
+        distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        bins.forEach((count, i) => {
+             const hBar = (count / maxBinVal) * barScaleY;
+             const xBar = mapX(minX + i * binWidth);
+             const yBar = h - padY - hBar;
+             const wBar = ((w - 2*padX) / binCount) - 2;
+             if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
+        });
 
-      const maxBinVal = Math.max(...bins, 1);
-      const barScaleY = (h - 2*padY) * 0.7;
-
-      distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
-      bins.forEach((count, i) => {
-        const hBar = (count / maxBinVal) * barScaleY;
-        const xBar = mapX(minX + i * binWidth);
-        const yBar = h - padY - hBar;
-        const wBar = ((w - 2*padX) / binCount) - 2;
-        if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
-      });
-
-      const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
-
-      distCtx.beginPath();
-      distCtx.moveTo(mapX(minX), h - padY);
-
-      const steps = 60;
-      for (let i = 0; i <= steps; i++) {
-        const xVal = minX + (rangeX * (i / steps));
-        const yVal = getGaussian(xVal);
-        distCtx.lineTo(mapX(xVal), mapY(yVal));
-      }
-
-      distCtx.lineTo(mapX(maxX), h - padY);
-      distCtx.closePath();
-
-      const grad = distCtx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-      grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
-      distCtx.fillStyle = grad;
-      distCtx.fill();
-
-      distCtx.strokeStyle = "#3b82f6";
-      distCtx.lineWidth = 2;
-      distCtx.stroke();
-
-      const cx = mapX(mean);
-      distCtx.beginPath();
-      distCtx.strokeStyle = "rgba(255,255,255,0.3)";
-      distCtx.setLineDash([4, 4]);
-      distCtx.moveTo(cx, padY);
-      distCtx.lineTo(cx, h - padY);
-      distCtx.stroke();
-      distCtx.setLineDash([]);
-
-      values.forEach(val => {
-        const vx = mapX(val);
-        const vy = mapY(getGaussian(val));
-
-        const dev = Math.abs(val - mean);
-        let color = "#34d399";
-        if (dev > 2 * stdDev) color = "#ef4444";
-        else if (dev > 1 * stdDev) color = "#fbbf24";
+        const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
         distCtx.beginPath();
-        distCtx.fillStyle = color;
-        distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
-        distCtx.fill();
-        distCtx.shadowColor = color;
-        distCtx.shadowBlur = 6;
-        distCtx.stroke();
-        distCtx.shadowBlur = 0;
-      });
+        distCtx.moveTo(mapX(minX), h - padY);
+        const steps = 60;
+        for (let i = 0; i <= steps; i++) {
+            const xVal = minX + (rangeX * (i / steps));
+            const yVal = getGaussian(xVal);
+            distCtx.lineTo(mapX(xVal), mapY(yVal));
+        }
+        distCtx.lineTo(mapX(maxX), h - padY);
+        distCtx.closePath();
 
-      distCtx.fillStyle = "#64748b";
-      distCtx.font = "10px Inter";
-      distCtx.textAlign = "center";
-      distCtx.fillText(Math.round(mean), cx, h - 5);
+        const grad = distCtx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+        grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
+        distCtx.fillStyle = grad;
+        distCtx.fill();
+        
+        distCtx.strokeStyle = "#3b82f6";
+        distCtx.lineWidth = 2;
+        distCtx.stroke();
+
+        const cx = mapX(mean);
+        distCtx.beginPath();
+        distCtx.strokeStyle = "rgba(255,255,255,0.3)";
+        distCtx.setLineDash([4, 4]);
+        distCtx.moveTo(cx, padY);
+        distCtx.lineTo(cx, h - padY);
+        distCtx.stroke();
+        distCtx.setLineDash([]);
+
+        values.forEach(val => {
+            const vx = mapX(val);
+            const vy = mapY(getGaussian(val));
+            const dev = Math.abs(val - mean);
+
+            let color = "#34d399"; 
+            if (dev > 2 * stdDev) color = "#ef4444"; 
+            else if (dev > 1 * stdDev) color = "#fbbf24"; 
+            
+            distCtx.beginPath();
+            distCtx.fillStyle = color;
+            distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
+            distCtx.fill();
+            distCtx.shadowColor = color;
+            distCtx.shadowBlur = 6;
+            distCtx.stroke();
+            distCtx.shadowBlur = 0;
+        });
+
+        distCtx.fillStyle = "#64748b";
+        distCtx.font = "10px Inter";
+        distCtx.textAlign = "center";
+        distCtx.fillText(Math.round(mean), cx, h - 5);
     }
 
-    // ✅ FIXED: threshold in row analysis to reduce false GAP
     function analyzeGapWidthRow(data, w, h, cy) {
       const rowStart = cy * w * 4;
 
@@ -1313,9 +1322,8 @@
       }
 
       const meanL = cnt ? (sumL / cnt) : minLuma;
-
-      // NEW: thr uses weighted mean + min (less sensitive than old formula)
-      const thr = clamp((0.45 * meanL) + (0.55 * minLuma), 0, 245);
+      const contrast = Math.max(0, meanL - minLuma);
+      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
 
       let left = minX;
       while (left > 0) {
@@ -1334,17 +1342,6 @@
       }
 
       return { left, right, width: Math.max(0, right - left) };
-    }
-
-    // NEW: analyze around +/-3 rows to avoid 1-row noise
-    function analyzeGapWidthAround(data, w, h, cy) {
-      let best = 0;
-      for (let dy = -3; dy <= 3; dy++) {
-        const y = clamp(cy + dy, 0, h - 1);
-        const g = analyzeGapWidthRow(data, w, h, y);
-        best = Math.max(best, g.width);
-      }
-      return best;
     }
 
     function toggleSheetCapture() {
@@ -1485,7 +1482,6 @@
       ghostOverlay.classList.add("active");
 
       const sample = await captureSmartSample();
-
       btn.disabled = false;
       if (!sample) return;
 
@@ -1501,7 +1497,6 @@
       btn.disabled = true;
 
       const sample = await captureSmartSample();
-
       btn.disabled = false;
       if (!sample) return;
 
