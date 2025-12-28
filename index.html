@@ -8,17 +8,19 @@
   />
   <title>PackEx</title>
 
-  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+<!-- iPhone Add to Home Screen (ตัวหลัก) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#020617">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -47,6 +49,7 @@
       --frame-gap: clamp(14px, 5.5vw, 60px);
       --gap-layout: 16px;
 
+      /* JS-calculated */
       --viewport-h: 220px;
       --viz-h: 150px;
       --app-h: 100dvh;
@@ -192,6 +195,8 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
+    .btn-vp-capture { display: none; } 
+
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -201,83 +206,94 @@
       padding: 0;
       min-height: 0;
     }
-
+    
+    /* MODIFIED: Add scrolling to panel content */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto;
+      overflow-y: auto; /* Enable vertical scroll */
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
+      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* GLUE */
-    .glue-dashboard {
-      display:flex; flex-direction:column;
-      height:100%; min-height: 400px;
-      background:#0f172a;
-      overflow:hidden;
-      width:100%;
+    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
+    /* Ensure Glue Dashboard takes full height of scrollable parent */
+    .glue-dashboard { 
+        display:flex; flex-direction:column; 
+        height:100%; min-height: 400px; /* Safe min-height */
+        background:#0f172a; 
+        overflow:hidden; 
+        width:100%; 
     }
-    .glue-body-split {
-      flex: 1;
-      display: flex;
-      flex-direction: row;
-      overflow: hidden;
-      position: relative;
+    
+    .glue-body-split { 
+        flex: 1; 
+        display: flex; 
+        flex-direction: row; /* Horizontal Split */
+        overflow: hidden; 
+        position: relative; 
     }
+
+    /* 70% Left - Main Area */
     .glue-main-area {
-      flex: 7;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: #020617;
-      border-right: 1px solid var(--border-subtle);
+        flex: 7; /* 70% */
+        display: flex; 
+        flex-direction: column;
+        overflow: hidden;
+        background: #020617;
+        border-right: 1px solid var(--border-subtle);
     }
+
+    /* 30% Right - Summary Area */
     .glue-summary-area {
-      flex: 3;
-      background: #172554;
-      display: flex;
-      flex-direction: column;
-      padding: 16px 12px;
-      gap: 16px;
-      overflow-y: auto;
-      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
+        flex: 3; /* 30% */
+        background: #172554;
+        display: flex;
+        flex-direction: column;
+        padding: 16px 12px;
+        gap: 16px;
+        overflow-y: auto;
+        padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
+
+    /* Summary Stat Items */
     .sum-item {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 12px;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      gap: 4px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        gap: 4px;
     }
     .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
     .text-ok { color: var(--success); }
     .text-ng { color: var(--danger); }
 
+    /* Header Button Style */
     .btn-header-cap {
-      width: 44px; height: 44px;
-      border-radius: 12px;
-      background: #3b82f6;
-      color: #fff;
-      border: none;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 1.2rem;
-      cursor: pointer;
-      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-      transition: 0.2s;
+        width: 44px; height: 44px;
+        border-radius: 12px;
+        background: #3b82f6; /* Primary blue */
+        color: #fff;
+        border: none;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 1.2rem;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        transition: 0.2s;
     }
     .btn-header-cap:active { transform: scale(0.92); }
     .btn-header-cap.frozen {
-      background: #ef4444;
-      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+        background: #ef4444; 
+        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
+    /* Glue Header Layout */
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -287,6 +303,7 @@
     }
     .gc-left { display:flex; align-items:center; gap:10px; }
     .gc-right { display:flex; align-items:center; gap:14px; }
+
     .gc-status-badge{
       padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
       display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
@@ -294,7 +311,94 @@
     }
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
+    
+    /* Standard Elements */
+    .result-dashboard {
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
+    }
+    .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+    .res-badge {
+      padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
+      background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .status-match .res-value { color: var(--success); }
+    .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+    .status-close .res-value { color: var(--warn); }
+    .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+    .status-diff .res-value { color: var(--danger); }
+    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
 
+    .cards-container {
+      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
+      flex-shrink: 1; min-height: 0;
+    }
+    .data-card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
+    .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
+    .l-item:last-child { border: none; }
+    .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+    .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-act {
+      width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
+      color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
+    }
+    .btn-act:active { transform: scale(0.96); }
+    .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
+    .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
+
+    .viz-section {
+      display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
+    }
+    .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
+    .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
+    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+    .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
+    .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+    .di-sam { background: var(--sample); }
+    .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
+    .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
+    .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
+    .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .l-mark.ref { background: var(--primary); z-index: 1; }
+    .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
+    .l-mark.visible { opacity: 1; }
+
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
+    .tab-item i { transition: transform 0.2s; }
+    .tab-item.active i { transform: translateY(-2px); }
+
+    .display-none { display: none !important; }
+
+    /* --- ENHANCED LEFT PANEL STYLES --- */
     .glue-list-header {
       padding: 12px 16px;
       background: #0f172a;
@@ -315,6 +419,7 @@
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
+    /* Distribution Canvas Container */
     .dist-container {
       flex: 1;
       position: relative;
@@ -324,37 +429,79 @@
       overflow: hidden;
       background: #020617;
     }
-    #dist-canvas { width: 100%; height: 100%; display: block; }
+    #dist-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
     canvas { display:block; }
     #proc-canvas { display:none; }
 
-    .result-dashboard { /* colex */ display:none; } /* (colex section below will override via JS show/hide) */
+    @media (max-height: 760px) {
+      :root { --gap-layout: 12px; }
+      header { min-height: 58px; padding-top: 10px; }
+      .btn-act { padding: 10px; }
+      .result-dashboard { padding: 12px 14px; }
+    }
 
-    .tab-bar {
-      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
-      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border-subtle); display: flex;
-      justify-content: space-around; align-items: center; z-index: 100;
-      padding-bottom: env(safe-area-inset-bottom);
-    }
-    .tab-item {
-      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
-    }
-    .tab-item.active { color: var(--primary); }
-    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
-    .display-none { display: none !important; }
+/* Bigger bottom-tab icons + labels (only tab-bar) */
+.tab-bar .tab-item svg{
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
+}
 
-    /* Bigger bottom-tab icons + labels */
-    .tab-bar .tab-item svg{ width: 26px; height: 26px; stroke-width: 2.4; }
-    .tab-bar .tab-lbl{ font-size: 0.72rem; font-weight: 800; }
-    .tab-bar{ height: 66px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 2px); }
-    @media (display-mode: standalone) {
-      .tab-bar .tab-item svg{ width: 30px; height: 30px; stroke-width: 2.6; }
-      .tab-bar .tab-lbl{ font-size: 0.75rem; font-weight: 800; line-height: 1; }
-      .tab-bar{ height: 68px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px); }
-    }
+.tab-bar .tab-lbl{
+  font-size: 0.72rem;   /* เดิม 0.65rem */
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Make touch area feel more balanced */
+.tab-bar{
+  height: 66px;                 /* เดิม var(--tab-h)=60px */
+  padding-top: 6px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+}
+
+/* keep the icon lift effect but not too subtle */
+.tab-bar .tab-item.active svg{
+  transform: translateY(-3px) scale(1.05);
+}
+/* iOS Add-to-Home-Screen (standalone) fixes */
+@media (display-mode: standalone) {
+  html, body {
+    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
+    text-size-adjust: 100%;
+  }
+
+  /* lucide renders as <svg>, lock size only in bottom tabs */
+  .tab-bar .tab-item svg{
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.6;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .tab-bar .tab-lbl{
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .tab-bar{
+    height: 68px;
+    padding-top: 6px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+  }
+}
+
+/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
+.tab-item svg { transition: transform 0.2s; }
+.tab-item.active svg { transform: translateY(-2px); }
+
   </style>
 </head>
 
@@ -403,32 +550,81 @@
     <div class="panel">
       <div class="panel-content">
 
-        <!-- COLEX PANEL (kept from previous; minimal for this message) -->
-        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 10px 20px;">
-          <div id="result-dashboard" class="result-dashboard" style="display:flex; gap:12px; justify-content:space-between; align-items:center; background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%); border: 1px solid var(--border-subtle); border-radius: 18px; padding: 14px 16px;">
-            <div style="display:flex; flex-direction:column; gap:2px;">
-              <div style="font-size:0.65rem; color:#94a3b8; font-weight:700; text-transform:uppercase;">Delta E <span id="algo-lbl">2000</span></div>
-              <div style="font-family: var(--font-num); font-size: 2.2rem; font-weight: 800;" id="delta-val">--</div>
+        <div id="panel-colex" style="display:flex; flex-direction:column; gap:var(--gap-layout); padding: 0 20px; padding-top:10px;">
+          <div id="result-dashboard" class="result-dashboard">
+            <div class="res-left">
+              <div class="res-label">Delta E <span id="algo-lbl">2000</span></div>
+              <div class="res-value" id="delta-val">--</div>
             </div>
-            <div style="display:flex; align-items:center; gap:10px;">
-              <div style="padding:8px 14px; border-radius: 10px; font-size:0.75rem; font-weight: 800; background:#334155; border:1px solid rgba(255,255,255,0.1);" id="delta-msg">READY</div>
+            <div class="dash-right" style="display:flex; align-items:center; gap:10px;">
+              <div class="res-badge" id="delta-msg">READY</div>
               <button class="btn-icon-header" onclick="resetAll()" title="Reset">
                 <i data-lucide="rotate-cw" style="width: 18px;"></i>
               </button>
             </div>
           </div>
 
-          <div style="opacity:0.5; font-size:0.8rem;">(COLEX UI ยังคงเดิม — โฟกัสแก้ GLUE GAP ในข้อความนี้)</div>
+          <div class="cards-container">
+            <div class="data-card" id="card-ref">
+              <div class="card-top">
+                <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="crosshair" width="14"></i> REF</div>
+                <div class="color-dot" id="preview-ref"></div>
+              </div>
+              <div class="lab-row">
+                <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="ref-l">-</div></div>
+                <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="ref-a">-</div></div>
+                <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="ref-b">-</div></div>
+              </div>
+              <button class="btn-act" id="btn-lock-ref" onclick="lockRef()">
+                <i data-lucide="fingerprint" style="width: 16px;"></i> CAPTURE
+              </button>
+            </div>
+
+            <div class="data-card" id="card-sam">
+              <div class="card-top">
+                <div style="font-size:0.75rem; font-weight:800; color:var(--text-muted); display:flex; gap:6px; align-items:center;"><i data-lucide="zap" width="14"></i> SAMPLE</div>
+                <div class="color-dot" id="preview-sam"></div>
+              </div>
+              <div class="lab-row">
+                <div class="l-item"><div class="l-lbl">L</div><div class="l-val" id="sam-l">-</div></div>
+                <div class="l-item"><div class="l-lbl">a</div><div class="l-val" id="sam-a">-</div></div>
+                <div class="l-item"><div class="l-lbl">b</div><div class="l-val" id="sam-b">-</div></div>
+              </div>
+              <button class="btn-act" id="btn-lock-sam" onclick="lockSam()">
+                <i data-lucide="scan-line" style="width: 16px;"></i> CAPTURE
+              </button>
+            </div>
+          </div>
+
+          <div class="viz-section">
+            <div class="graph-box">
+              <div class="plot-legend">
+                <div class="legend-item"><div class="dot-icon di-ref"></div> REF</div>
+                <div class="legend-item"><div class="dot-icon di-sam"></div> SAM</div>
+              </div>
+              <div class="axis-lbl ax-t">+b Yel</div>
+              <div class="axis-lbl ax-b">-b Blu</div>
+              <div class="axis-lbl ax-l">-a Grn</div>
+              <div class="axis-lbl ax-r">+a Red</div>
+              <canvas id="ab-plot"></canvas>
+            </div>
+            <div class="l-bar-box">
+              <div style="font-size: 0.5rem; color: #64748b; font-weight: 700;">L*</div>
+              <div class="l-track">
+                <div id="marker-ref" class="l-mark ref"></div>
+                <div id="marker-sam" class="l-mark sam"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
-        <!-- GLUE GAP PANEL -->
         <div id="panel-gluegap" class="display-none" style="height:100%; width:100%;">
           <div class="glue-dashboard">
             <div class="glue-compact-header" id="glue-header">
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-
+              
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -439,28 +635,28 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-
+                
                 <div class="dist-container" id="dist-wrapper">
-                  <canvas id="dist-canvas"></canvas>
-                  <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
-                    <i data-lucide="scan-line" width="32"></i>
-                    <span style="font-size:0.75rem;">Align camera to scan</span>
-                  </div>
+                   <canvas id="dist-canvas"></canvas>
+                   <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
+                      <i data-lucide="scan-line" width="32"></i>
+                      <span style="font-size:0.75rem;">Align camera to scan</span>
+                   </div>
                 </div>
               </div>
-
+              
               <div class="glue-summary-area">
                 <div class="sum-item">
-                  <div class="sum-val" id="sum-total">0</div>
-                  <div class="sum-lbl">Box Found</div>
+                   <div class="sum-val" id="sum-total">0</div>
+                   <div class="sum-lbl">Box Found</div>
                 </div>
                 <div class="sum-item">
-                  <div class="sum-val text-ok" id="sum-gap">0</div>
-                  <div class="sum-lbl">Glue Gap</div>
+                   <div class="sum-val text-ok" id="sum-gap">0</div>
+                   <div class="sum-lbl">Glue Gap</div>
                 </div>
                 <div class="sum-item">
-                  <div class="sum-val text-ng" id="sum-ng">0</div>
-                  <div class="sum-lbl">No Gap</div>
+                   <div class="sum-val text-ng" id="sum-ng">0</div>
+                   <div class="sum-lbl">No Gap</div>
                 </div>
               </div>
             </div>
@@ -489,62 +685,42 @@
   <script>
     lucide.createIcons();
 
-    // ===========================
-    // TUNING (ปรับง่ายตรงนี้)
-    // ===========================
-    const TUNE = {
-      DEBUG_LABEL: false,       // true = โชว์ score/contrast บน label
-      // Box detection
-      STRIPS: [                 // หลายแถบแนวตั้ง (กันโพรงตรงกลาง)
-        [0.18, 0.30],
-        [0.44, 0.56],
-        [0.70, 0.82],
-      ],
-      EDGE_SKIP_DARK: 38,       // ข้ามพิกเซลมืดมาก (โพรง) ตอนหา edge
-      BAND_THR_FLOOR: 0.18,     // threshold floor (ยิ่งต่ำยิ่งจับได้มาก)
-      BAND_MINLEN_FRAC: 0.045,  // band ขั้นต่ำเป็นสัดส่วนของความสูง ROI
-
-      // Gap detection
-      GAP_XL: 0.18,
-      GAP_XR: 0.82,
-      SHOULDER_WIN: 10,         // จำนวน sample รอบๆ valley เพื่อคำนวณ shoulder
-      GAP_CENTER_ALLOW: 0.36,   // อนุญาตให้ gap อยู่ห่างจาก center ได้กว้างขึ้น
-      MIN_CONTRAST: 6.0,        // ลดลงจากเดิมเพื่อสภาพจริง
-      RUN_FRAC: 0.10,           // run ขั้นต่ำเป็นสัดส่วน bandW
-      SCORE_THR: 0.42,          // threshold ตัดสินว่าเป็น Gap (ลดลง)
-      GRAY_LO: 0.38,            // hysteresis zone
-      GRAY_HI: 0.50
-    };
-
     // --- GLOBALS ---
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-
+    
+    // Colex Plot
+    const plotCanvas = document.getElementById("ab-plot");
+    const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
+    
+    // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
     const sheetCanvas = document.getElementById("sheet-canvas");
     const sheetCtx = sheetCanvas.getContext("2d");
-
     const ghostOverlay = document.getElementById("ghost-overlay");
 
     let activeTab = 'colex';
     let isProcessing = false;
 
     let savedRefLab = null, savedSamLab = null;
+    let bgImageData = null;
+    let deltaMode = "2000";
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;
-    let torchOpBusy = false;
-    let captureBusy = false;
+    let isTorchOn = false;      
+    let torchOpBusy = false;    
+    let captureBusy = false;    
 
     let sheetFrozen = false;
+    let sheetResults = [];
+    let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    // Stabilizers
-    let layerStabilizer = new Map();
-    let gapStabilizer = new Map();
+    // Stabilizer for each detected layer index
+    let layerStabilizer = {};
 
     // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
@@ -621,15 +797,33 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-
+        
+        // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
-        if (wrap && wrap.offsetWidth) {
-          distCanvas.width = wrap.offsetWidth;
-          distCanvas.height = wrap.offsetHeight;
+        if(wrap && wrap.offsetWidth) {
+            distCanvas.width = wrap.offsetWidth;
+            distCanvas.height = wrap.offsetHeight;
         }
+
       } else {
-        const camH = Math.round(frameH * 0.38);
-        document.documentElement.style.setProperty("--viewport-h", `${Math.max(200, camH)}px`);
+        const header = document.querySelector("header");
+        const headerH = header ? header.offsetHeight : 64;
+        const tabH = 60;
+        const available = frameH - headerH - tabH;
+
+        const standardH = Math.max(200, Math.round(available * 0.38));
+        document.documentElement.style.setProperty("--viewport-h", `${standardH}px`);
+
+        const viz = Math.max(110, Math.round(available * 0.24));
+        document.documentElement.style.setProperty("--viz-h", `${viz}px`);
+      }
+
+      const container = document.querySelector(".graph-box");
+      if (container && container.offsetWidth > 0 && container.offsetHeight > 0) {
+        plotCanvas.width = container.offsetWidth;
+        plotCanvas.height = container.offsetHeight;
+        renderColorMap();
+        drawABGraph();
       }
 
       syncSheetCanvasToDisplay();
@@ -660,7 +854,7 @@
         document.getElementById('vp-camera').classList.remove('full-width');
         document.getElementById('panel-colex').style.display = 'flex';
         document.getElementById('target-box').classList.remove('display-none');
-      } else {
+      } else if (mode === 'gluegap') {
         ghostOverlay.classList.remove("active");
         setTimeout(() => { ghostOverlay.src = ""; }, 0);
         document.getElementById('panel-gluegap').classList.remove('display-none');
@@ -668,8 +862,9 @@
         resetSheetUI();
       }
 
+      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
-      if (pc) pc.scrollTop = 0;
+      if(pc) pc.scrollTop = 0;
 
       applyAutoFitLayout();
       lucide.createIcons();
@@ -706,15 +901,55 @@
       if (!isProcessing) return;
       if (activeTab === 'gluegap') syncSheetCanvasToDisplay();
 
-      if (activeTab === 'gluegap') {
+      if (activeTab === 'colex') {
+        drawABGraph();
+      } else if (activeTab === 'gluegap') {
         processSheetFrame();
       }
       requestAnimationFrame(loop);
     }
 
     // =========================================================
-    // SIGNAL UTILS
+    // CAPTURE LIGHTING
     // =========================================================
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function pulseScreenFlash() {
+      document.body.classList.add("screen-flash");
+      setTimeout(() => document.body.classList.remove("screen-flash"), 120);
+    }
+
+    async function withCaptureLighting(fn) {
+      const wasHold = isTorchOn;
+      if (wasHold) {
+        pulseScreenFlash();
+        return await fn();
+      }
+      if (torchSupported && videoTrack?.applyConstraints) {
+        const okOn = await setTorch(true);
+        if (okOn) {
+          await wait(60);
+          try {
+            pulseScreenFlash();
+            return await fn();
+          } finally {
+            await setTorch(false);
+          }
+        }
+      }
+      pulseScreenFlash();
+      return await fn();
+    }
+
+    // --- helper (signal processing) ---
     function movingAverage(arr, radius) {
       const out = new Float32Array(arr.length);
       for (let i = 0; i < arr.length; i++) {
@@ -745,256 +980,35 @@
       return { med, mad };
     }
 
-    // =========================================================
-    // BOX DETECTION (FIXED: MULTI-STRIP MEDIAN)
-    // =========================================================
-    function lumaOf(data, i) {
-      return data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-    }
+    function findPeaksDynamic(arr, prominence, minDist) {
+      const candidates = [];
+      for (let i = 1; i < arr.length - 1; i++) {
+        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) candidates.push({ index: i, value: arr[i] });
+      }
 
-    function extractEdgeProfileOneStrip(data, w, h, x0, x1) {
-      const bandW = Math.max(1, x1 - x0);
-      const prof = new Float32Array(h);
-
-      for (let y = 1; y < h - 1; y++) {
-        const rowM = (y - 1) * w * 4;
-        const rowP = (y + 1) * w * 4;
-
-        let s = 0;
-        let cnt = 0;
-
-        for (let x = x0; x < x1; x += 2) {
-          const iM = rowM + x * 4;
-          const iP = rowP + x * 4;
-
-          const lM = lumaOf(data, iM);
-          const lP = lumaOf(data, iP);
-
-          // ข้ามพิกเซลมืดจัด (โพรง/เงาดำ) เพื่อไม่ให้พัง
-          if (lM < TUNE.EDGE_SKIP_DARK && lP < TUNE.EDGE_SKIP_DARK) continue;
-
-          s += Math.abs(lP - lM);
-          cnt++;
+      const finalPeaks = [];
+      const range = 18;
+      for (const cand of candidates) {
+        let localMin = Infinity;
+        for (let k = -range; k <= range; k++) {
+          const idx = cand.index + k;
+          if (idx >= 0 && idx < arr.length) localMin = Math.min(localMin, arr[idx]);
         }
-
-        // ถ้าข้ามเยอะเกิน ให้ fallback ใช้ทั้งหมด
-        if (cnt < (bandW * 0.12)) {
-          let s2 = 0;
-          for (let x = x0; x < x1; x += 2) {
-            const iM = rowM + x * 4;
-            const iP = rowP + x * 4;
-            s2 += Math.abs(lumaOf(data, iP) - lumaOf(data, iM));
-          }
-          prof[y] = s2 / Math.max(1, bandW / 2);
-        } else {
-          prof[y] = s / Math.max(1, cnt);
-        }
+        if ((cand.value - localMin) >= prominence) finalPeaks.push(cand);
       }
 
-      // robust normalize to 0.. (z-like)
-      const { med, mad } = robustStats(prof);
-      const out = new Float32Array(h);
-      const denom = Math.max(1e-6, mad * 2.2);
-      for (let y = 0; y < h; y++) {
-        out[y] = Math.max(0, (prof[y] - med) / denom);
+      finalPeaks.sort((a, b) => b.value - a.value);
+      const picked = [];
+      for (const p of finalPeaks) {
+        const tooClose = picked.some(q => Math.abs(q.index - p.index) < minDist);
+        if (!tooClose) picked.push(p);
       }
-      return out;
-    }
-
-    function extractEdgeProfileMultiStrip(data, w, h) {
-      const strips = TUNE.STRIPS.map(([a, b]) => {
-        const x0 = clamp(Math.floor(w * a), 0, w - 2);
-        const x1 = clamp(Math.floor(w * b), x0 + 1, w - 1);
-        return extractEdgeProfileOneStrip(data, w, h, x0, x1);
-      });
-
-      const out = new Float32Array(h);
-      for (let y = 0; y < h; y++) {
-        const vals = strips.map(p => p[y]).sort((a, b) => a - b);
-        out[y] = medianOfSorted(vals);
-      }
-      return out;
-    }
-
-    function findBoxBandsFromProfile(profile, h) {
-      const smooth = movingAverage(profile, 8);
-      const st = robustStats(smooth);
-
-      const thr = Math.max(TUNE.BAND_THR_FLOOR, st.med + st.mad * 0.55);
-
-      const active = new Uint8Array(h);
-      for (let y = 0; y < h; y++) active[y] = smooth[y] > thr ? 1 : 0;
-
-      // close small holes
-      const maxHole = Math.max(8, Math.floor(h * 0.018));
-      let run0 = -1;
-      for (let y = 0; y < h; y++) {
-        if (active[y] === 0 && run0 < 0) run0 = y;
-        if (active[y] === 1 && run0 >= 0) {
-          const holeLen = y - run0;
-          if (holeLen <= maxHole) {
-            for (let k = run0; k < y; k++) active[k] = 1;
-          }
-          run0 = -1;
-        }
-      }
-
-      const bands = [];
-      const minLen = Math.max(10, Math.floor(h * TUNE.BAND_MINLEN_FRAC));
-      const topCut = Math.floor(h * 0.03);
-      const botCut = Math.floor(h * 0.97);
-
-      let y = 0;
-      while (y < h) {
-        while (y < h && active[y] === 0) y++;
-        if (y >= h) break;
-        const y0 = y;
-        while (y < h && active[y] === 1) y++;
-        const y1 = y - 1;
-
-        if (y0 >= topCut && y1 <= botCut && (y1 - y0 + 1) >= minLen) {
-          const cy = Math.round((y0 + y1) / 2);
-          bands.push({ y0, y1, cy });
-        }
-      }
-
-      // merge close bands
-      const merged = [];
-      const mergeGap = Math.max(8, Math.floor(h * 0.02));
-      for (const b of bands) {
-        const last = merged[merged.length - 1];
-        if (last && (b.y0 - last.y1) <= mergeGap) {
-          last.y1 = b.y1;
-          last.cy = Math.round((last.y0 + last.y1) / 2);
-        } else {
-          merged.push({ ...b });
-        }
-      }
-      return merged;
+      picked.sort((a, b) => a.index - b.index);
+      return picked;
     }
 
     // =========================================================
-    // GAP DETECTION (FIXED: valley + shoulder contrast)
-    // =========================================================
-    function analyzeGapValley(data, w, h, cy) {
-      const bandLeft = Math.floor(w * TUNE.GAP_XL);
-      const bandRight = Math.floor(w * TUNE.GAP_XR);
-      const bandW = Math.max(1, bandRight - bandLeft);
-
-      const y0 = clamp(cy - 2, 0, h - 1);
-      const y1 = clamp(cy + 2, 0, h - 1);
-
-      const step = 2;
-      const n = Math.max(1, Math.floor(bandW / step));
-      const lumas = new Float32Array(n);
-
-      for (let i = 0; i < n; i++) {
-        const x = bandLeft + i * step;
-        let s = 0, c = 0;
-        for (let y = y0; y <= y1; y++) {
-          const idx = (y * w + x) * 4;
-          s += lumaOf(data, idx);
-          c++;
-        }
-        lumas[i] = s / c;
-      }
-
-      // smooth
-      const sm = movingAverage(lumas, 2);
-
-      // find valley (min)
-      let minV = 255, minI = 0;
-      let mean = 0;
-      for (let i = 0; i < sm.length; i++) {
-        mean += sm[i];
-        if (sm[i] < minV) { minV = sm[i]; minI = i; }
-      }
-      mean /= Math.max(1, sm.length);
-
-      const win = TUNE.SHOULDER_WIN;
-      const leftA = clamp(minI - win * 2, 0, sm.length - 1);
-      const leftB = clamp(minI - win, 0, sm.length - 1);
-      const rightA = clamp(minI + win, 0, sm.length - 1);
-      const rightB = clamp(minI + win * 2, 0, sm.length - 1);
-
-      function avgRange(a, b) {
-        if (b <= a) return sm[a] || 0;
-        let s = 0, c = 0;
-        for (let i = a; i <= b; i++) { s += sm[i]; c++; }
-        return s / Math.max(1, c);
-      }
-
-      const leftMean = avgRange(leftA, leftB);
-      const rightMean = avgRange(rightA, rightB);
-      const shoulder = (leftMean + rightMean) / 2;
-
-      const contrast = Math.max(0, shoulder - minV);
-
-      // run length around valley (expand while below threshold)
-      const thr = minV + Math.max(6, contrast * 0.40);
-      let iL = minI, iR = minI;
-      while (iL > 0 && sm[iL - 1] < thr) iL--;
-      while (iR < sm.length - 1 && sm[iR + 1] < thr) iR++;
-
-      const runLenPx = (iR - iL + 1) * step;
-      const centerX = bandLeft + minI * step;
-      const bandCenter = (bandLeft + bandRight) * 0.5;
-
-      return {
-        bandW,
-        meanL: mean,
-        valley: minV,
-        shoulder,
-        contrast,
-        runLen: runLenPx,
-        centerX,
-        bandCenter
-      };
-    }
-
-    function gapScoreFromValley(gm) {
-      const minRun = Math.max(10, Math.floor(gm.bandW * TUNE.RUN_FRAC));
-      const lenScore = clamp(gm.runLen / (minRun * 1.15), 0, 1.8);
-
-      const contrastScore = clamp(gm.contrast / 10.0, 0, 2.0); // 10 = scale for cardboard
-
-      const centerOff = Math.abs(gm.centerX - gm.bandCenter);
-      const centerPenalty = clamp(centerOff / (gm.bandW * TUNE.GAP_CENTER_ALLOW), 0, 1.4);
-
-      let score = (0.70 * lenScore) + (0.95 * contrastScore) - (0.45 * centerPenalty);
-
-      if (gm.contrast < TUNE.MIN_CONTRAST) score -= 0.35;
-      if (gm.runLen < minRun * 0.85) score -= 0.25;
-
-      return { score, minRun, centerOff };
-    }
-
-    function decideGapForBand(data, w, h, cy, bandHalfHeight) {
-      const dy = Math.max(3, Math.floor(bandHalfHeight * 0.18));
-      const ys = [
-        clamp(cy - dy, 0, h - 1),
-        clamp(cy,      0, h - 1),
-        clamp(cy + dy, 0, h - 1)
-      ];
-
-      const scores = [];
-      const gms = [];
-      for (const y of ys) {
-        const gm = analyzeGapValley(data, w, h, y);
-        const sc = gapScoreFromValley(gm);
-        gms.push(gm);
-        scores.push(sc.score);
-      }
-
-      const sorted = [...scores].sort((a,b)=>a-b);
-      const medScore = sorted[1];
-
-      const isGap = medScore >= TUNE.SCORE_THR;
-      return { isGap, score: medScore, gm: gms[1] };
-    }
-
-    // =========================================================
-    // GLUE GAP MAIN
+    //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1007,7 +1021,7 @@
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
 
-      // ROI (เหมือนเดิม)
+      // ROI setup
       const roiW_disp = Math.round(dw * 0.50);
       const roiH_disp = Math.round(dh * 0.70);
       const roiX_disp = Math.round((dw - roiW_disp) / 2);
@@ -1016,14 +1030,14 @@
       let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.2);
       roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
 
-      // Map ROI to video
+      // Map ROI to Video Coordinates
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
-      // HUD mask
+      // Draw HUD (Overlay)
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
@@ -1035,7 +1049,7 @@
       sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
       sheetCtx.restore();
 
-      // Read ROI pixels
+      // Get Image Data
       if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
         procCanvas.width = roiW_v; procCanvas.height = roiH_v;
       }
@@ -1043,115 +1057,107 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // STEP 1: Multi-strip profile => bands
-      const profile = extractEdgeProfileMultiStrip(data, roiW_v, roiH_v);
-      const bands = findBoxBandsFromProfile(profile, roiH_v);
+      // Profile Scan
+      const profile = new Float32Array(roiH_v);
+      const centerStart = Math.floor(roiW_v * 0.35);
+      const centerEnd = Math.floor(roiW_v * 0.65);
+      const centerW = centerEnd - centerStart;
+
+      for (let y = 0; y < roiH_v; y++) {
+        let sumLuma = 0;
+        const rowOffset = y * roiW_v * 4;
+        for (let x = centerStart; x < centerEnd; x++) {
+          const i = rowOffset + x * 4;
+          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+          sumLuma += luma;
+        }
+        const avgLuma = sumLuma / centerW;
+        const darkness = Math.max(0, 255 - avgLuma);
+        profile[y] = Math.pow(darkness, 1.5); 
+      }
+
+      const smoothed = movingAverage(profile, 4);
+      const { med, mad } = robustStats(smoothed);
+      const layerThreshold = Math.max(30, mad * 1.5); 
+      const gapThreshold = Math.max(100, mad * 4.5);
+      const minDist = Math.floor(roiH_v / 12); 
+
+      let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-
+      
       const results = [];
+      let maxW = 0;
 
-      for (let k = 0; k < bands.length; k++) {
-        const b = bands[k];
-        const localY_v = b.cy;
+      peaks.forEach((peak, idx) => {
+        if (peak.index > roiH_v * 0.96) return; 
+
+        const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        
+        let st = layerStabilizer[idx];
+        if (!st) st = { width: gapGeo.width };
+        else st.width = lerp(st.width, gapGeo.width, 0.2);
+        layerStabilizer[idx] = st;
 
-        const bandHalf = Math.max(6, Math.floor((b.y1 - b.y0 + 1) * 0.5));
-        const bandEval = decideGapForBand(data, roiW_v, roiH_v, localY_v, bandHalf);
-
-        // hysteresis
-        const id = Math.round(localY_v / 6) * 6;
-        let gs = gapStabilizer.get(id);
-        if (!gs) gs = { lastIsGap: bandEval.isGap, lastScore: bandEval.score };
-
-        let finalIsGap = bandEval.isGap;
-        if (bandEval.score >= TUNE.GRAY_LO && bandEval.score <= TUNE.GRAY_HI) {
-          finalIsGap = gs.lastIsGap;
-        } else {
-          gs.lastIsGap = bandEval.isGap;
-        }
-        gs.lastScore = bandEval.score;
-        gapStabilizer.set(id, gs);
-
-        // width from runLen (stable)
-        const gm = bandEval.gm;
-        let st = layerStabilizer.get(id);
-        const widthV = gm.runLen;
-
-        if (!st) st = { width: widthV };
-        else st.width = lerp(st.width, widthV, 0.20);
-        layerStabilizer.set(id, st);
-
-        const dispW = Math.max(30, st.width * sx);
+        const dispW = Math.max(40, st.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-        // Decide label/colors
-        let status = "OK";
-        let boxColor = "#34d399";
-        let bgColor = "rgba(52, 211, 153, 0.18)";
-        let labelText = `#${k + 1}`;
-        let xOffset = 55;
+        maxW = Math.max(maxW, dispW);
+        const widthPx = Math.round(dispW); 
 
-        if (!finalIsGap) {
-          status = "NG";
-          boxColor = "#ef4444";
-          bgColor = "rgba(239, 68, 68, 0.18)";
-          labelText = `NO GAP ${k + 1}`;
-          xOffset = 82;
+        const peakValue = smoothed[localY_v];
+        let status = "OK";
+        let boxColor = "#34d399"; 
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let labelText = `#${idx + 1} (${widthPx}px)`; 
+        let xOffset = 65;
+
+        if (peakValue < gapThreshold) {
+            status = "NG";
+            boxColor = "#ef4444"; 
+            bgColor = "rgba(239, 68, 68, 0.2)";
+            labelText = `NO GAP ${idx + 1}`;
+            xOffset = 80;
         }
 
-        // Draw band box
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
-        sheetCtx.setLineDash([]);
-        sheetCtx.lineWidth = 2;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
-
-        // Label (optional debug)
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        let extra = "";
-        if (TUNE.DEBUG_LABEL) {
-          extra = ` s:${bandEval.score.toFixed(2)} c:${gm.contrast.toFixed(1)} r:${Math.round(gm.runLen)}`;
-        }
-        sheetCtx.fillText(labelText + extra, roiX_disp - xOffset, drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: k + 1, w: dispW, status });
-      }
+        results.push({ layer: idx + 1, w: dispW, status: status });
+      });
 
-      // Summary
-      const boxFound = results.length;
-      const noGapCount = results.filter(r => r.status === "NG").length;
-      const glueGapCount = boxFound - noGapCount;
-
-      document.getElementById('sum-total').innerText = boxFound;
-      document.getElementById('sum-gap').innerText = glueGapCount;
-      document.getElementById('sum-ng').innerText = noGapCount;
-
-      // Header status
+      // Update Header & Summary
+      const expected = results.length;
+      const ngCount = results.filter(r => r.status === "NG").length;
+      const okCount = expected - ngCount;
+      
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      if (boxFound < 2) {
-        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-        header.className = "glue-compact-header";
-      } else if (noGapCount > 0) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)">
-            <i data-lucide="x-circle"></i> FAIL
-          </div>`;
-        header.className = "glue-compact-header status-fail";
+      if (ngCount > 0) {
+         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+         header.className = "glue-compact-header status-fail";
+      } else if (expected >= 7 && expected <= 8) {
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+         header.className = "glue-compact-header status-pass";
       } else {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge">
-            <i data-lucide="check-circle-2" style="color:#34d399"></i> PASS
-          </div>`;
-        header.className = "glue-compact-header status-pass";
+         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+         header.className = "glue-compact-header";
       }
 
-      // Stats for chart
+      document.getElementById('sum-total').innerText = expected;
+      document.getElementById('sum-gap').innerText = okCount;
+      document.getElementById('sum-ng').innerText = ngCount;
+
+      // --- STATS CALCULATION ---
       const validGaps = results.filter(r => r.status !== "NG").map(r => r.w);
       let avgWidth = 0;
       let uniformity = 100;
@@ -1161,129 +1167,199 @@
         const totalW = validGaps.reduce((acc, v) => acc + v, 0);
         avgWidth = totalW / validGaps.length;
 
+        // Variance & SD
         const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
         stdDev = Math.sqrt(variance);
 
+        // Uniformity
         const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
         const avgDev = totalDev / validGaps.length;
-        uniformity = (avgWidth > 0) ? Math.max(0, 100 - ((avgDev / avgWidth) * 100)) : 100;
+        uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
       }
 
+      // Update Stats Header
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-        statsHeader.style.display = "grid";
-        statsHeader.innerHTML = `
-          <div class="stat-box">
-            <div class="stat-title">Avg Width</div>
-            <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
-          </div>
-          <div class="stat-box">
-            <div class="stat-title">Consistency</div>
-            <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-              ${Math.round(uniformity)}<span class="stat-unit">%</span>
+          statsHeader.style.display = "grid";
+          statsHeader.innerHTML = `
+            <div class="stat-box">
+                <div class="stat-title">Avg Width</div>
+                <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
             </div>
-          </div>
-        `;
-        document.getElementById("empty-scan-msg").style.display = "none";
+            <div class="stat-box">
+                <div class="stat-title">Consistency</div>
+                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+                ${Math.round(uniformity)}<span class="stat-unit">%</span>
+                </div>
+            </div>
+          `;
+          document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-        statsHeader.style.display = "none";
-        document.getElementById("empty-scan-msg").style.display = "flex";
+          statsHeader.style.display = "none";
+          document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
+      // --- DRAW BELL CURVE & HISTOGRAM ---
       drawBellCurve(validGaps, avgWidth, stdDev);
+      
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
-      distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-      if (values.length < 2) return;
+        // Clear canvas
+        distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+        
+        if (values.length < 2) return; 
+        
+        const w = distCanvas.width;
+        const h = distCanvas.height;
+        const padX = 20; 
+        const padY = 20;
 
-      const w = distCanvas.width;
-      const h = distCanvas.height;
-      const padX = 20;
-      const padY = 20;
+        // Range
+        const safeSD = Math.max(stdDev, mean * 0.1); 
+        const minX = mean - 3.5 * safeSD;
+        const maxX = mean + 3.5 * safeSD;
+        const rangeX = maxX - minX;
 
-      const safeSD = Math.max(stdDev, mean * 0.12);
-      const minX = mean - 3.5 * safeSD;
-      const maxX = mean + 3.5 * safeSD;
-      const rangeX = maxX - minX;
+        // Helper Map Functions
+        const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
+        const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
+        const maxY = getGaussian(mean); // peak prob
+        
+        // --- 1. DRAW HISTOGRAM (BARS) ---
+        const binCount = 8; // Number of bars
+        const binWidth = rangeX / binCount;
+        const bins = new Array(binCount).fill(0);
+        
+        values.forEach(v => {
+            const binIdx = Math.floor((v - minX) / binWidth);
+            if (binIdx >= 0 && binIdx < binCount) {
+                bins[binIdx]++;
+            }
+        });
 
-      const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
-      const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-      const maxY = getGaussian(mean);
+        // Determine max bin count to scale histogram height
+        // Scale so max bar is approx 70% of canvas height
+        const maxBinVal = Math.max(...bins, 1); 
+        const barScaleY = (h - 2*padY) * 0.7;
 
-      // histogram
-      const binCount = 8;
-      const binWidth = rangeX / binCount;
-      const bins = new Array(binCount).fill(0);
+        distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+        
+        bins.forEach((count, i) => {
+             const hBar = (count / maxBinVal) * barScaleY;
+             const xBar = mapX(minX + i * binWidth);
+             const yBar = h - padY - hBar;
+             const wBar = ((w - 2*padX) / binCount) - 2; // -2 for gap
+             
+             if (hBar > 0) {
+                distCtx.fillRect(xBar, yBar, wBar, hBar);
+             }
+        });
 
-      values.forEach(v => {
-        const binIdx = Math.floor((v - minX) / binWidth);
-        if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
-      });
-
-      const maxBinVal = Math.max(...bins, 1);
-      const barScaleY = (h - 2*padY) * 0.7;
-
-      distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
-      bins.forEach((count, i) => {
-        const hBar = (count / maxBinVal) * barScaleY;
-        const xBar = mapX(minX + i * binWidth);
-        const yBar = h - padY - hBar;
-        const wBar = ((w - 2*padX) / binCount) - 2;
-        if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
-      });
-
-      const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
-
-      distCtx.beginPath();
-      distCtx.moveTo(mapX(minX), h - padY);
-      const steps = 60;
-      for (let i = 0; i <= steps; i++) {
-        const xVal = minX + (rangeX * (i / steps));
-        const yVal = getGaussian(xVal);
-        distCtx.lineTo(mapX(xVal), mapY(yVal));
-      }
-      distCtx.lineTo(mapX(maxX), h - padY);
-      distCtx.closePath();
-
-      const grad = distCtx.createLinearGradient(0, 0, 0, h);
-      grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-      grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
-      distCtx.fillStyle = grad;
-      distCtx.fill();
-
-      distCtx.strokeStyle = "#3b82f6";
-      distCtx.lineWidth = 2;
-      distCtx.stroke();
-
-      const cx = mapX(mean);
-      distCtx.beginPath();
-      distCtx.strokeStyle = "rgba(255,255,255,0.3)";
-      distCtx.setLineDash([4, 4]);
-      distCtx.moveTo(cx, padY);
-      distCtx.lineTo(cx, h - padY);
-      distCtx.stroke();
-      distCtx.setLineDash([]);
-
-      values.forEach(val => {
-        const vx = mapX(val);
-        const vy = mapY(getGaussian(val));
-        const dev = Math.abs(val - mean);
-        let color = "#34d399";
-        if (dev > 2 * stdDev) color = "#ef4444";
-        else if (dev > 1 * stdDev) color = "#fbbf24";
+        // --- 2. DRAW BELL CURVE (Overlay) ---
+        const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
         distCtx.beginPath();
-        distCtx.fillStyle = color;
-        distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
+        distCtx.moveTo(mapX(minX), h - padY);
+        
+        const steps = 60;
+        for (let i = 0; i <= steps; i++) {
+            const xVal = minX + (rangeX * (i / steps));
+            const yVal = getGaussian(xVal);
+            distCtx.lineTo(mapX(xVal), mapY(yVal));
+        }
+        
+        distCtx.lineTo(mapX(maxX), h - padY);
+        distCtx.closePath();
+        
+        // Gradient Fill
+        const grad = distCtx.createLinearGradient(0, 0, 0, h);
+        grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+        grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
+        distCtx.fillStyle = grad;
         distCtx.fill();
-      });
+        
+        distCtx.strokeStyle = "#3b82f6";
+        distCtx.lineWidth = 2;
+        distCtx.stroke();
 
-      distCtx.fillStyle = "#64748b";
-      distCtx.font = "10px Inter";
-      distCtx.textAlign = "center";
-      distCtx.fillText(Math.round(mean), cx, h - 5);
+        // --- 3. Center Line ---
+        const cx = mapX(mean);
+        distCtx.beginPath();
+        distCtx.strokeStyle = "rgba(255,255,255,0.3)";
+        distCtx.setLineDash([4, 4]);
+        distCtx.moveTo(cx, padY);
+        distCtx.lineTo(cx, h - padY);
+        distCtx.stroke();
+        distCtx.setLineDash([]);
+
+        // --- 4. Individual Measurements (Dots) ---
+        values.forEach(val => {
+            const vx = mapX(val);
+            const vy = mapY(getGaussian(val));
+            
+            const dev = Math.abs(val - mean);
+            let color = "#34d399"; 
+            if (dev > 2 * stdDev) color = "#ef4444"; 
+            else if (dev > 1 * stdDev) color = "#fbbf24"; 
+            
+            distCtx.beginPath();
+            distCtx.fillStyle = color;
+            distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
+            distCtx.fill();
+            distCtx.shadowColor = color;
+            distCtx.shadowBlur = 6;
+            distCtx.stroke();
+            distCtx.shadowBlur = 0;
+        });
+
+        // X-axis label
+        distCtx.fillStyle = "#64748b";
+        distCtx.font = "10px Inter";
+        distCtx.textAlign = "center";
+        distCtx.fillText(Math.round(mean), cx, h - 5);
+    }
+
+    function analyzeGapWidthRow(data, w, h, cy) {
+      const rowStart = cy * w * 4;
+
+      const bandLeft = Math.floor(w * 0.25);
+      const bandRight = Math.floor(w * 0.75);
+
+      let minLuma = 255;
+      let minX = ((bandLeft + bandRight) >> 1);
+      let sumL = 0;
+      let cnt = 0;
+
+      for (let x = bandLeft; x < bandRight; x += 2) {
+        const i = rowStart + x * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        sumL += luma; cnt++;
+        if (luma < minLuma) { minLuma = luma; minX = x; }
+      }
+
+      const meanL = cnt ? (sumL / cnt) : minLuma;
+      const contrast = Math.max(0, meanL - minLuma);
+      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      let left = minX;
+      while (left > 0) {
+        const i = rowStart + left * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        left--;
+      }
+
+      let right = minX;
+      while (right < w - 1) {
+        const i = rowStart + right * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        right++;
+      }
+
+      return { left, right, width: Math.max(0, right - left) };
     }
 
     function toggleSheetCapture() {
@@ -1302,9 +1378,8 @@
 
     function resetSheetUI() {
       sheetFrozen = false;
-      layerStabilizer = new Map();
-      gapStabilizer = new Map();
-
+      sheetResults = [];
+      layerStabilizer = {};
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
@@ -1317,6 +1392,7 @@
       document.getElementById("header-status-group").innerHTML =
         `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
 
+      // Reset Stats Header & Show Empty Msg
       document.getElementById("stats-header").style.display = "none";
       document.getElementById("empty-scan-msg").style.display = "flex";
 
@@ -1327,24 +1403,387 @@
       lucide.createIcons();
     }
 
-    // =========================================================
-    // TORCH
-    // =========================================================
-    async function setTorch(on) {
-      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+    // --- COLEX LOGIC ---
+    window.addEventListener('deviceorientation', (event) => {
+      lastOri = { beta: event.beta || 0, gamma: event.gamma || 0, alpha: event.alpha || 0 };
+    });
+
+    function getSmartAverage(arr) {
+      if (arr.length === 0) return 0;
+      arr.sort((a, b) => a - b);
+      const trimAmt = Math.floor(arr.length * 0.25);
+      const target = arr.slice(trimAmt, arr.length - trimAmt);
+      if (target.length === 0) return arr[Math.floor(arr.length / 2)];
+      const sum = target.reduce((a, b) => a + b, 0);
+      return Math.round(sum / target.length);
+    }
+
+    function readOneSample() {
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return null;
+
+      const m = getCoverMetrics();
+      if (!m) return null;
+
+      const tb = document.getElementById("target-box");
+      const tbR = tb.getBoundingClientRect();
+      const vR = m.rect;
+
+      const cx_disp = (tbR.left + tbR.right) / 2 - vR.left;
+      const cy_disp = (tbR.top + tbR.bottom) / 2 - vR.top;
+
+      const p = dispToVideoXY(cx_disp, cy_disp, m);
+
+      const W = 100, H = 100;
+      if (procCanvas.width !== W) { procCanvas.width = W; procCanvas.height = H; }
+
+      let sx = Math.round(p.x - W / 2);
+      let sy = Math.round(p.y - H / 2);
+
+      sx = clamp(sx, 0, m.vw - W);
+      sy = clamp(sy, 0, m.vh - H);
+
+      procCtx.drawImage(video, sx, sy, W, H, 0, 0, W, H);
+      const frame = procCtx.getImageData(0, 0, W, H);
+      const d = frame.data;
+
+      let rList = [], gList = [], bList = [];
+      for (let i = 0; i < d.length; i += 20) {
+        rList.push(d[i]); gList.push(d[i + 1]); bList.push(d[i + 2]);
+      }
+      const r = getSmartAverage(rList);
+      const g = getSmartAverage(gList);
+      const b = getSmartAverage(bList);
+
+      const rgb = `rgb(${r},${g},${b})`;
+      const lab = rgbToLab(r, g, b);
+      return { rgb, lab };
+    }
+
+    async function captureSmartSample() {
+      if (captureBusy) return null;
+      captureBusy = true;
       try {
-        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
-        return true;
-      } catch (e) {
-        return false;
+        const frames = 10;
+        let sumL = 0, sumA = 0, sumB = 0;
+        let lastRGB = "";
+
+        for (let i = 0; i < frames; i++) {
+          const sample = readOneSample();
+          if (sample) {
+            sumL += parseFloat(sample.lab.L);
+            sumA += parseFloat(sample.lab.a);
+            sumB += parseFloat(sample.lab.b);
+            lastRGB = sample.rgb;
+          }
+          await wait(30);
+        }
+
+        return {
+          rgb: lastRGB,
+          lab: {
+            L: (sumL / frames).toFixed(1),
+            a: (sumA / frames).toFixed(1),
+            b: (sumB / frames).toFixed(1)
+          }
+        };
+      } finally {
+        captureBusy = false;
       }
     }
 
+    async function lockRef() {
+      const btn = document.getElementById("btn-lock-ref");
+      if (btn.disabled || captureBusy) return;
+      btn.disabled = true;
+
+      const ghostData = captureGhostImage();
+      ghostOverlay.src = ghostData;
+      ghostOverlay.classList.add("active");
+
+      // MODIFIED: No Flash
+      const sample = await captureSmartSample();
+
+      btn.disabled = false;
+      if (!sample) return;
+
+      savedRefLab = { ...sample.lab };
+      updateCard("ref", savedRefLab, sample.rgb);
+      document.getElementById("card-ref").classList.add("active-ref");
+      tryCalculate();
+    }
+
+    async function lockSam() {
+      const btn = document.getElementById("btn-lock-sam");
+      if (btn.disabled || captureBusy) return;
+      btn.disabled = true;
+
+      // MODIFIED: No Flash
+      const sample = await captureSmartSample();
+
+      btn.disabled = false;
+      if (!sample) return;
+
+      savedSamLab = { ...sample.lab };
+      updateCard("sam", savedSamLab, sample.rgb);
+      document.getElementById("card-sam").classList.add("active-sam");
+      tryCalculate();
+    }
+
+    function captureGhostImage() {
+      const c = document.createElement("canvas");
+      c.width = video.videoWidth; c.height = video.videoHeight;
+      c.getContext("2d").drawImage(video, 0, 0);
+      return c.toDataURL("image/jpeg", 0.8);
+    }
+
+    function updateCard(type, lab, rgb) {
+      document.getElementById(`preview-${type}`).style.background = rgb;
+      document.getElementById(`${type}-l`).innerText = lab.L;
+      document.getElementById(`${type}-a`).innerText = lab.a;
+      document.getElementById(`${type}-b`).innerText = lab.b;
+
+      const lVal = Math.max(0, Math.min(100, parseFloat(lab.L)));
+      const marker = document.getElementById(`marker-${type}`);
+      marker.classList.add("visible");
+      marker.style.bottom = lVal + "%";
+    }
+
+    function resetAll() {
+      savedRefLab = null; savedSamLab = null;
+
+      ["ref", "sam"].forEach((type) => {
+        document.getElementById(`card-${type}`).classList.remove("active-ref", "active-sam");
+        document.getElementById(`preview-${type}`).style.background = "#334155";
+        document.getElementById(`${type}-l`).innerText = "-";
+        document.getElementById(`${type}-a`).innerText = "-";
+        document.getElementById(`${type}-b`).innerText = "-";
+        document.getElementById(`marker-${type}`).classList.remove("visible");
+      });
+
+      ghostOverlay.classList.remove("active");
+      setTimeout(() => { ghostOverlay.src = ""; }, 300);
+
+      document.getElementById("delta-val").innerText = "--";
+      document.getElementById("result-dashboard").className = "result-dashboard";
+      document.getElementById("delta-msg").innerText = "READY";
+      document.getElementById("advice-content").innerHTML = "";
+      document.getElementById("advice-placeholder").style.display = "flex";
+    }
+
+    function tryCalculate() {
+      if (savedRefLab && savedSamLab) {
+        let samForCalc = { ...savedSamLab };
+        let dE = 0;
+        if (deltaMode === "2000") dE = calculateDeltaE2000(savedRefLab, samForCalc);
+        else if (deltaMode === "94") dE = calculateDeltaE94(savedRefLab, samForCalc);
+        else dE = calculateDeltaE76(savedRefLab, samForCalc);
+
+        const dash = document.getElementById("result-dashboard");
+        document.getElementById("delta-val").innerText = dE.toFixed(2);
+
+        dash.classList.remove("status-match", "status-close", "status-diff");
+        if (dE <= 1.0) { dash.classList.add("status-match"); document.getElementById("delta-msg").innerText = "EXACT"; }
+        else if (dE <= 2.5) { dash.classList.add("status-close"); document.getElementById("delta-msg").innerText = "CLOSE"; }
+        else { dash.classList.add("status-diff"); document.getElementById("delta-msg").innerText = "DIFF"; }
+
+        generateAdvice(savedRefLab, samForCalc);
+      }
+    }
+
+    function generateAdvice(ref, curr) {
+      const dL = parseFloat(ref.L) - parseFloat(curr.L);
+      const da = parseFloat(ref.a) - parseFloat(curr.a);
+      const db = parseFloat(ref.b) - parseFloat(curr.b);
+      const th = 1.0;
+
+      const container = document.getElementById("advice-content");
+      const placeholder = document.getElementById("advice-placeholder");
+      container.innerHTML = "";
+
+      let actions = [];
+      if (dL > th) actions.push({ icon: "sun", text: "Lighten", det: "+White", col: "#fff" });
+      else if (dL < -th) actions.push({ icon: "moon", text: "Darken", det: "+Black", col: "#94a3b8" });
+
+      if (da > th) actions.push({ icon: "droplet", text: "Add Red", det: "+Red", col: "#f87171" });
+      else if (da < -th) actions.push({ icon: "droplet", text: "Add Green", det: "+Grn", col: "#4ade80" });
+
+      if (db > th) actions.push({ icon: "droplet", text: "Add Yellow", det: "+Yel", col: "#facc15" });
+      else if (db < -th) actions.push({ icon: "droplet", text: "Add Blue", det: "+Blu", col: "#60a5fa" });
+
+      if (actions.length === 0) actions.push({ icon: "check-circle", text: "Perfect", det: "Good Match", col: "#10b981" });
+
+      placeholder.style.display = "none";
+      actions.forEach((a) => {
+        const div = document.createElement("div");
+        div.className = "advice-item";
+        div.innerHTML = `<div class="adv-icon-row" style="color:${a.col}"><i data-lucide="${a.icon}" width="14"></i> ${a.text}</div><div class="adv-detail">${a.det}</div>`;
+        container.appendChild(div);
+      });
+
+      lucide.createIcons();
+    }
+
+    function drawABGraph() {
+      const w = plotCanvas.width, h = plotCanvas.height;
+      const cx = w / 2, cy = h / 2;
+
+      if (bgImageData) plotCtx.putImageData(bgImageData, 0, 0);
+      else plotCtx.clearRect(0, 0, w, h);
+
+      if (savedRefLab) drawDot(savedRefLab, "#000", "#3b82f6");
+      if (savedSamLab) drawDot(savedSamLab, "#000", "#ffffff");
+
+      if (savedRefLab && savedSamLab) {
+        const rx = cx + parseFloat(savedRefLab.a), ry = cy - parseFloat(savedRefLab.b);
+        const sx = cx + parseFloat(savedSamLab.a), sy = cy - parseFloat(savedSamLab.b);
+        plotCtx.beginPath();
+        plotCtx.strokeStyle = "rgba(0,0,0,0.5)";
+        plotCtx.lineWidth = 1;
+        plotCtx.setLineDash([2, 2]);
+        plotCtx.moveTo(rx, ry); plotCtx.lineTo(sx, sy);
+        plotCtx.stroke();
+        plotCtx.setLineDash([]);
+      }
+    }
+
+    function drawDot(lab, stroke, fill) {
+      const cx = plotCanvas.width / 2, cy = plotCanvas.height / 2;
+      const x = cx + parseFloat(lab.a), y = cy - parseFloat(lab.b);
+      plotCtx.beginPath();
+      plotCtx.fillStyle = fill;
+      plotCtx.arc(x, y, 6, 0, Math.PI * 2);
+      plotCtx.fill();
+      plotCtx.lineWidth = 2;
+      plotCtx.strokeStyle = stroke;
+      plotCtx.stroke();
+    }
+
+    function renderColorMap() {
+      const w = plotCanvas.width, h = plotCanvas.height;
+      const cx = w / 2, cy = h / 2;
+      const imgData = plotCtx.createImageData(w, h);
+      const d = imgData.data;
+      const maxDist = Math.min(w, h) / 2;
+
+      for (let y = 0; y < h; y += 2) {
+        for (let x = 0; x < w; x += 2) {
+          const dx = x - cx, dy = y - cy;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          const normDist = Math.min(1, dist / maxDist);
+          const angleRad = Math.atan2(-dy, dx);
+          let angleDeg = angleRad * (180 / Math.PI);
+          if (angleDeg < 0) angleDeg += 360;
+
+          const rgb = hslToRgb(angleDeg, normDist * 100, 100 - normDist * 55);
+          const idx = (y * w + x) * 4;
+
+          const setPx = (i) => { d[i] = rgb.r; d[i + 1] = rgb.g; d[i + 2] = rgb.b; d[i + 3] = 255; };
+          if (idx < d.length) setPx(idx);
+          const idx2 = ((y + 1) * w + (x + 1)) * 4;
+          if (idx2 < d.length) setPx(idx2);
+        }
+      }
+
+      for (let x = 0; x < w; x++) {
+        const idx = (Math.floor(cy) * w + x) * 4;
+        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
+      }
+      for (let y = 0; y < h; y++) {
+        const idx = (y * w + Math.floor(cx)) * 4;
+        d[idx] = 255; d[idx + 1] = 255; d[idx + 2] = 255; d[idx + 3] = 40;
+      }
+
+      bgImageData = imgData;
+    }
+
+    function hslToRgb(h, s, l) {
+      s /= 100; l /= 100;
+      const k = (n) => (n + h / 30) % 12;
+      const a = s * Math.min(l, 1 - l);
+      const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+      return { r: Math.round(255 * f(0)), g: Math.round(255 * f(8)), b: Math.round(255 * f(4)) };
+    }
+
+    function changeMode(m) { deltaMode = m; document.getElementById("algo-lbl").innerText = m; tryCalculate(); }
+
+    function rgbToLab(r, g, b) {
+      let R = r / 255, G = g / 255, B = b / 255;
+      R = (R > 0.04045) ? Math.pow((R + 0.055) / 1.055, 2.4) : R / 12.92;
+      G = (G > 0.04045) ? Math.pow((G + 0.055) / 1.055, 2.4) : G / 12.92;
+      B = (B > 0.04045) ? Math.pow((B + 0.055) / 1.055, 2.4) : B / 12.92;
+
+      let X = (R * 0.4124 + G * 0.3576 + B * 0.1805) * 100;
+      let Y = (R * 0.2126 + G * 0.7152 + B * 0.0722) * 100;
+      let Z = (R * 0.0193 + G * 0.1192 + B * 0.9505) * 100;
+
+      X /= 95.047; Y /= 100.000; Z /= 108.883;
+      X = (X > 0.008856) ? Math.pow(X, 1 / 3) : (7.787 * X) + 16 / 116;
+      Y = (Y > 0.008856) ? Math.pow(Y, 1 / 3) : (7.787 * Y) + 16 / 116;
+      Z = (Z > 0.008856) ? Math.pow(Z, 1 / 3) : (7.787 * Z) + 16 / 116;
+
+      return { L: ((116 * Y) - 16).toFixed(1), a: (500 * (X - Y)).toFixed(1), b: (200 * (Y - Z)).toFixed(1) };
+    }
+
+    function calculateDeltaE76(l1, l2) {
+      return Math.sqrt(Math.pow(l2.L - l1.L, 2) + Math.pow(l2.a - l1.a, 2) + Math.pow(l2.b - l1.b, 2));
+    }
+
+    function calculateDeltaE94(l1, l2) {
+      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2);
+      const dL = L1 - L2, dC = C1 - C2, da = a1 - a2, db = b1 - b2;
+      const dH = Math.sqrt(Math.max(0, da ** 2 + db ** 2 - dC ** 2));
+      const SC = 1 + 0.045 * C1, SH = 1 + 0.015 * C1;
+      return Math.sqrt(dL ** 2 + (dC / SC) ** 2 + (dH / SH) ** 2);
+    }
+
+    function calculateDeltaE2000(l1, l2) {
+      const L1 = parseFloat(l1.L), a1 = parseFloat(l1.a), b1 = parseFloat(l1.b);
+      const L2 = parseFloat(l2.L), a2 = parseFloat(l2.a), b2 = parseFloat(l2.b);
+      const deg2rad = d => d * Math.PI / 180, rad2deg = r => r * 180 / Math.PI;
+
+      const C1 = Math.sqrt(a1 ** 2 + b1 ** 2), C2 = Math.sqrt(a2 ** 2 + b2 ** 2), avgC = (C1 + C2) / 2;
+      const G = 0.5 * (1 - Math.sqrt(avgC ** 7 / (avgC ** 7 + 25 ** 7)));
+      const a1p = (1 + G) * a1, a2p = (1 + G) * a2;
+
+      const C1p = Math.sqrt(a1p ** 2 + b1 ** 2), C2p = Math.sqrt(a2p ** 2 + b2 ** 2);
+      const h1p = (a1p === 0 && b1 === 0) ? 0 : (rad2deg(Math.atan2(b1, a1p)) + (rad2deg(Math.atan2(b1, a1p)) < 0 ? 360 : 0));
+      const h2p = (a2p === 0 && b2 === 0) ? 0 : (rad2deg(Math.atan2(b2, a2p)) + (rad2deg(Math.atan2(b2, a2p)) < 0 ? 360 : 0));
+
+      const dLp = L2 - L1, dCp = C2p - C1p;
+      let dhp = 0;
+      if (C1p * C2p !== 0) dhp = (Math.abs(h2p - h1p) <= 180) ? h2p - h1p : (h2p - h1p > 180 ? h2p - h1p - 360 : h2p - h1p + 360);
+      const dHp = 2 * Math.sqrt(C1p * C2p) * Math.sin(deg2rad(dhp / 2));
+
+      const avgLp = (L1 + L2) / 2, avgCp = (C1p + C2p) / 2;
+      let avghp = 0;
+      if (C1p * C2p !== 0) avghp = (Math.abs(h1p - h2p) <= 180) ? (h1p + h2p) / 2 : ((h1p + h2p < 360) ? (h1p + h2p + 360) / 2 : (h1p + h2p - 360) / 2);
+
+      const T = 1 - 0.17 * Math.cos(deg2rad(avghp - 30)) + 0.24 * Math.cos(deg2rad(2 * avghp)) + 0.32 * Math.cos(deg2rad(3 * avghp + 6)) - 0.20 * Math.cos(deg2rad(4 * avghp - 63));
+      const SL = 1 + ((0.015 * (avgLp - 50) ** 2) / Math.sqrt(20 + (avgLp - 50) ** 2));
+      const SC = 1 + 0.045 * avgCp;
+      const SH = 1 + 0.015 * avgCp * T;
+
+      const dTheta = 30 * Math.exp(-Math.pow((avghp - 275) / 25, 2));
+      const RC = 2 * Math.sqrt(avgCp ** 7 / (avgCp ** 7 + 25 ** 7));
+      const RT = -Math.sin(deg2rad(2 * dTheta)) * RC;
+
+      return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH));
+    }
+
+    // --- TORCH (hold button) ---
     function updateTorchUI() {
       const btn = document.getElementById("btn-torch");
       if (!btn) return;
-      if (isTorchOn) btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
-      else btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
       lucide.createIcons();
     }
 
@@ -1357,6 +1796,7 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
+            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1367,6 +1807,8 @@
           updateTorchUI();
           return;
         }
+
+        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
@@ -1374,12 +1816,6 @@
         torchOpBusy = false;
       }
     }
-
-    // =========================================================
-    // COLEX (stub for this file)
-    // =========================================================
-    function changeMode(m){ document.getElementById("algo-lbl").innerText = m; }
-    function resetAll(){ ghostOverlay.classList.remove("active"); setTimeout(()=>ghostOverlay.src="",0); }
 
     initCamera();
   </script>
