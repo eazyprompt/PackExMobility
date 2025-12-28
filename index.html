@@ -8,18 +8,18 @@
   />
   <title>PackEx</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-<!-- iPhone Add to Home Screen (ตัวหลัก) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
   <meta name="theme-color" content="#020617" />
 
   <link
@@ -445,63 +445,62 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
-/* Bigger bottom-tab icons + labels (only tab-bar) */
-.tab-bar .tab-item svg{
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.4;
-}
+    /* Bigger bottom-tab icons + labels (only tab-bar) */
+    .tab-bar .tab-item svg{
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.4;
+    }
 
-.tab-bar .tab-lbl{
-  font-size: 0.72rem;   /* เดิม 0.65rem */
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
+    .tab-bar .tab-lbl{
+      font-size: 0.72rem;   /* เดิม 0.65rem */
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
 
-/* Make touch area feel more balanced */
-.tab-bar{
-  height: 66px;                 /* เดิม var(--tab-h)=60px */
-  padding-top: 6px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-}
+    /* Make touch area feel more balanced */
+    .tab-bar{
+      height: 66px;                 /* เดิม var(--tab-h)=60px */
+      padding-top: 6px;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+    }
 
-/* keep the icon lift effect but not too subtle */
-.tab-bar .tab-item.active svg{
-  transform: translateY(-3px) scale(1.05);
-}
-/* iOS Add-to-Home-Screen (standalone) fixes */
-@media (display-mode: standalone) {
-  html, body {
-    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
-    text-size-adjust: 100%;
-  }
+    /* keep the icon lift effect but not too subtle */
+    .tab-bar .tab-item.active svg{
+      transform: translateY(-3px) scale(1.05);
+    }
+    /* iOS Add-to-Home-Screen (standalone) fixes */
+    @media (display-mode: standalone) {
+      html, body {
+        -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
+        text-size-adjust: 100%;
+      }
 
-  /* lucide renders as <svg>, lock size only in bottom tabs */
-  .tab-bar .tab-item svg{
-    width: 30px;
-    height: 30px;
-    stroke-width: 2.6;
-    display: block;
-    flex-shrink: 0;
-  }
+      /* lucide renders as <svg>, lock size only in bottom tabs */
+      .tab-bar .tab-item svg{
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.6;
+        display: block;
+        flex-shrink: 0;
+      }
 
-  .tab-bar .tab-lbl{
-    font-size: 0.75rem;
-    font-weight: 800;
-    line-height: 1;
-  }
+      .tab-bar .tab-lbl{
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1;
+      }
 
-  .tab-bar{
-    height: 68px;
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-  }
-}
+      .tab-bar{
+        height: 68px;
+        padding-top: 6px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      }
+    }
 
-/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
-.tab-item svg { transition: transform 0.2s; }
-.tab-item.active svg { transform: translateY(-2px); }
-
+    /* IMPORTANT: your CSS currently targets i, but lucide uses svg */
+    .tab-item svg { transition: transform 0.2s; }
+    .tab-item.active svg { transform: translateY(-2px); }
   </style>
 </head>
 
@@ -1009,6 +1008,7 @@
 
     // =========================================================
     //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
+    //  (FIX) Two-pass peak detection + merge (no Expected Boxes)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1078,11 +1078,44 @@
 
       const smoothed = movingAverage(profile, 4);
       const { med, mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
-      const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
 
-      let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
+      // --- Peak thresholds (two-pass) ---
+      // Strong pass: stable layers
+      const layerThrStrong = Math.max(20, mad * 0.95);
+      // Soft pass: catches very weak/no-gap layers that still represent a box boundary
+      const layerThrSoft   = Math.max(14, mad * 0.70);
+
+      // Gap/No-Gap decision still uses a stronger threshold (unchanged behavior)
+      const gapThreshold   = Math.max(100, mad * 4.5);
+
+      // Distance constraints (soft allows closer peaks)
+      const minDistStrong = Math.floor(roiH_v / 16);
+      const minDistSoft   = Math.floor(roiH_v / 20);
+
+      // Find peaks
+      const peaksStrong = findPeaksDynamic(smoothed, layerThrStrong, minDistStrong);
+      const peaksSoft   = findPeaksDynamic(smoothed, layerThrSoft,   minDistSoft);
+
+      // Merge peaks without assuming Expected Boxes
+      const merged = [...peaksStrong];
+      const closeGate = Math.max(6, Math.floor(minDistSoft * 0.6));
+      for (const p of peaksSoft) {
+        const tooClose = merged.some(q => Math.abs(q.index - p.index) < closeGate);
+        if (!tooClose) merged.push(p);
+      }
+      merged.sort((a, b) => a.index - b.index);
+
+      // Final prune: enforce minimum separation; if close, keep higher peak
+      const peaks = [];
+      for (const p of merged) {
+        const last = peaks[peaks.length - 1];
+        if (!last) { peaks.push(p); continue; }
+        if (Math.abs(p.index - last.index) < minDistSoft) {
+          if (p.value > last.value) peaks[peaks.length - 1] = p;
+        } else {
+          peaks.push(p);
+        }
+      }
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
@@ -1091,7 +1124,8 @@
       let maxW = 0;
 
       peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return; 
+        // (FIX) don't cut off bottom too aggressively
+        if (peak.index > roiH_v * 0.99) return; 
 
         const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
@@ -1115,6 +1149,7 @@
         let labelText = `#${idx + 1} (${widthPx}px)`; 
         let xOffset = 65;
 
+        // OK/NG decision remains the same
         if (peakValue < gapThreshold) {
             status = "NG";
             boxColor = "#ef4444"; 
