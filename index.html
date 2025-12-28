@@ -6,9 +6,20 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   />
-  <title>PackEx: Smart Inspection Tool</title>
+  <title>PackEx</title>
 
-  <link rel="icon" type="image/png" href="./logo.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+<!-- iPhone Add to Home Screen (ตัวหลัก) -->
+<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#020617">
   <meta name="theme-color" content="#020617" />
 
   <link
@@ -18,7 +29,6 @@
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
   <style>
-    /* ... (CSS ส่วนเดิมทั้งหมด ไม่มีการเปลี่ยนแปลง) ... */
     :root {
       --bg-body: #0f172a;
       --bg-card: #1e293b;
@@ -196,49 +206,58 @@
       padding: 0;
       min-height: 0;
     }
+    
+    /* MODIFIED: Add scrolling to panel content */
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto; 
+      overflow-y: auto; /* Enable vertical scroll */
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch;
-      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 32px);
+      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
+    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
+    /* Ensure Glue Dashboard takes full height of scrollable parent */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height: auto; 
-        min-height: 100%;
+        height:100%; min-height: 400px; /* Safe min-height */
         background:#0f172a; 
         overflow:hidden; 
         width:100%; 
     }
+    
     .glue-body-split { 
         flex: 1; 
         display: flex; 
-        flex-direction: row; 
+        flex-direction: row; /* Horizontal Split */
         overflow: hidden; 
         position: relative; 
-        padding-bottom: 20px;
     }
+
+    /* 70% Left - Main Area */
     .glue-main-area {
-        flex: 7; 
+        flex: 7; /* 70% */
         display: flex; 
         flex-direction: column;
         overflow: hidden;
         background: #020617;
         border-right: 1px solid var(--border-subtle);
     }
+
+    /* 30% Right - Summary Area */
     .glue-summary-area {
-        flex: 3;
+        flex: 3; /* 30% */
         background: #172554;
         display: flex;
         flex-direction: column;
         padding: 16px 12px;
         gap: 16px;
         overflow-y: auto;
-        padding-bottom: 20px;
+        padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
+
+    /* Summary Stat Items */
     .sum-item {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.08);
@@ -255,10 +274,11 @@
     .text-ok { color: var(--success); }
     .text-ng { color: var(--danger); }
 
+    /* Header Button Style */
     .btn-header-cap {
         width: 44px; height: 44px;
         border-radius: 12px;
-        background: #3b82f6; 
+        background: #3b82f6; /* Primary blue */
         color: #fff;
         border: none;
         display: flex; align-items: center; justify-content: center;
@@ -273,6 +293,7 @@
         box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
+    /* Glue Header Layout */
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -291,6 +312,7 @@
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
     
+    /* Standard Elements */
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -376,6 +398,7 @@
 
     .display-none { display: none !important; }
 
+    /* --- ENHANCED LEFT PANEL STYLES --- */
     .glue-list-header {
       padding: 12px 16px;
       background: #0f172a;
@@ -396,6 +419,7 @@
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
+    /* Distribution Canvas Container */
     .dist-container {
       flex: 1;
       position: relative;
@@ -420,6 +444,64 @@
       .btn-act { padding: 10px; }
       .result-dashboard { padding: 12px 14px; }
     }
+
+/* Bigger bottom-tab icons + labels (only tab-bar) */
+.tab-bar .tab-item svg{
+  width: 26px;
+  height: 26px;
+  stroke-width: 2.4;
+}
+
+.tab-bar .tab-lbl{
+  font-size: 0.72rem;   /* เดิม 0.65rem */
+  font-weight: 800;
+  letter-spacing: 0.2px;
+}
+
+/* Make touch area feel more balanced */
+.tab-bar{
+  height: 66px;                 /* เดิม var(--tab-h)=60px */
+  padding-top: 6px;
+  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+}
+
+/* keep the icon lift effect but not too subtle */
+.tab-bar .tab-item.active svg{
+  transform: translateY(-3px) scale(1.05);
+}
+/* iOS Add-to-Home-Screen (standalone) fixes */
+@media (display-mode: standalone) {
+  html, body {
+    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
+    text-size-adjust: 100%;
+  }
+
+  /* lucide renders as <svg>, lock size only in bottom tabs */
+  .tab-bar .tab-item svg{
+    width: 30px;
+    height: 30px;
+    stroke-width: 2.6;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .tab-bar .tab-lbl{
+    font-size: 0.75rem;
+    font-weight: 800;
+    line-height: 1;
+  }
+
+  .tab-bar{
+    height: 68px;
+    padding-top: 6px;
+    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+  }
+}
+
+/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
+.tab-item svg { transition: transform 0.2s; }
+.tab-item.active svg { transform: translateY(-2px); }
+
   </style>
 </head>
 
@@ -603,13 +685,16 @@
   <script>
     lucide.createIcons();
 
+    // --- GLOBALS ---
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
     
+    // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -634,12 +719,17 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
+    // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
+    // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
+    // =========================================================
+    // COVER-MAPPING
+    // =========================================================
     function getCoverMetrics() {
       const vw = video.videoWidth || 0;
       const vh = video.videoHeight || 0;
@@ -694,6 +784,7 @@
       }
     }
 
+    // --- LAYOUT ---
     function applyAutoFitLayout() {
       const frame = document.querySelector(".app-frame");
       if (!frame) return;
@@ -707,6 +798,7 @@
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
         
+        // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
         if(wrap && wrap.offsetWidth) {
             distCanvas.width = wrap.offsetWidth;
@@ -740,6 +832,7 @@
     if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
     applyAutoFitLayout();
 
+    // --- TABS ---
     function switchTab(mode) {
       activeTab = mode;
       document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
@@ -769,6 +862,7 @@
         resetSheetUI();
       }
 
+      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
       if(pc) pc.scrollTop = 0;
 
@@ -776,6 +870,7 @@
       lucide.createIcons();
     }
 
+    // --- CAMERA ---
     async function initCamera() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
@@ -814,6 +909,9 @@
       requestAnimationFrame(loop);
     }
 
+    // =========================================================
+    // CAPTURE LIGHTING
+    // =========================================================
     async function setTorch(on) {
       if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
       try {
@@ -851,6 +949,7 @@
       return await fn();
     }
 
+    // --- helper (signal processing) ---
     function movingAverage(arr, radius) {
       const out = new Float32Array(arr.length);
       for (let i = 0; i < arr.length; i++) {
@@ -908,6 +1007,9 @@
       return picked;
     }
 
+    // =========================================================
+    //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
+    // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
@@ -919,6 +1021,7 @@
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
 
+      // ROI setup
       const roiW_disp = Math.round(dw * 0.50);
       const roiH_disp = Math.round(dh * 0.70);
       const roiX_disp = Math.round((dw - roiW_disp) / 2);
@@ -927,12 +1030,14 @@
       let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.2);
       roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
 
+      // Map ROI to Video Coordinates
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
+      // Draw HUD (Overlay)
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
@@ -944,6 +1049,7 @@
       sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
       sheetCtx.restore();
 
+      // Get Image Data
       if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
         procCanvas.width = roiW_v; procCanvas.height = roiH_v;
       }
@@ -951,6 +1057,7 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
+      // Profile Scan
       const profile = new Float32Array(roiH_v);
       const centerStart = Math.floor(roiW_v * 0.35);
       const centerEnd = Math.floor(roiW_v * 0.65);
@@ -971,13 +1078,9 @@
 
       const smoothed = movingAverage(profile, 4);
       const { med, mad } = robustStats(smoothed);
-      
-      // SENSITIVITY ADJUSTMENT: Lower threshold to find weak peaks (NG layers)
-      const layerThreshold = Math.max(15, mad * 1.0); 
-      
-      // Threshold to decide if it's a deep gap or just a layer
-      const gapThreshold = Math.max(60, mad * 3.0); 
-      const minDist = Math.floor(roiH_v / 20); 
+      const layerThreshold = Math.max(30, mad * 1.5); 
+      const gapThreshold = Math.max(100, mad * 4.5);
+      const minDist = Math.floor(roiH_v / 12); 
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
@@ -1012,7 +1115,6 @@
         let labelText = `#${idx + 1} (${widthPx}px)`; 
         let xOffset = 65;
 
-        // If peak is too weak/shallow, it's a box with NO GAP
         if (peakValue < gapThreshold) {
             status = "NG";
             boxColor = "#ef4444"; 
@@ -1032,10 +1134,10 @@
         results.push({ layer: idx + 1, w: dispW, status: status });
       });
 
-      // LOGIC FIX: Box Count = Number of Peaks Found (Direct Count)
-      const boxCount = results.length;
+      // Update Header & Summary
+      const expected = results.length;
       const ngCount = results.filter(r => r.status === "NG").length;
-      const okCount = boxCount - ngCount;
+      const okCount = expected - ngCount;
       
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
@@ -1043,7 +1145,7 @@
       if (ngCount > 0) {
          statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
          header.className = "glue-compact-header status-fail";
-      } else if (boxCount >= 6 && boxCount <= 7) { 
+      } else if (expected >= 7 && expected <= 8) {
          statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
          header.className = "glue-compact-header status-pass";
       } else {
@@ -1051,10 +1153,11 @@
          header.className = "glue-compact-header";
       }
 
-      document.getElementById('sum-total').innerText = boxCount;
+      document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
+      // --- STATS CALCULATION ---
       const validGaps = results.filter(r => r.status !== "NG").map(r => r.w);
       let avgWidth = 0;
       let uniformity = 100;
@@ -1063,13 +1166,18 @@
       if (validGaps.length > 0) {
         const totalW = validGaps.reduce((acc, v) => acc + v, 0);
         avgWidth = totalW / validGaps.length;
+
+        // Variance & SD
         const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
         stdDev = Math.sqrt(variance);
+
+        // Uniformity
         const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
         const avgDev = totalDev / validGaps.length;
         uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
       }
 
+      // Update Stats Header
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
           statsHeader.style.display = "grid";
@@ -1091,30 +1199,36 @@
           document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
+      // --- DRAW BELL CURVE & HISTOGRAM ---
       drawBellCurve(validGaps, avgWidth, stdDev);
       
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
+        // Clear canvas
         distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+        
         if (values.length < 2) return; 
         
         const w = distCanvas.width;
         const h = distCanvas.height;
         const padX = 20; 
-        const padY = 40; 
+        const padY = 20;
 
+        // Range
         const safeSD = Math.max(stdDev, mean * 0.1); 
         const minX = mean - 3.5 * safeSD;
         const maxX = mean + 3.5 * safeSD;
         const rangeX = maxX - minX;
 
+        // Helper Map Functions
         const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
         const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-        const maxY = getGaussian(mean);
+        const maxY = getGaussian(mean); // peak prob
         
-        const binCount = 8; 
+        // --- 1. DRAW HISTOGRAM (BARS) ---
+        const binCount = 8; // Number of bars
         const binWidth = rangeX / binCount;
         const bins = new Array(binCount).fill(0);
         
@@ -1125,6 +1239,8 @@
             }
         });
 
+        // Determine max bin count to scale histogram height
+        // Scale so max bar is approx 70% of canvas height
         const maxBinVal = Math.max(...bins, 1); 
         const barScaleY = (h - 2*padY) * 0.7;
 
@@ -1134,13 +1250,14 @@
              const hBar = (count / maxBinVal) * barScaleY;
              const xBar = mapX(minX + i * binWidth);
              const yBar = h - padY - hBar;
-             const wBar = ((w - 2*padX) / binCount) - 2; 
+             const wBar = ((w - 2*padX) / binCount) - 2; // -2 for gap
              
              if (hBar > 0) {
                 distCtx.fillRect(xBar, yBar, wBar, hBar);
              }
         });
 
+        // --- 2. DRAW BELL CURVE (Overlay) ---
         const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
         distCtx.beginPath();
@@ -1156,6 +1273,7 @@
         distCtx.lineTo(mapX(maxX), h - padY);
         distCtx.closePath();
         
+        // Gradient Fill
         const grad = distCtx.createLinearGradient(0, 0, 0, h);
         grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
         grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
@@ -1166,6 +1284,7 @@
         distCtx.lineWidth = 2;
         distCtx.stroke();
 
+        // --- 3. Center Line ---
         const cx = mapX(mean);
         distCtx.beginPath();
         distCtx.strokeStyle = "rgba(255,255,255,0.3)";
@@ -1175,6 +1294,7 @@
         distCtx.stroke();
         distCtx.setLineDash([]);
 
+        // --- 4. Individual Measurements (Dots) ---
         values.forEach(val => {
             const vx = mapX(val);
             const vy = mapY(getGaussian(val));
@@ -1194,10 +1314,11 @@
             distCtx.shadowBlur = 0;
         });
 
+        // X-axis label
         distCtx.fillStyle = "#64748b";
         distCtx.font = "10px Inter";
         distCtx.textAlign = "center";
-        distCtx.fillText(Math.round(mean), cx, h - 10);
+        distCtx.fillText(Math.round(mean), cx, h - 5);
     }
 
     function analyzeGapWidthRow(data, w, h, cy) {
@@ -1271,6 +1392,7 @@
       document.getElementById("header-status-group").innerHTML =
         `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
 
+      // Reset Stats Header & Show Empty Msg
       document.getElementById("stats-header").style.display = "none";
       document.getElementById("empty-scan-msg").style.display = "flex";
 
@@ -1281,6 +1403,7 @@
       lucide.createIcons();
     }
 
+    // --- COLEX LOGIC ---
     window.addEventListener('deviceorientation', (event) => {
       lastOri = { beta: event.beta || 0, gamma: event.gamma || 0, alpha: event.alpha || 0 };
     });
@@ -1377,6 +1500,7 @@
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
+      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1393,6 +1517,7 @@
       if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
+      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1647,6 +1772,7 @@
       return Math.sqrt((dLp / SL) ** 2 + (dCp / SC) ** 2 + (dHp / SH) ** 2 + RT * (dCp / SC) * (dHp / SH));
     }
 
+    // --- TORCH (hold button) ---
     function updateTorchUI() {
       const btn = document.getElementById("btn-torch");
       if (!btn) return;
@@ -1670,6 +1796,7 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
+            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1681,6 +1808,7 @@
           return;
         }
 
+        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
