@@ -207,21 +207,18 @@
     min-height: 0;
   }
   
-  /* MODIFIED: Add scrolling to panel content */
   .panel-content {
     display: flex; flex-direction: column; gap: var(--gap-layout);
     margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-    overflow-y: auto; /* Enable vertical scroll */
+    overflow-y: auto;
     overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+    -webkit-overflow-scrolling: touch;
     padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
   }
 
-  /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
-  /* Ensure Glue Dashboard takes full height of scrollable parent */
   .glue-dashboard { 
       display:flex; flex-direction:column; 
-      height:100%; min-height: 400px; /* Safe min-height */
+      height:100%; min-height: 400px;
       background:#0f172a; 
       overflow:hidden; 
       width:100%; 
@@ -230,14 +227,13 @@
   .glue-body-split { 
       flex: 1; 
       display: flex; 
-      flex-direction: row; /* Horizontal Split */
+      flex-direction: row;
       overflow: hidden; 
       position: relative; 
   }
 
-  /* 70% Left - Main Area */
   .glue-main-area {
-      flex: 7; /* 70% */
+      flex: 7;
       display: flex; 
       flex-direction: column;
       overflow: hidden;
@@ -245,9 +241,8 @@
       border-right: 1px solid var(--border-subtle);
   }
 
-  /* 30% Right - Summary Area */
   .glue-summary-area {
-      flex: 3; /* 30% */
+      flex: 3;
       background: #172554;
       display: flex;
       flex-direction: column;
@@ -257,7 +252,6 @@
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
   }
 
-  /* Summary Stat Items */
   .sum-item {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
@@ -274,11 +268,10 @@
   .text-ok { color: var(--success); }
   .text-ng { color: var(--danger); }
 
-  /* Header Button Style */
   .btn-header-cap {
       width: 44px; height: 44px;
       border-radius: 12px;
-      background: #3b82f6; /* Primary blue */
+      background: #3b82f6;
       color: #fff;
       border: none;
       display: flex; align-items: center; justify-content: center;
@@ -293,7 +286,6 @@
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
   }
 
-  /* Glue Header Layout */
   .glue-compact-header{
     background: rgba(15, 23, 42, 0.98);
     border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -312,7 +304,6 @@
   .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
   .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
   
-  /* Standard Elements */
   .result-dashboard {
     display: flex; gap: 12px; justify-content: space-between; align-items: center;
     background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -398,7 +389,6 @@
 
   .display-none { display: none !important; }
 
-  /* --- ENHANCED LEFT PANEL STYLES --- */
   .glue-list-header {
     padding: 12px 16px;
     background: #0f172a;
@@ -419,7 +409,6 @@
   .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
   .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
-  /* Distribution Canvas Container */
   .dist-container {
     flex: 1;
     position: relative;
@@ -445,7 +434,6 @@
     .result-dashboard { padding: 12px 14px; }
   }
 
-  /* Bigger bottom-tab icons + labels (only tab-bar) */
   .tab-bar .tab-item svg{
     width: 26px;
     height: 26px;
@@ -685,11 +673,9 @@
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
     
-    // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
     
-    // Distribution Plot (New)
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -714,7 +700,18 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
+    // =========================================================
+    // NEW: Robust (Median+MAD) + Multi-frame confidence for "LOW AREA" highlight
+    // =========================================================
+    const AREA_ROBUST_K = 2.5;        // z < -K => low-outlier (robust)
+    const AREA_ENTER_FRAMES = 6;      // ต้องเข้าหลายเฟรมติดกันก่อน "ติดแดง"
+    const AREA_EXIT_FRAMES  = 8;      // ต้องไม่เข้าหลายเฟรมติดกันก่อน "กลับเขียว"
+    const AREA_MAX_MISSING  = 10;     // ถ้าชั้นหายไปนาน ล้างสถานะ
+    const AREA_MIN_FOR_ROBUST = 3;    // ต้องมี OK อย่างน้อยกี่ชั้นถึงจะคำนวณ robust
+
     // Stabilizer for each detected layer index
+    // จะเก็บทั้ง area smoothing + streak/hysteresis
+    // layerStabilizer[idx] = { area, redStreak, greenStreak, lowStable, miss }
     let layerStabilizer = {};
 
     // --- helpers ---
@@ -793,7 +790,6 @@
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
         
-        // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
         if(wrap && wrap.offsetWidth) {
             distCanvas.width = wrap.offsetWidth;
@@ -857,7 +853,6 @@
         resetSheetUI();
       }
 
-      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
       if(pc) pc.scrollTop = 0;
 
@@ -975,6 +970,11 @@
       return { med, mad };
     }
 
+    function robustZ(val, med, mad) {
+      if (!mad) return 0;
+      return 0.6745 * (val - med) / mad;
+    }
+
     function findPeaksDynamic(arr, prominence, minDist) {
       const candidates = [];
       for (let i = 1; i < arr.length - 1; i++) {
@@ -1003,8 +1003,7 @@
     }
 
     // =========================================================
-    // NEW: Largest contour AREA (px^2) inside each detected "box"
-    // - No OpenCV, use connected-components on a downsampled mask
+    // Largest contour AREA (px^2) inside each detected "box"
     // =========================================================
     function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1) {
       x0 = Math.max(0, Math.min(w - 1, x0));
@@ -1013,15 +1012,13 @@
       y1 = Math.max(0, Math.min(h, y1));
       if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
 
-      // speed/quality tradeoff
-      const ds = 3; // 2 = more accurate, 3 = faster
+      const ds = 3;
       const gw = Math.floor((x1 - x0) / ds);
       const gh = Math.floor((y1 - y0) / ds);
       if (gw < 6 || gh < 6) return 0;
 
       const mask = new Uint8Array(gw * gh);
 
-      // local threshold: derive from mean & min luma in window
       let sum = 0, cnt = 0, minL = 255;
       for (let gy = 0; gy < gh; gy++) {
         const py = y0 + gy * ds;
@@ -1037,7 +1034,6 @@
       const mean = cnt ? sum / cnt : 180;
       const thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
 
-      // build dark mask
       for (let gy = 0; gy < gh; gy++) {
         const py = y0 + gy * ds;
         const row = py * w * 4;
@@ -1049,7 +1045,6 @@
         }
       }
 
-      // BFS connected components (4-neighbor)
       const visited = new Uint8Array(gw * gh);
       const qx = new Int16Array(gw * gh);
       const qy = new Int16Array(gw * gh);
@@ -1086,13 +1081,11 @@
         }
       }
 
-      // convert back to approx px^2 (undo downsample)
       return bestArea * (ds * ds);
     }
 
     // =========================================================
-    // UPDATED: GLUE GAP DETECTION
-    // - Replace width(px) label with AREA(px^2) label for each box
+    // UPDATED: GLUE GAP DETECTION + Robust Low-Area Highlight (Median+MAD) + multi-frame confidence
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1104,6 +1097,11 @@
       const dw = sheetCanvas.width;
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
+
+      // bump "missing" counters (for multi-frame confidence)
+      for (const k in layerStabilizer) {
+        layerStabilizer[k].miss = (layerStabilizer[k].miss || 0) + 1;
+      }
 
       // ROI setup
       const roiW_disp = Math.round(dw * 0.50);
@@ -1157,23 +1155,21 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5); 
+        profile[y] = Math.pow(darkness, 1.5);
       }
 
       const smoothed = movingAverage(profile, 4);
       const { mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
+      const layerThreshold = Math.max(30, mad * 1.5);
       const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
+      const minDist = Math.floor(roiH_v / 12);
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-      
-      const results = [];
 
-      // Build per-peak vertical segment bounds (each "box frame")
+      // Build per-peak vertical segment bounds
       const peakYs = peaks.map(p => p.index);
       const bounds = peakYs.map((y, i) => {
         const yPrev = i === 0 ? 0 : peakYs[i - 1];
@@ -1183,14 +1179,16 @@
         return { y, y0, y1 };
       });
 
+      // 1) Collect items first (no drawing yet)
+      const items = [];
+
       bounds.forEach((b, idx) => {
         if (b.y > roiH_v * 0.96) return;
 
         const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
-        // ---- AREA in this "box frame" (segment) ----
-        // Use mid band (25% - 75%) to reduce edge glare/noise
+        // AREA in this segment
         const x0 = Math.floor(roiW_v * 0.25);
         const x1 = Math.floor(roiW_v * 0.75);
         const y0 = clamp(b.y0, 0, roiH_v - 1);
@@ -1198,42 +1196,134 @@
 
         const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1);
 
-        // Stabilize area so numbers don't jump too much
+        // smoothing + initialize stabilizer record
         let st = layerStabilizer[idx];
-        if (!st) st = { area: areaPx2 };
-        else st.area = lerp(st.area, areaPx2, 0.25);
+        if (!st) {
+          st = { area: areaPx2, redStreak: 0, greenStreak: 0, lowStable: false, miss: 0 };
+        } else {
+          st.area = lerp(st.area || 0, areaPx2, 0.25);
+          st.redStreak = st.redStreak || 0;
+          st.greenStreak = st.greenStreak || 0;
+          st.lowStable = !!st.lowStable;
+        }
+        st.miss = 0; // seen this frame
         layerStabilizer[idx] = st;
 
-        const stableArea = Math.max(0, st.area);
+        const stableArea = Math.max(0, st.area || 0);
 
-        // keep your original width bar visual (optional), but label is AREA only
+        // keep your original width bar geometry (visual)
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
 
+        // existing NG logic
         let status = "OK";
-        let boxColor = "#34d399"; 
+        if (peakValue < gapThreshold) status = "NG";
+
+        items.push({
+          idx,
+          localY_v,
+          drawY,
+          dispX,
+          dispW,
+          peakValue,
+          status,
+          area: stableArea,
+          lowNow: false,      // per-frame low
+          lowStable: false,   // multi-frame stable low
+          z: 0
+        });
+      });
+
+      // 2) Robust LOW-AREA detection (Median+MAD) on OK items only
+      const okItems = items.filter(it => it.status === "OK");
+      if (okItems.length >= AREA_MIN_FOR_ROBUST) {
+        const okAreas = okItems.map(it => it.area);
+        const rs = robustStats(okAreas);
+        const medA = rs.med;
+        const madA = rs.mad;
+
+        okItems.forEach(it => {
+          const z = robustZ(it.area, medA, madA);
+          it.z = z;
+          it.lowNow = (madA > 0) ? (z < -AREA_ROBUST_K) : false;
+
+          // update multi-frame confidence (hysteresis)
+          const st = layerStabilizer[it.idx];
+          if (it.lowNow) {
+            st.redStreak = (st.redStreak || 0) + 1;
+            st.greenStreak = 0;
+          } else {
+            st.greenStreak = (st.greenStreak || 0) + 1;
+            st.redStreak = 0;
+          }
+
+          if (!st.lowStable && st.redStreak >= AREA_ENTER_FRAMES) st.lowStable = true;
+          if (st.lowStable && st.greenStreak >= AREA_EXIT_FRAMES) st.lowStable = false;
+
+          it.lowStable = !!st.lowStable;
+        });
+      } else {
+        // not enough OK layers => do not mark low-outliers
+        okItems.forEach(it => {
+          it.lowNow = false;
+          it.lowStable = false;
+          it.z = 0;
+          const st = layerStabilizer[it.idx];
+          if (st) { st.redStreak = 0; st.greenStreak = 0; st.lowStable = false; }
+        });
+      }
+
+      // 3) Cleanup stabilizers that disappeared too long
+      for (const k in layerStabilizer) {
+        if ((layerStabilizer[k].miss || 0) > AREA_MAX_MISSING) delete layerStabilizer[k];
+      }
+
+      // 4) Draw overlays using:
+      //    - NG => RED
+      //    - OK + lowStable => RED (after multi-frame confidence)
+      //    - OK normal => GREEN
+      const results = [];
+      items.forEach((it) => {
+        const idx = it.idx;
+        const drawY = it.drawY;
+        const dispX = it.dispX;
+        const dispW = it.dispW;
+
+        let status = it.status;
+        let boxColor = "#34d399";
         let bgColor = "rgba(52, 211, 153, 0.2)";
         let xOffset = 78;
 
-        // LABEL: show AREA (px^2) instead of width(px)
-        let labelText = `#${idx + 1}  A:${Math.round(stableArea)} px²`;
+        // base label
+        let labelText = `#${idx + 1}  A:${Math.round(it.area)} px²`;
 
-        if (peakValue < gapThreshold) {
-          status = "NG";
+        // NG is strongest
+        if (status === "NG") {
           boxColor = "#ef4444";
           bgColor = "rgba(239, 68, 68, 0.2)";
-          labelText = `NO GAP ${idx + 1}  A:${Math.round(stableArea)} px²`;
+          labelText = `NO GAP ${idx + 1}  A:${Math.round(it.area)} px²`;
           xOffset = 120;
+        } else {
+          // OK but stable low-area outlier -> show red after confidence
+          if (it.lowStable) {
+            boxColor = "#ef4444";
+            bgColor = "rgba(239, 68, 68, 0.18)";
+            // ถ้าอยากให้ขึ้นคำว่า LOW ให้ปลดคอมเมนต์บรรทัดล่าง
+            // labelText = `LOW #${idx + 1}  A:${Math.round(it.area)} px²`;
+          }
         }
 
+        // draw bar
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
+        sheetCtx.lineWidth = 2;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
 
+        // draw label
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
@@ -1241,8 +1331,10 @@
         results.push({
           layer: idx + 1,
           status,
-          area: stableArea,
-          peakValue
+          area: it.area,
+          peakValue: it.peakValue,
+          lowAreaStable: !!it.lowStable,
+          z: it.z
         });
       });
 
@@ -1390,7 +1482,7 @@
       distCtx.stroke();
       distCtx.setLineDash([]);
 
-      // Dots
+      // Dots (ยังใช้ stdDev เหมือนเดิม)
       values.forEach(val => {
         const vx = mapX(val);
         const vy = mapY(getGaussian(val));
@@ -1410,7 +1502,6 @@
         distCtx.shadowBlur = 0;
       });
 
-      // X-axis label = mean area
       distCtx.fillStyle = "#64748b";
       distCtx.font = "10px Inter";
       distCtx.textAlign = "center";
