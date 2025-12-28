@@ -485,6 +485,181 @@
 
   .tab-item svg { transition: transform 0.2s; }
   .tab-item.active svg { transform: translateY(-2px); }
+
+  /* =========================================================
+     BEAUTIFUL LIGHT SLIDER (Responsive + iOS friendly)
+     ========================================================= */
+  :root{
+    --lightctl-w: 54px;
+    --lightctl-len: clamp(150px, calc(var(--viewport-h) - 190px), 270px);
+  }
+
+  .lightctl{
+    position:absolute;
+    right: 12px;   /* ✅ ย้ายไปขวา */
+  left: auto;    /* ✅ ปิดซ้าย */
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 40;
+
+    width: var(--lightctl-w);
+    padding: 10px 10px 12px;
+    border-radius: 18px;
+
+    background: rgba(2, 6, 23, 0.55);
+    border: 1px solid rgba(255,255,255,0.14);
+    backdrop-filter: blur(10px);
+
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 10px;
+
+    pointer-events:auto;
+    -webkit-user-select:none;
+    user-select:none;
+
+    /* hidden by default; shown only in gluegap tab */
+    opacity: 0;
+    transform: translateY(-50%) translateX(-6px);
+    transition: opacity .18s ease, transform .18s ease;
+  }
+  .lightctl.show{
+    opacity: 1;
+    transform: translateY(-50%) translateX(0px);
+  }
+
+  .lightctl-head{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap: 6px;
+  }
+
+  .lightctl-ico{
+    width: 16px;
+    height: 16px;
+    opacity: .95;
+    color: rgba(255,255,255,0.9);
+  }
+
+  .lightctl-title{
+    font-family: var(--font-num);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .8px;
+    color: rgba(255,255,255,0.75);
+  }
+
+  .lightctl-rail{
+    position: relative;
+    height: calc(var(--lightctl-len) + 10px);
+    width: 100%;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+
+  .lightctl-slider{
+    -webkit-appearance: none;
+    appearance: none;
+
+    width: var(--lightctl-len);
+    height: 26px;
+
+    transform: rotate(-90deg);
+    transform-origin: center;
+
+    background: transparent;
+    outline: none;
+    padding: 0;
+
+    touch-action: none;
+  }
+
+  .lightctl-slider::-webkit-slider-runnable-track{
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.18),
+      rgba(59,130,246,0.55)
+    );
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+
+  .lightctl-slider::-webkit-slider-thumb{
+    -webkit-appearance: none;
+    appearance: none;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 3px solid rgba(59,130,246,0.9);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    margin-top: -7px;
+  }
+
+  .lightctl-slider::-moz-range-track{
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+      rgba(255,255,255,0.18),
+      rgba(59,130,246,0.55)
+    );
+    border: 1px solid rgba(255,255,255,0.10);
+  }
+  .lightctl-slider::-moz-range-thumb{
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #ffffff;
+    border: 3px solid rgba(59,130,246,0.9);
+    box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  }
+
+  .lightctl-value{
+    position:absolute;
+    bottom: 6px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: var(--font-num);
+    font-size: 11px;
+    font-weight: 900;
+    color: rgba(255,255,255,0.92);
+
+    padding: 4px 8px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  .lightctl-auto{
+    width: 100%;
+    padding: 8px 0;
+    border-radius: 12px;
+    border: 1px solid rgba(255,255,255,0.12);
+    background: rgba(255,255,255,0.06);
+    color: rgba(255,255,255,0.88);
+
+    font-family: var(--font-num);
+    font-size: 10px;
+    font-weight: 900;
+    letter-spacing: .8px;
+
+    cursor: pointer;
+    transition: .15s;
+  }
+  .lightctl-auto:active{ transform: scale(0.96); }
+
+  .lightctl.auto-on .lightctl-auto{
+    background: rgba(59,130,246,0.18);
+    border-color: rgba(59,130,246,0.35);
+    color: #93c5fd;
+  }
+  .lightctl.auto-on .lightctl-slider{
+    opacity: .55;
+    pointer-events:none;
+  }
 </style>
 </head>
 
@@ -511,6 +686,23 @@
         <video id="webcam" autoplay playsinline muted></video>
         <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
         <canvas id="sheet-canvas"></canvas>
+
+        <!-- LIGHT CONTROL (beautiful vertical slider) -->
+        <div class="lightctl" id="lightctl">
+          <div class="lightctl-head">
+            <i data-lucide="sun-medium" class="lightctl-ico"></i>
+            <span class="lightctl-title">LIGHT</span>
+          </div>
+
+          <div class="lightctl-rail">
+            <input id="light-slider" class="lightctl-slider" type="range" min="-30" max="30" step="1" value="0">
+            <div class="lightctl-value" id="light-val">0</div>
+          </div>
+
+          <button class="lightctl-auto" id="light-auto" type="button" onclick="toggleLightAuto()">
+            AUTO
+          </button>
+        </div>
 
         <div class="hud-overlay">
           <div id="target-box" class="target-box">
@@ -706,6 +898,48 @@
     let layerStabilizer = {};
 
     // =========================================================
+    // LIGHT THRESHOLD CONTROL (AUTO + MANUAL)
+    // =========================================================
+    let lightAuto = true;          // default ON
+    let lightBiasManual = 0;       // -30..30
+    let lightBiasEma = 0;          // auto result smoothed
+    const LIGHT_BIAS_MIN = -30;
+    const LIGHT_BIAS_MAX = 30;
+    const LIGHT_AUTO_EMA = 0.15;   // smooth factor
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    function getLightBias() {
+      return clamp(lightAuto ? lightBiasEma : lightBiasManual, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+    }
+
+    function syncLightUI() {
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      const box = document.getElementById("lightctl");
+      if (!slider || !val || !box) return;
+
+      val.textContent = String(slider.value);
+      lightBiasManual = parseInt(slider.value || "0", 10);
+
+      box.classList.toggle("auto-on", !!lightAuto);
+    }
+
+    function toggleLightAuto() {
+      lightAuto = !lightAuto;
+      syncLightUI();
+    }
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "light-slider") {
+        lightAuto = false; // ถ้าลากเอง ให้ปิด AUTO อัตโนมัติ
+        syncLightUI();
+      }
+    });
+
+    // =========================================================
     // NEW: Adaptive robust threshold (Auto K) + Multi-frame confirm
     // =========================================================
     let adaptiveAreaK = 2.2;          // start value (auto-updated)
@@ -720,11 +954,6 @@
 
     // Optional safety ratio (helps when MAD is huge)
     const LOW_AREA_RATIO = 0.55;      // if area < median*ratio => low candidate immediately (still frame-confirmed)
-
-    // --- helpers ---
-    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
-    function lerp(a, b, t) { return (1 - t) * a + t * b; }
-    function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
 
     // =========================================================
     // COVER-MAPPING
@@ -846,6 +1075,10 @@
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       document.getElementById('target-box').classList.add('display-none');
 
+      // show/hide light slider
+      const lightCtl = document.getElementById("lightctl");
+      if (lightCtl) lightCtl.classList.remove("show");
+
       if (mode === 'colex') {
         document.getElementById('ctl-color-algo').classList.remove('display-none');
         document.getElementById('vp-side-panel').classList.remove('hidden');
@@ -858,6 +1091,9 @@
         document.getElementById('panel-gluegap').classList.remove('display-none');
         document.getElementById('panel-gluegap').style.display = 'flex';
         resetSheetUI();
+
+        // show light control on gluegap tab
+        if (lightCtl) lightCtl.classList.add("show");
       }
 
       const pc = document.querySelector('.panel-content');
@@ -865,6 +1101,9 @@
 
       applyAutoFitLayout();
       lucide.createIcons();
+
+      // ensure light UI synced
+      syncLightUI();
     }
 
     // --- CAMERA ---
@@ -888,6 +1127,9 @@
           applyAutoFitLayout();
           isProcessing = true;
           requestAnimationFrame(loop);
+
+          // initial light UI
+          syncLightUI();
         };
       } catch (err) {
         alert("Camera Error: " + err);
@@ -1034,7 +1276,7 @@
     // =========================================================
     // Largest contour AREA (px^2) inside each detected "box"
     // =========================================================
-    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1) {
+    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1, lightBias) {
       x0 = Math.max(0, Math.min(w - 1, x0));
       x1 = Math.max(0, Math.min(w, x1));
       y0 = Math.max(0, Math.min(h - 1, y0));
@@ -1061,7 +1303,12 @@
         }
       }
       const mean = cnt ? sum / cnt : 180;
-      const thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
+
+      // base threshold
+      let thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
+
+      // apply light bias: positive => detect a bit more (higher thr), negative => stricter
+      thr = clamp(thr + (lightBias || 0), 5, 250);
 
       for (let gy = 0; gy < gh; gy++) {
         const py = y0 + gy * ds;
@@ -1115,10 +1362,6 @@
 
     // =========================================================
     // GLUE GAP DETECTION (UPDATED)
-    // - Still uses peakValue to decide NoGap (NG)
-    // - NEW: Low AREA (Median + MAD, adaptive K) makes box RED
-    //   but does NOT change GlueGap counts (only visual warning)
-    // - NEW: Must persist across multiple frames before turning RED
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1166,6 +1409,41 @@
       procCtx.drawImage(video, roiX_v, roiY_v, roiW_v, roiH_v, 0, 0, roiW_v, roiH_v);
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
+
+      // -----------------------------
+      // AUTO light bias (smooth)
+      // based on contrast in ROI center band
+      // -----------------------------
+      if (lightAuto) {
+        const bandLeft = Math.floor(roiW_v * 0.25);
+        const bandRight = Math.floor(roiW_v * 0.75);
+        const bandTop = Math.floor(roiH_v * 0.15);
+        const bandBot = Math.floor(roiH_v * 0.85);
+
+        let minL = 255, sumL = 0, cnt = 0;
+        for (let y = bandTop; y < bandBot; y += 6) {
+          const row = y * roiW_v * 4;
+          for (let x = bandLeft; x < bandRight; x += 6) {
+            const i = row + x * 4;
+            const luma = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+            sumL += luma; cnt++;
+            if (luma < minL) minL = luma;
+          }
+        }
+        const meanL = cnt ? (sumL / cnt) : 160;
+        const contrast = Math.max(0, meanL - minL);
+
+        // target contrast ~ 35 (ปรับได้)
+        const target = 35;
+        const raw = clamp((target - contrast) * 0.7, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+        lightBiasEma = lerp(lightBiasEma, raw, LIGHT_AUTO_EMA);
+
+        // UI show current effective bias on slider value pill
+        const valEl = document.getElementById("light-val");
+        if (valEl) valEl.textContent = String(Math.round(lightBiasEma));
+      }
+
+      const lightBias = getLightBias();
 
       // Profile Scan
       const profile = new Float32Array(roiH_v);
@@ -1220,7 +1498,7 @@
         const y0 = clamp(b.y0, 0, roiH_v - 1);
         const y1 = clamp(b.y1, 0, roiH_v);
 
-        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1);
+        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias);
 
         // Stabilize area so numbers don't jump too much
         let st = layerStabilizer[idx];
@@ -1230,7 +1508,7 @@
 
         const stableArea = Math.max(0, st.area);
 
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
@@ -1299,9 +1577,6 @@
         const isLowConfirmed = !!st.lowConfirmed;
 
         // Colors:
-        // - NoGap => red
-        // - Else if LowArea confirmed => red (requested)
-        // - Else => green
         let status = isNoGap ? "NG" : "OK";
         let boxColor = "#34d399";
         let bgColor = "rgba(52, 211, 153, 0.2)";
@@ -1384,7 +1659,7 @@
         uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgArea)) * 100));
       }
 
-      // Update Stats Header (show adaptive K for visibility)
+      // Update Stats Header (show adaptive K + lightBias)
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
           statsHeader.style.display = "grid";
@@ -1394,7 +1669,7 @@
                 <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
             </div>
             <div class="stat-box">
-                <div class="stat-title">Consistency <span style="opacity:.7">(K=${adaptiveAreaK.toFixed(2)})</span></div>
+                <div class="stat-title">Consistency <span style="opacity:.7">(K=${adaptiveAreaK.toFixed(2)} | L=${Math.round(lightBias)})</span></div>
                 <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
                 ${Math.round(uniformity)}<span class="stat-unit">%</span>
                 </div>
@@ -1512,7 +1787,7 @@
       distCtx.fillText(`${Math.round(mean)} px²`, cx, h - 5);
     }
 
-    function analyzeGapWidthRow(data, w, h, cy) {
+    function analyzeGapWidthRow(data, w, h, cy, lightBias) {
       const rowStart = cy * w * 4;
 
       const bandLeft = Math.floor(w * 0.25);
@@ -1532,7 +1807,12 @@
 
       const meanL = cnt ? (sumL / cnt) : minLuma;
       const contrast = Math.max(0, meanL - minLuma);
-      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      // base threshold
+      let thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      // apply light bias: positive => allow wider detection, negative => stricter
+      thr = clamp(thr + (lightBias || 0), 0, 250);
 
       let left = minX;
       while (left > 0) {
@@ -1572,6 +1852,14 @@
       sheetResults = [];
       layerStabilizer = {};
       adaptiveAreaK = 2.2;
+
+      // reset light
+      lightAuto = true;
+      lightBiasManual = 0;
+      lightBiasEma = 0;
+      const slider = document.getElementById("light-slider");
+      if (slider) slider.value = "0";
+      syncLightUI();
 
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
