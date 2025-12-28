@@ -8,241 +8,240 @@
   />
   <title>PackEx</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-<!-- iPhone Add to Home Screen (ตัวหลัก) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
-<meta name="theme-color" content="#020617" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
-  rel="stylesheet"
-/>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
-<style>
-  :root {
-    --bg-body: #0f172a;
-    --bg-card: #1e293b;
-    --bg-sidebar: #172554;
-    --border-subtle: rgba(255, 255, 255, 0.12);
-    --text-main: #ffffff;
-    --text-muted: #94a3b8;
-    --primary: #3b82f6;
-    --primary-glow: rgba(59, 130, 246, 0.5);
-    --sample: #ffffff;
-    --success: #34d399;
-    --warn: #fbbf24;
-    --danger: #ef4444;
-    --radius-lg: 18px;
-    --font-ui: "Inter", sans-serif;
-    --font-num: "JetBrains Mono", monospace;
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #172554;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --sample: #ffffff;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
 
-    --frame-gap: clamp(14px, 5.5vw, 60px);
-    --gap-layout: 16px;
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 16px;
 
-    /* JS-calculated */
-    --viewport-h: 220px;
-    --viz-h: 150px;
-    --app-h: 100dvh;
-    --tab-h: 60px;
-  }
+      /* JS-calculated */
+      --viewport-h: 220px;
+      --viz-h: 150px;
+      --app-h: 100dvh;
+      --tab-h: 60px;
+    }
 
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-  body {
-    background: #020617;
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    margin: 0;
-    width: 100vw;
-    height: var(--app-h);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-  body::after{
-    content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
-    opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
-  }
-  body.screen-flash::after{ opacity: 1; }
-  body.screen-lamp::after{ opacity: 1; }
+    body::after{
+      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+    }
+    body.screen-flash::after{ opacity: 1; }
+    body.screen-lamp::after{ opacity: 1; }
 
-  .app-frame {
-    width: calc(100vw - (var(--frame-gap) * 2));
-    height: calc(var(--app-h) - (var(--frame-gap) * 2));
-    max-width: 500px;
-    max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
-    background: var(--bg-body);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    border-radius: 24px;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: 0;
-  }
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 500px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
+    }
 
-  header {
-    min-height: 64px;
-    padding: 0 20px;
-    padding-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-body);
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-    z-index: 50;
-    gap: 10px;
-    min-width: 0;
-  }
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
 
-  .brand {
-    font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
-    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .brand i { color: var(--primary); }
-  .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
-  .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .algo-selector {
-    appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
-    padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
-    font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
-  }
-  .btn-icon-header {
-    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
-    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.2s; flex-shrink: 0;
-  }
+    .brand {
+      font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
+    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .algo-selector {
+      appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
+      padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+      font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
+    }
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
 
-  .viewport {
-    height: var(--viewport-h);
-    min-height: 0;
-    display: flex;
-    background: #020617;
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-    position: relative;
-    transition: height 0.3s ease;
-  }
-  .vp-camera {
-    flex: 1; position: relative; overflow: hidden; display: flex;
-    align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
-    background: #020617; min-width: 0;
-    transition: flex 0.3s ease;
-  }
-  .vp-camera.full-width { border-right: none; }
+    .viewport {
+      height: var(--viewport-h);
+      min-height: 0;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+      transition: height 0.3s ease;
+    }
+    .vp-camera {
+      flex: 1; position: relative; overflow: hidden; display: flex;
+      align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
+      background: #020617; min-width: 0;
+      transition: flex 0.3s ease;
+    }
+    .vp-camera.full-width { border-right: none; }
 
-  video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
-  .ghost-overlay {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
-  }
-  .ghost-overlay.active { opacity: 0.35; }
-  #sheet-canvas {
-    position: absolute; inset:0; width:100%; height:100%;
-    pointer-events:none; z-index: 20;
-  }
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+    .ghost-overlay {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
+    }
+    .ghost-overlay.active { opacity: 0.35; }
+    #sheet-canvas {
+      position: absolute; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index: 20;
+    }
 
-  .vp-side-panel {
-    flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
-    padding: 16px; overflow-y: auto; flex-shrink: 0;
-    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
-    transition: width 0.3s ease, flex 0.3s ease;
-  }
-  .vp-side-panel.hidden { display: none; }
+    .vp-side-panel {
+      flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
+      padding: 16px; overflow-y: auto; flex-shrink: 0;
+      box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
+      transition: width 0.3s ease, flex 0.3s ease;
+    }
+    .vp-side-panel.hidden { display: none; }
 
-  .vp-header {
-    font-size: 0.7rem; font-weight: 800; color: #60a5fa;
-    text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .advice-item {
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
-  }
-  .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-  .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
-  @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    .vp-header {
+      font-size: 0.7rem; font-weight: 800; color: #60a5fa;
+      text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .advice-item {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
+    }
+    .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-  .hud-overlay {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none; z-index: 10;
-  }
+    .hud-overlay {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 10;
+    }
 
-  .target-box {
-    width: 42px; height: 42px; position: relative;
-    box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
-    border-radius: 12px; transition: transform 0.1s;
-  }
-  .target-box::before {
-    content: ""; position: absolute; inset: -1px;
-    border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
-  }
-  .target-box.flash { transform: scale(0.95); }
-  .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
-  .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
-  .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
+    .target-box {
+      width: 42px; height: 42px; position: relative;
+      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
+      border-radius: 12px; transition: transform 0.1s;
+    }
+    .target-box::before {
+      content: ""; position: absolute; inset: -1px;
+      border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
+    }
+    .target-box.flash { transform: scale(0.95); }
+    .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
+    .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+    .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-  .btn-vp-capture { display: none; }
+    .btn-vp-capture { display: none; }
 
-  .panel {
-    flex: 1;
-    background: var(--bg-body);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 0;
-    min-height: 0;
-  }
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      min-height: 0;
+    }
 
-  .panel-content {
-    display: flex; flex-direction: column; gap: var(--gap-layout);
-    margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-    overflow-y: auto;
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
-  }
+    .panel-content {
+      display: flex; flex-direction: column; gap: var(--gap-layout);
+      margin: 0 auto; width: 100%; height: 100%; min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
 
-  /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
-  .glue-dashboard {
+    .glue-dashboard {
       display:flex; flex-direction:column;
       height:100%; min-height: 400px;
       background:#0f172a;
       overflow:hidden;
       width:100%;
-  }
+    }
 
-  .glue-body-split {
+    .glue-body-split {
       flex: 1;
       display: flex;
       flex-direction: row;
       overflow: hidden;
       position: relative;
-  }
+    }
 
-  .glue-main-area {
+    .glue-main-area {
       flex: 7;
       display: flex;
       flex-direction: column;
       overflow: hidden;
       background: #020617;
       border-right: 1px solid var(--border-subtle);
-  }
+    }
 
-  .glue-summary-area {
+    .glue-summary-area {
       flex: 3;
       background: #172554;
       display: flex;
@@ -251,9 +250,9 @@
       gap: 16px;
       overflow-y: auto;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
-  }
+    }
 
-  .sum-item {
+    .sum-item {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
@@ -263,13 +262,13 @@
       align-items: center;
       text-align: center;
       gap: 4px;
-  }
-  .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
-  .text-ok { color: var(--success); }
-  .text-ng { color: var(--danger); }
+    }
+    .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
+    .text-ok { color: var(--success); }
+    .text-ng { color: var(--danger); }
 
-  .btn-header-cap {
+    .btn-header-cap {
       width: 44px; height: 44px;
       border-radius: 12px;
       background: #3b82f6;
@@ -280,213 +279,213 @@
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
       transition: 0.2s;
-  }
-  .btn-header-cap:active { transform: scale(0.92); }
-  .btn-header-cap.frozen {
+    }
+    .btn-header-cap:active { transform: scale(0.92); }
+    .btn-header-cap.frozen {
       background: #ef4444;
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-  }
+    }
 
-  .glue-compact-header{
-    background: rgba(15, 23, 42, 0.98);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 10px 16px;
-    display:flex; justify-content:space-between; align-items:center;
-    flex-shrink:0; z-index:10;
-  }
-  .gc-left { display:flex; align-items:center; gap:10px; }
-  .gc-right { display:flex; align-items:center; gap:14px; }
+    .glue-compact-header{
+      background: rgba(15, 23, 42, 0.98);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 16px;
+      display:flex; justify-content:space-between; align-items:center;
+      flex-shrink:0; z-index:10;
+    }
+    .gc-left { display:flex; align-items:center; gap:10px; }
+    .gc-right { display:flex; align-items:center; gap:14px; }
 
-  .gc-status-badge{
-    padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
-    display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
-    background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
-  }
-  .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
-  .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
+    .gc-status-badge{
+      padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
+      display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
+      background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
+    }
+    .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
+    .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
 
-  .result-dashboard {
-    display: flex; gap: 12px; justify-content: space-between; align-items: center;
-    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-    border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-    padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
-  }
-  .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
-  .res-badge {
-    padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
-    background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0; white-space: nowrap;
-  }
-  .status-match .res-value { color: var(--success); }
-  .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
-  .status-close .res-value { color: var(--warn); }
-  .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
-  .status-diff .res-value { color: var(--danger); }
-  .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
+    .result-dashboard {
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
+    }
+    .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+    .res-badge {
+      padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
+      background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .status-match .res-value { color: var(--success); }
+    .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+    .status-close .res-value { color: var(--warn); }
+    .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+    .status-diff .res-value { color: var(--danger); }
+    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
 
-  .cards-container {
-    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
-    flex-shrink: 1; min-height: 0;
-  }
-  .data-card {
-    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-    padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
-  }
-  .card-top { display: flex; justify-content: space-between; align-items: center; }
-  .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
-  .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
-  .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
-  .l-item:last-child { border: none; }
-  .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
-  .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .btn-act {
-    width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
-    color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
-  }
-  .btn-act:active { transform: scale(0.96); }
-  .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
-  .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
+    .cards-container {
+      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
+      flex-shrink: 1; min-height: 0;
+    }
+    .data-card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
+    .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
+    .l-item:last-child { border: none; }
+    .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+    .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-act {
+      width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
+      color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
+    }
+    .btn-act:active { transform: scale(0.96); }
+    .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
+    .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
 
-  .viz-section {
-    display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
-  }
-  .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
-  .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
-  .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
-  .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
-  .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
-  .di-sam { background: var(--sample); }
-  .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
-  .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
-  .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
-  .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-  .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-  .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
-  .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
-  .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .l-mark.ref { background: var(--primary); z-index: 1; }
-  .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
-  .l-mark.visible { opacity: 1; }
+    .viz-section {
+      display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
+    }
+    .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
+    .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
+    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+    .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
+    .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+    .di-sam { background: var(--sample); }
+    .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
+    .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
+    .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
+    .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .l-mark.ref { background: var(--primary); z-index: 1; }
+    .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
+    .l-mark.visible { opacity: 1; }
 
-  .tab-bar {
-    position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
-    background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-subtle); display: flex;
-    justify-content: space-around; align-items: center; z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .tab-item {
-    flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
-  }
-  .tab-item.active { color: var(--primary); }
-  .tab-lbl { font-size: 0.65rem; font-weight: 700; }
-  .tab-item i { transition: transform 0.2s; }
-  .tab-item.active i { transform: translateY(-2px); }
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
+    .tab-item i { transition: transform 0.2s; }
+    .tab-item.active i { transform: translateY(-2px); }
 
-  .display-none { display: none !important; }
+    .display-none { display: none !important; }
 
-  .glue-list-header {
-    padding: 12px 16px;
-    background: #0f172a;
-    border-bottom: 1px solid var(--border-subtle);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .stat-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 8px 10px;
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-  .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
-  .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
+    .glue-list-header {
+      padding: 12px 16px;
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+    .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
+    .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
-  .dist-container {
-    flex: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    overflow: hidden;
-    background: #020617;
-  }
-  #dist-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+    .dist-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: hidden;
+      background: #020617;
+    }
+    #dist-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-  canvas { display:block; }
-  #proc-canvas { display:none; }
+    canvas { display:block; }
+    #proc-canvas { display:none; }
 
-  @media (max-height: 760px) {
-    :root { --gap-layout: 12px; }
-    header { min-height: 58px; padding-top: 10px; }
-    .btn-act { padding: 10px; }
-    .result-dashboard { padding: 12px 14px; }
-  }
-
-  .tab-bar .tab-item svg{
-    width: 26px;
-    height: 26px;
-    stroke-width: 2.4;
-  }
-
-  .tab-bar .tab-lbl{
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-  }
-
-  .tab-bar{
-    height: 66px;
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-  }
-
-  .tab-bar .tab-item.active svg{
-    transform: translateY(-3px) scale(1.05);
-  }
-
-  @media (display-mode: standalone) {
-    html, body {
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
+    @media (max-height: 760px) {
+      :root { --gap-layout: 12px; }
+      header { min-height: 58px; padding-top: 10px; }
+      .btn-act { padding: 10px; }
+      .result-dashboard { padding: 12px 14px; }
     }
 
     .tab-bar .tab-item svg{
-      width: 30px;
-      height: 30px;
-      stroke-width: 2.6;
-      display: block;
-      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.4;
     }
 
     .tab-bar .tab-lbl{
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
-      line-height: 1;
+      letter-spacing: 0.2px;
     }
 
     .tab-bar{
-      height: 68px;
+      height: 66px;
       padding-top: 6px;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
     }
-  }
 
-  .tab-item svg { transition: transform 0.2s; }
-  .tab-item.active svg { transform: translateY(-2px); }
-</style>
+    .tab-bar .tab-item.active svg{
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    @media (display-mode: standalone) {
+      html, body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      .tab-bar .tab-item svg{
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.6;
+        display: block;
+        flex-shrink: 0;
+      }
+
+      .tab-bar .tab-lbl{
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .tab-bar{
+        height: 68px;
+        padding-top: 6px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      }
+    }
+
+    .tab-item svg { transition: transform 0.2s; }
+    .tab-item.active svg { transform: translateY(-2px); }
+  </style>
 </head>
 
 <body>
@@ -621,26 +620,26 @@
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
 
                 <div class="dist-container" id="dist-wrapper">
-                   <canvas id="dist-canvas"></canvas>
-                   <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
-                      <i data-lucide="scan-line" width="32"></i>
-                      <span style="font-size:0.75rem;">Align camera to scan</span>
-                   </div>
+                  <canvas id="dist-canvas"></canvas>
+                  <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
+                    <i data-lucide="scan-line" width="32"></i>
+                    <span style="font-size:0.75rem;">Align camera to scan</span>
+                  </div>
                 </div>
               </div>
 
               <div class="glue-summary-area">
                 <div class="sum-item">
-                   <div class="sum-val" id="sum-total">0</div>
-                   <div class="sum-lbl">Box Found</div>
+                  <div class="sum-val" id="sum-total">0</div>
+                  <div class="sum-lbl">Box Found</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ok" id="sum-gap">0</div>
-                   <div class="sum-lbl">Glue Gap</div>
+                  <div class="sum-val text-ok" id="sum-gap">0</div>
+                  <div class="sum-lbl">Glue Gap</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ng" id="sum-ng">0</div>
-                   <div class="sum-lbl">No Gap</div>
+                  <div class="sum-val text-ng" id="sum-ng">0</div>
+                  <div class="sum-lbl">No Gap</div>
                 </div>
               </div>
             </div>
@@ -703,81 +702,28 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    // Stabilizer + majority vote memory per detected layer index
+    // Stabilizer per layer index (area EMA + vote/perma state)
     let layerStabilizer = {};
 
-    // ===== Majority-vote anti-flicker controls =====
-    const VOTE_WINDOW = 20;              // 20-frame window
-    const VOTE_ENTER_RATIO = 0.65;       // go red if redVotes/window >= 65%
-    const VOTE_EXIT_RATIO  = 0.35;       // go green if redVotes/window <= 35%
+    // ===== Majority vote (no blinking) =====
+    const VOTE_WINDOW = 20;          // 20 frames
+    const VOTE_ENTER_RATIO = 0.60;   // candidate red >= 60% -> switch to NG
+    const VOTE_EXIT_RATIO  = 0.40;   // candidate red <= 40% -> switch back to OK
 
-    // robust area thresholds (enter/exit hysteresis by ratio to median)
-    const LOW_AREA_RATIO_ENTER = 0.55;   // candidate low if area < medA * 0.55
-    const LOW_AREA_RATIO_EXIT  = 0.65;   // considered recovered if area > medA * 0.65
+    // ===== Perma-green (lock OK forever) =====
+    const PERMAGREEN_WINDOW = 50;    // 50 frames confirm window
+    const PERMAGREEN_RATIO  = 0.70;  // ✅ ตามที่คุณขอ: ต้องเขียว >= 70% ของ 50 เฟรมถึงจะล็อกถาวร
 
-    let glueFrameId = 0;
+    // ===== Robust low-area detection (Median + MAD) =====
+    // ใช้ z-score แบบ robust: z = (median - area) / (1.4826*MAD)
+    // hysteresis เพื่อลดแกว่ง
+    const AREA_Z_ENTER = 2.2;
+    const AREA_Z_EXIT  = 1.6;
 
     // --- helpers ---
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
-
-    function medianOfSorted(sorted) {
-      const n = sorted.length;
-      if (!n) return 0;
-      const mid = (n / 2) | 0;
-      return (n % 2) ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-    }
-
-    function robustStats(arr) {
-      const a = Array.from(arr);
-      a.sort((x, y) => x - y);
-      const med = medianOfSorted(a);
-      const dev = a.map(v => Math.abs(v - med));
-      dev.sort((x, y) => x - y);
-      const mad = medianOfSorted(dev) || 0;
-      return { med, mad };
-    }
-
-    function movingAverage(arr, radius) {
-      const out = new Float32Array(arr.length);
-      for (let i = 0; i < arr.length; i++) {
-        let sum = 0, cnt = 0;
-        for (let r = -radius; r <= radius; r++) {
-          const j = i + r;
-          if (j >= 0 && j < arr.length) { sum += arr[j]; cnt++; }
-        }
-        out[i] = cnt ? (sum / cnt) : arr[i];
-      }
-      return out;
-    }
-
-    function findPeaksDynamic(arr, prominence, minDist) {
-      const candidates = [];
-      for (let i = 1; i < arr.length - 1; i++) {
-        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) candidates.push({ index: i, value: arr[i] });
-      }
-
-      const finalPeaks = [];
-      const range = 18;
-      for (const cand of candidates) {
-        let localMin = Infinity;
-        for (let k = -range; k <= range; k++) {
-          const idx = cand.index + k;
-          if (idx >= 0 && idx < arr.length) localMin = Math.min(localMin, arr[idx]);
-        }
-        if ((cand.value - localMin) >= prominence) finalPeaks.push(cand);
-      }
-
-      finalPeaks.sort((a, b) => b.value - a.value);
-      const picked = [];
-      for (const p of finalPeaks) {
-        const tooClose = picked.some(q => Math.abs(q.index - p.index) < minDist);
-        if (!tooClose) picked.push(p);
-      }
-      picked.sort((a, b) => a.index - b.index);
-      return picked;
-    }
 
     // =========================================================
     // COVER-MAPPING
@@ -852,8 +798,8 @@
 
         const wrap = document.getElementById("dist-wrapper");
         if(wrap && wrap.offsetWidth) {
-            distCanvas.width = wrap.offsetWidth;
-            distCanvas.height = wrap.offsetHeight;
+          distCanvas.width = wrap.offsetWidth;
+          distCanvas.height = wrap.offsetHeight;
         }
       } else {
         const header = document.querySelector("header");
@@ -976,30 +922,125 @@
       setTimeout(() => document.body.classList.remove("screen-flash"), 120);
     }
 
-    async function withCaptureLighting(fn) {
-      const wasHold = isTorchOn;
-      if (wasHold) {
-        pulseScreenFlash();
-        return await fn();
-      }
-      if (torchSupported && videoTrack?.applyConstraints) {
-        const okOn = await setTorch(true);
-        if (okOn) {
-          await wait(60);
-          try {
-            pulseScreenFlash();
-            return await fn();
-          } finally {
-            await setTorch(false);
-          }
+    // --- helper (signal processing) ---
+    function movingAverage(arr, radius) {
+      const out = new Float32Array(arr.length);
+      for (let i = 0; i < arr.length; i++) {
+        let sum = 0, cnt = 0;
+        for (let r = -radius; r <= radius; r++) {
+          const j = i + r;
+          if (j >= 0 && j < arr.length) { sum += arr[j]; cnt++; }
         }
+        out[i] = cnt ? (sum / cnt) : arr[i];
       }
-      pulseScreenFlash();
-      return await fn();
+      return out;
+    }
+
+    function medianOfSorted(sorted) {
+      const n = sorted.length;
+      if (!n) return 0;
+      const mid = (n / 2) | 0;
+      return (n % 2) ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
+    }
+
+    function robustStats(arr) {
+      const a = Array.from(arr);
+      a.sort((x, y) => x - y);
+      const med = medianOfSorted(a);
+      const dev = a.map(v => Math.abs(v - med));
+      dev.sort((x, y) => x - y);
+      const mad = medianOfSorted(dev) || 0;
+      return { med, mad };
+    }
+
+    function findPeaksDynamic(arr, prominence, minDist) {
+      const candidates = [];
+      for (let i = 1; i < arr.length - 1; i++) {
+        if (arr[i] > arr[i - 1] && arr[i] > arr[i + 1]) candidates.push({ index: i, value: arr[i] });
+      }
+
+      const finalPeaks = [];
+      const range = 18;
+      for (const cand of candidates) {
+        let localMin = Infinity;
+        for (let k = -range; k <= range; k++) {
+          const idx = cand.index + k;
+          if (idx >= 0 && idx < arr.length) localMin = Math.min(localMin, arr[idx]);
+        }
+        if ((cand.value - localMin) >= prominence) finalPeaks.push(cand);
+      }
+
+      finalPeaks.sort((a, b) => b.value - a.value);
+      const picked = [];
+      for (const p of finalPeaks) {
+        const tooClose = picked.some(q => Math.abs(q.index - p.index) < minDist);
+        if (!tooClose) picked.push(p);
+      }
+      picked.sort((a, b) => a.index - b.index);
+      return picked;
     }
 
     // =========================================================
-    // NEW: Largest contour AREA (px^2) inside each detected "box"
+    // Majority vote + perma-green state helpers
+    // =========================================================
+    function ensureVoteState(st) {
+      if (!st.votes || st.votes.length !== VOTE_WINDOW) {
+        st.votes = new Uint8Array(VOTE_WINDOW);
+        st.voteSum = 0;
+        st.votePtr = 0;
+        st.voteCount = 0;
+      }
+      if (!st.state) st.state = "OK";
+
+      // --- perma-green buffers ---
+      if (!st.confirm || st.confirm.length !== PERMAGREEN_WINDOW) {
+        st.confirm = new Uint8Array(PERMAGREEN_WINDOW); // 1=green,0=red
+        st.confirmSum = 0;
+        st.confirmPtr = 0;
+        st.confirmCount = 0;
+      }
+      if (typeof st.everGreen !== "boolean") st.everGreen = false;
+      if (typeof st.permaGreen !== "boolean") st.permaGreen = false;
+    }
+
+    function pushVote(st, isRedCandidate) {
+      ensureVoteState(st);
+      const prev = st.votes[st.votePtr] || 0;
+      st.voteSum -= prev;
+
+      const v = isRedCandidate ? 1 : 0;
+      st.votes[st.votePtr] = v;
+      st.voteSum += v;
+
+      st.votePtr = (st.votePtr + 1) % VOTE_WINDOW;
+      st.voteCount = Math.min(VOTE_WINDOW, (st.voteCount || 0) + 1);
+    }
+
+    function redFrac(st) {
+      const n = Math.max(1, st.voteCount || 0);
+      return (st.voteSum || 0) / n;
+    }
+
+    function pushConfirmGreen(st, isGreenFinal) {
+      ensureVoteState(st);
+      const prev = st.confirm[st.confirmPtr] || 0;
+      st.confirmSum -= prev;
+
+      const v = isGreenFinal ? 1 : 0;
+      st.confirm[st.confirmPtr] = v;
+      st.confirmSum += v;
+
+      st.confirmPtr = (st.confirmPtr + 1) % PERMAGREEN_WINDOW;
+      st.confirmCount = Math.min(PERMAGREEN_WINDOW, (st.confirmCount || 0) + 1);
+    }
+
+    function greenFracConfirm(st) {
+      const n = Math.max(1, st.confirmCount || 0);
+      return (st.confirmSum || 0) / n;
+    }
+
+    // =========================================================
+    // Largest contour AREA (px^2) inside each detected "box"
     // =========================================================
     function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1) {
       x0 = Math.max(0, Math.min(w - 1, x0));
@@ -1008,7 +1049,7 @@
       y1 = Math.max(0, Math.min(h, y1));
       if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
 
-      const ds = 3;
+      const ds = 3; // speed/quality
       const gw = Math.floor((x1 - x0) / ds);
       const gh = Math.floor((y1 - y0) / ds);
       if (gw < 6 || gh < 6) return 0;
@@ -1080,80 +1121,12 @@
       return bestArea * (ds * ds);
     }
 
-    function analyzeGapWidthRow(data, w, h, cy) {
-      const rowStart = cy * w * 4;
-
-      const bandLeft = Math.floor(w * 0.25);
-      const bandRight = Math.floor(w * 0.75);
-
-      let minLuma = 255;
-      let minX = ((bandLeft + bandRight) >> 1);
-      let sumL = 0;
-      let cnt = 0;
-
-      for (let x = bandLeft; x < bandRight; x += 2) {
-        const i = rowStart + x * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        sumL += luma; cnt++;
-        if (luma < minLuma) { minLuma = luma; minX = x; }
-      }
-
-      const meanL = cnt ? (sumL / cnt) : minLuma;
-      const contrast = Math.max(0, meanL - minLuma);
-      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
-
-      let left = minX;
-      while (left > 0) {
-        const i = rowStart + left * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        if (luma > thr) break;
-        left--;
-      }
-
-      let right = minX;
-      while (right < w - 1) {
-        const i = rowStart + right * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        if (luma > thr) break;
-        right++;
-      }
-
-      return { left, right, width: Math.max(0, right - left) };
-    }
-
-    // Majority vote push helper
-    function ensureVoteState(st) {
-      if (!st.votes || st.votes.length !== VOTE_WINDOW) {
-        st.votes = new Uint8Array(VOTE_WINDOW);
-        st.voteSum = 0;
-        st.votePtr = 0;
-        st.voteCount = 0;
-      }
-      if (!st.state) st.state = "OK";
-    }
-    function pushVote(st, isRed) {
-      ensureVoteState(st);
-      const prev = st.votes[st.votePtr] || 0;
-      st.voteSum -= prev;
-      const v = isRed ? 1 : 0;
-      st.votes[st.votePtr] = v;
-      st.voteSum += v;
-      st.votePtr = (st.votePtr + 1) % VOTE_WINDOW;
-      st.voteCount = Math.min(VOTE_WINDOW, (st.voteCount || 0) + 1);
-    }
-    function redFrac(st) {
-      const n = Math.max(1, st.voteCount || 0);
-      return (st.voteSum || 0) / n;
-    }
-
     // =========================================================
-    // UPDATED: GLUE GAP DETECTION (Majority vote 20 frames)
+    // GLUE GAP DETECTION (robust + majority vote + perma-green)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
-
-      glueFrameId++;
 
       const m = getCoverMetrics();
       if (!m) return;
@@ -1238,16 +1211,16 @@
         return { y, y0, y1 };
       });
 
-      // PASS1: compute stable areas + collect for robust stats
-      const layerTmp = [];
-      const areasForMed = [];
-
+      // PASS1: compute stable area per layer + store rendering info
+      const rows = [];
+      const allAreas = [];
       bounds.forEach((b, idx) => {
         if (b.y > roiH_v * 0.96) return;
 
         const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
+        // segment box
         const x0 = Math.floor(roiW_v * 0.25);
         const x1 = Math.floor(roiW_v * 0.75);
         const y0 = clamp(b.y0, 0, roiH_v - 1);
@@ -1257,96 +1230,116 @@
 
         let st = layerStabilizer[idx];
         if (!st) st = {};
-        st.lastSeen = glueFrameId;
-
-        // EMA smoothing
         if (typeof st.area !== "number") st.area = areaPx2;
-        else st.area = lerp(st.area, areaPx2, 0.25);
-
-        ensureVoteState(st);
+        else st.area = lerp(st.area, areaPx2, 0.25); // EMA smoothing
         layerStabilizer[idx] = st;
 
-        const stableArea = Math.max(0, st.area);
-        areasForMed.push(stableArea);
+        const A = Math.max(0, st.area);
+        const peakValue = smoothed[localY_v];
 
+        // keep your width bar visual
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-        const peakValue = smoothed[localY_v];
-
-        layerTmp.push({ idx, localY_v, drawY, stableArea, peakValue, dispW, dispX });
+        rows.push({ idx, A, peakValue, dispX, dispW, drawY });
+        allAreas.push(A);
       });
-
-      // Cleanup stabilizer entries that disappeared (prevent memory buildup)
-      for (const k in layerStabilizer) {
-        const st = layerStabilizer[k];
-        if (!st || typeof st.lastSeen !== "number") continue;
-        if (glueFrameId - st.lastSeen > 120) delete layerStabilizer[k];
-      }
 
       const results = [];
 
-      // Robust stats of areas this frame
-      const rsA = robustStats(areasForMed.length ? areasForMed : [0]);
-      const medA = rsA.med;
-      const madA = rsA.mad;
-      const scaleA = 1.4826 * madA + 1e-6; // robust sigma
+      // Robust area stats (Median + MAD)
+      let medA = 0, madA = 0;
+      if (allAreas.length > 0) {
+        const rs = robustStats(allAreas);
+        medA = rs.med;
+        madA = rs.mad;
+      }
+      // Robust sigma from MAD (avoid 0)
+      const sigmaA = (madA > 1e-6) ? (1.4826 * madA) : Math.max(1, medA * 0.12);
 
-      // Adaptive K (auto, no manual)
-      const rel = scaleA / Math.max(1, medA);
-      let adaptiveK = 1.4;
-      if (rel < 0.05) adaptiveK = 2.2;
-      else if (rel < 0.10) adaptiveK = 1.8;
-      else if (rel < 0.18) adaptiveK = 1.4;
-      else adaptiveK = 1.2;
+      // PASS2: classification using (peakCandidate OR lowAreaCandidate) -> vote -> stable state -> perma-green
+      rows.forEach((r) => {
+        const idx = r.idx;
+        const A = r.A;
+        const peakValue = r.peakValue;
 
-      const enterThr = medA * LOW_AREA_RATIO_ENTER;
-      const exitThr  = medA * LOW_AREA_RATIO_EXIT;
+        let st = layerStabilizer[idx];
+        if (!st) st = {};
+        ensureVoteState(st);
 
-      // PASS2: vote + stable state + draw
-      layerTmp.forEach(item => {
-        const idx = item.idx;
-        const st = layerStabilizer[idx];
-        const A = item.stableArea;
+        // Candidate from peak (gap strength)
+        const peakCandidate = (peakValue < gapThreshold);
 
-        const z = (A - medA) / scaleA; // robust z (negative = lower than median)
-        const areaLowCandidate = (A < enterThr) || (z < -adaptiveK);
-        const peakCandidate = (item.peakValue < gapThreshold);
+        // Robust low-area candidate (compare to median)
+        const z = (medA - A) / sigmaA; // low area => z positive
+        const areaLowCandidate = (st.state === "NG") ? (z >= AREA_Z_EXIT) : (z >= AREA_Z_ENTER);
 
-        // Candidate red (NG) for this frame
         const isRedCandidate = !!(peakCandidate || areaLowCandidate);
 
-        // Push into vote window
+        // vote window
         pushVote(st, isRedCandidate);
-
         const frac = redFrac(st);
 
-        // Flip state only when window is warmed up (voteCount == 20)
-        if ((st.voteCount || 0) >= VOTE_WINDOW) {
-          if (st.state === "OK" && frac >= VOTE_ENTER_RATIO) st.state = "NG";
-          else if (st.state === "NG" && frac <= VOTE_EXIT_RATIO && A > exitThr) st.state = "OK";
+        // perma-green override
+        if (st.permaGreen) {
+          st.state = "OK";
+        } else {
+          if ((st.voteCount || 0) >= VOTE_WINDOW) {
+            if (st.state === "OK" && frac >= VOTE_ENTER_RATIO) st.state = "NG";
+            else if (st.state === "NG" && frac <= VOTE_EXIT_RATIO) st.state = "OK";
+          }
+
+          if (st.state === "OK") st.everGreen = true;
+
+          if (st.everGreen) {
+            pushConfirmGreen(st, st.state === "OK");
+            if ((st.confirmCount || 0) >= PERMAGREEN_WINDOW) {
+              const gfrac = greenFracConfirm(st);
+              if (gfrac >= PERMAGREEN_RATIO) {
+                st.permaGreen = true;
+                st.state = "OK";
+              }
+            }
+          }
         }
 
-        const status = st.state; // "OK" / "NG"
-        const boxColor = (status === "NG") ? "#ef4444" : "#34d399";
-        const bgColor  = (status === "NG") ? "rgba(239, 68, 68, 0.2)" : "rgba(52, 211, 153, 0.2)";
-        const xOffset  = (status === "NG") ? 120 : 78;
+        layerStabilizer[idx] = st;
 
-        const labelText = (status === "NG")
-          ? `NO GAP ${idx + 1}  A:${Math.round(A)} px²`
-          : `#${idx + 1}  A:${Math.round(A)} px²`;
+        const status = st.state; // OK / NG
+
+        let boxColor = "#34d399";
+        let bgColor = "rgba(52, 211, 153, 0.2)";
+        let xOffset = 78;
+
+        let labelText = `#${idx + 1}  A:${Math.round(A)} px²`;
+
+        if (status === "NG") {
+          boxColor = "#ef4444";
+          bgColor = "rgba(239, 68, 68, 0.2)";
+          labelText = `NO GAP ${idx + 1}  A:${Math.round(A)} px²`;
+          xOffset = 120;
+        } else if (st.permaGreen) {
+          // optional: show a lock indicator
+          labelText = `OK* ${idx + 1}  A:${Math.round(A)} px²`;
+          xOffset = 90;
+        }
 
         sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(item.dispX, item.drawY - 8, item.dispW, 16);
+        sheetCtx.fillRect(r.dispX, r.drawY - 8, r.dispW, 16);
         sheetCtx.strokeStyle = boxColor;
-        sheetCtx.strokeRect(item.dispX, item.drawY - 8, item.dispW, 16);
+        sheetCtx.strokeRect(r.dispX, r.drawY - 8, r.dispW, 16);
 
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, item.drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, r.drawY + 4);
 
-        results.push({ layer: idx + 1, status, area: A });
+        results.push({
+          layer: idx + 1,
+          status,
+          area: A,
+          peakValue
+        });
       });
 
       // Update Header & Summary
@@ -1354,28 +1347,17 @@
       const ngCount = results.filter(r => r.status === "NG").length;
       const okCount = expected - ngCount;
 
-      const warmed = results.length > 0
-        ? results.every(r => (layerStabilizer[r.layer - 1]?.voteCount || 0) >= VOTE_WINDOW)
-        : false;
-
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      if (!warmed && expected > 0) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge"><i data-lucide="loader-2"></i> STABILIZING</div>`;
-        header.className = "glue-compact-header";
-      } else if (ngCount > 0) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+      if (ngCount > 0) {
+        statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
         header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
         header.className = "glue-compact-header status-pass";
       } else {
-        statusGroup.innerHTML =
-          `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
         header.className = "glue-compact-header";
       }
 
@@ -1383,7 +1365,7 @@
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
-      // --- STATS CALCULATION (Area-based) ---
+      // --- STATS (Area-based) ---
       const validAreas = results.filter(r => r.status !== "NG").map(r => r.area);
 
       let avgArea = 0;
@@ -1402,20 +1384,19 @@
         uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgArea)) * 100));
       }
 
-      // Update Stats Header (Area)
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
         statsHeader.style.display = "grid";
         statsHeader.innerHTML = `
           <div class="stat-box">
-              <div class="stat-title">Avg Area</div>
-              <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
+            <div class="stat-title">Avg Area</div>
+            <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
           </div>
           <div class="stat-box">
-              <div class="stat-title">Consistency</div>
-              <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+            <div class="stat-title">Consistency</div>
+            <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
               ${Math.round(uniformity)}<span class="stat-unit">%</span>
-              </div>
+            </div>
           </div>
         `;
         document.getElementById("empty-scan-msg").style.display = "none";
@@ -1425,6 +1406,7 @@
       }
 
       drawBellCurve(validAreas, avgArea, stdDev);
+
       lucide.createIcons();
     }
 
@@ -1446,6 +1428,7 @@
       const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
       const maxY = getGaussian(mean);
 
+      // Histogram
       const binCount = 8;
       const binWidth = rangeX / binCount;
       const bins = new Array(binCount).fill(0);
@@ -1467,6 +1450,7 @@
         if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
       });
 
+      // Bell curve
       const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
       distCtx.beginPath();
@@ -1490,6 +1474,7 @@
       distCtx.lineWidth = 2;
       distCtx.stroke();
 
+      // Center line
       const cx = mapX(mean);
       distCtx.beginPath();
       distCtx.strokeStyle = "rgba(255,255,255,0.3)";
@@ -1499,6 +1484,7 @@
       distCtx.stroke();
       distCtx.setLineDash([]);
 
+      // Dots
       values.forEach(val => {
         const vx = mapX(val);
         const vy = mapY(getGaussian(val));
@@ -1524,6 +1510,47 @@
       distCtx.fillText(`${Math.round(mean)} px²`, cx, h - 5);
     }
 
+    function analyzeGapWidthRow(data, w, h, cy) {
+      const rowStart = cy * w * 4;
+
+      const bandLeft = Math.floor(w * 0.25);
+      const bandRight = Math.floor(w * 0.75);
+
+      let minLuma = 255;
+      let minX = ((bandLeft + bandRight) >> 1);
+      let sumL = 0;
+      let cnt = 0;
+
+      for (let x = bandLeft; x < bandRight; x += 2) {
+        const i = rowStart + x * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        sumL += luma; cnt++;
+        if (luma < minLuma) { minLuma = luma; minX = x; }
+      }
+
+      const meanL = cnt ? (sumL / cnt) : minLuma;
+      const contrast = Math.max(0, meanL - minLuma);
+      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      let left = minX;
+      while (left > 0) {
+        const i = rowStart + left * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        left--;
+      }
+
+      let right = minX;
+      while (right < w - 1) {
+        const i = rowStart + right * 4;
+        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+        if (luma > thr) break;
+        right++;
+      }
+
+      return { left, right, width: Math.max(0, right - left) };
+    }
+
     function toggleSheetCapture() {
       const btn = document.getElementById("btn-sheet-cap");
       if (sheetFrozen) {
@@ -1542,8 +1569,6 @@
       sheetFrozen = false;
       sheetResults = [];
       layerStabilizer = {};
-      glueFrameId = 0;
-
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
