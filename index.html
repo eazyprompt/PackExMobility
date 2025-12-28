@@ -8,18 +8,18 @@
   />
   <title>PackEx</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-<!-- iPhone Add to Home Screen (ตัวหลัก) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617" />
   <meta name="theme-color" content="#020617" />
 
   <link
@@ -156,6 +156,76 @@
       pointer-events:none; z-index: 20;
     }
 
+    /* ✅ LIVE HUD for Glue Gap (Risk + Width) */
+    .glue-live-hud{
+      position:absolute;
+      top: 12px;
+      left: 12px;
+      z-index: 30; /* above sheet-canvas */
+      padding: 10px 10px;
+      border-radius: 14px;
+      background: rgba(2,6,23,0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      min-width: 170px;
+      max-width: 52%;
+      max-height: 46%;
+      overflow:auto;
+      font-family: var(--font-num);
+    }
+    .glue-live-hud .hud-title{
+      font-family: var(--font-ui);
+      font-weight: 900;
+      font-size: 0.65rem;
+      letter-spacing: .6px;
+      color: rgba(255,255,255,0.85);
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    .glue-live-hud .hud-sub{
+      font-family: var(--font-ui);
+      font-weight: 800;
+      font-size: 0.60rem;
+      color: rgba(148,163,184,0.95);
+      margin-bottom: 8px;
+    }
+    .glue-live-hud .hud-row{
+      display:flex;
+      align-items:center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 8px;
+      border-radius: 10px;
+      margin-bottom: 6px;
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .glue-live-hud .hud-row.ok{ background: rgba(52,211,153,0.10); }
+    .glue-live-hud .hud-row.ng{ background: rgba(239,68,68,0.10); }
+    .glue-live-hud .hud-left{
+      font-family: var(--font-ui);
+      font-weight: 900;
+      font-size: 0.64rem;
+      color: rgba(255,255,255,0.92);
+    }
+    .glue-live-hud .hud-right{
+      text-align:right;
+      font-size: 0.70rem;
+      font-weight: 900;
+      color:#fff;
+      line-height: 1.1;
+    }
+    .glue-live-hud .hud-right small{
+      display:block;
+      font-family: var(--font-ui);
+      font-size: 0.56rem;
+      font-weight: 800;
+      color: rgba(148,163,184,0.92);
+    }
+
     .vp-side-panel {
       flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
       padding: 16px; overflow-y: auto; flex-shrink: 0;
@@ -195,7 +265,7 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    .btn-vp-capture { display: none; } 
+    .btn-vp-capture { display: none; }
 
     .panel {
       flex: 1;
@@ -206,94 +276,86 @@
       padding: 0;
       min-height: 0;
     }
-    
-    /* MODIFIED: Add scrolling to panel content */
+
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto; /* Enable vertical scroll */
+      overflow-y: auto;
       overflow-x: hidden;
-      -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
+      -webkit-overflow-scrolling: touch;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
-    /* Ensure Glue Dashboard takes full height of scrollable parent */
-    .glue-dashboard { 
-        display:flex; flex-direction:column; 
-        height:100%; min-height: 400px; /* Safe min-height */
-        background:#0f172a; 
-        overflow:hidden; 
-        width:100%; 
-    }
-    
-    .glue-body-split { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: row; /* Horizontal Split */
-        overflow: hidden; 
-        position: relative; 
+    .glue-dashboard {
+      display:flex; flex-direction:column;
+      height:100%; min-height: 400px;
+      background:#0f172a;
+      overflow:hidden;
+      width:100%;
     }
 
-    /* 70% Left - Main Area */
+    .glue-body-split {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      position: relative;
+    }
+
     .glue-main-area {
-        flex: 7; /* 70% */
-        display: flex; 
-        flex-direction: column;
-        overflow: hidden;
-        background: #020617;
-        border-right: 1px solid var(--border-subtle);
+      flex: 7;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: #020617;
+      border-right: 1px solid var(--border-subtle);
     }
 
-    /* 30% Right - Summary Area */
     .glue-summary-area {
-        flex: 3; /* 30% */
-        background: #172554;
-        display: flex;
-        flex-direction: column;
-        padding: 16px 12px;
-        gap: 16px;
-        overflow-y: auto;
-        padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
+      flex: 3;
+      background: #172554;
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+      gap: 16px;
+      overflow-y: auto;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
 
-    /* Summary Stat Items */
     .sum-item {
-        background: rgba(255,255,255,0.03);
-        border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 4px;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      padding: 10px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 4px;
     }
     .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
     .text-ok { color: var(--success); }
     .text-ng { color: var(--danger); }
 
-    /* Header Button Style */
     .btn-header-cap {
-        width: 44px; height: 44px;
-        border-radius: 12px;
-        background: #3b82f6; /* Primary blue */
-        color: #fff;
-        border: none;
-        display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        transition: 0.2s;
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: 0.2s;
     }
     .btn-header-cap:active { transform: scale(0.92); }
     .btn-header-cap.frozen {
-        background: #ef4444; 
-        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+      background: #ef4444;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
 
-    /* Glue Header Layout */
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
       border-bottom: 1px solid rgba(255,255,255,0.1);
@@ -311,8 +373,7 @@
     }
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
-    
-    /* Standard Elements */
+
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -398,7 +459,6 @@
 
     .display-none { display: none !important; }
 
-    /* --- ENHANCED LEFT PANEL STYLES --- */
     .glue-list-header {
       padding: 12px 16px;
       background: #0f172a;
@@ -419,7 +479,6 @@
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
-    /* Distribution Canvas Container */
     .dist-container {
       flex: 1;
       position: relative;
@@ -445,63 +504,58 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
-/* Bigger bottom-tab icons + labels (only tab-bar) */
-.tab-bar .tab-item svg{
-  width: 26px;
-  height: 26px;
-  stroke-width: 2.4;
-}
+    /* Bigger bottom-tab icons + labels (only tab-bar) */
+    .tab-bar .tab-item svg{
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.4;
+    }
 
-.tab-bar .tab-lbl{
-  font-size: 0.72rem;   /* เดิม 0.65rem */
-  font-weight: 800;
-  letter-spacing: 0.2px;
-}
+    .tab-bar .tab-lbl{
+      font-size: 0.72rem;
+      font-weight: 800;
+      letter-spacing: 0.2px;
+    }
 
-/* Make touch area feel more balanced */
-.tab-bar{
-  height: 66px;                 /* เดิม var(--tab-h)=60px */
-  padding-top: 6px;
-  padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-}
+    .tab-bar{
+      height: 66px;
+      padding-top: 6px;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+    }
 
-/* keep the icon lift effect but not too subtle */
-.tab-bar .tab-item.active svg{
-  transform: translateY(-3px) scale(1.05);
-}
-/* iOS Add-to-Home-Screen (standalone) fixes */
-@media (display-mode: standalone) {
-  html, body {
-    -webkit-text-size-adjust: 100%;  /* กัน iOS ปรับสเกลตัวอักษรเอง */
-    text-size-adjust: 100%;
-  }
+    .tab-bar .tab-item.active svg{
+      transform: translateY(-3px) scale(1.05);
+    }
 
-  /* lucide renders as <svg>, lock size only in bottom tabs */
-  .tab-bar .tab-item svg{
-    width: 30px;
-    height: 30px;
-    stroke-width: 2.6;
-    display: block;
-    flex-shrink: 0;
-  }
+    @media (display-mode: standalone) {
+      html, body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
 
-  .tab-bar .tab-lbl{
-    font-size: 0.75rem;
-    font-weight: 800;
-    line-height: 1;
-  }
+      .tab-bar .tab-item svg{
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.6;
+        display: block;
+        flex-shrink: 0;
+      }
 
-  .tab-bar{
-    height: 68px;
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-  }
-}
+      .tab-bar .tab-lbl{
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1;
+      }
 
-/* IMPORTANT: your CSS currently targets i, but lucide uses svg */
-.tab-item svg { transition: transform 0.2s; }
-.tab-item.active svg { transform: translateY(-2px); }
+      .tab-bar{
+        height: 68px;
+        padding-top: 6px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      }
+    }
 
+    .tab-item svg { transition: transform 0.2s; }
+    .tab-item.active svg { transform: translateY(-2px); }
   </style>
 </head>
 
@@ -528,6 +582,9 @@
         <video id="webcam" autoplay playsinline muted></video>
         <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
         <canvas id="sheet-canvas"></canvas>
+
+        <!-- ✅ LIVE HUD overlay (Risk + Width) -->
+        <div id="glue-live-hud" class="glue-live-hud display-none"></div>
 
         <div class="hud-overlay">
           <div id="target-box" class="target-box">
@@ -624,7 +681,7 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-              
+
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -635,28 +692,28 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-                
+
                 <div class="dist-container" id="dist-wrapper">
-                   <canvas id="dist-canvas"></canvas>
-                   <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
-                      <i data-lucide="scan-line" width="32"></i>
-                      <span style="font-size:0.75rem;">Align camera to scan</span>
-                   </div>
+                  <canvas id="dist-canvas"></canvas>
+                  <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
+                    <i data-lucide="scan-line" width="32"></i>
+                    <span style="font-size:0.75rem;">Align camera to scan</span>
+                  </div>
                 </div>
               </div>
-              
+
               <div class="glue-summary-area">
                 <div class="sum-item">
-                   <div class="sum-val" id="sum-total">0</div>
-                   <div class="sum-lbl">Box Found</div>
+                  <div class="sum-val" id="sum-total">0</div>
+                  <div class="sum-lbl">Box Found</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ok" id="sum-gap">0</div>
-                   <div class="sum-lbl">Glue Gap</div>
+                  <div class="sum-val text-ok" id="sum-gap">0</div>
+                  <div class="sum-lbl">Glue Gap</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ng" id="sum-ng">0</div>
-                   <div class="sum-lbl">No Gap</div>
+                  <div class="sum-val text-ng" id="sum-ng">0</div>
+                  <div class="sum-lbl">No Gap</div>
                 </div>
               </div>
             </div>
@@ -689,18 +746,20 @@
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-    
+
     // Colex Plot
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
-    
-    // Distribution Plot (New)
+
+    // Distribution Plot
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
     const sheetCanvas = document.getElementById("sheet-canvas");
     const sheetCtx = sheetCanvas.getContext("2d");
     const ghostOverlay = document.getElementById("ghost-overlay");
+
+    const glueHud = document.getElementById("glue-live-hud");
 
     let activeTab = 'colex';
     let isProcessing = false;
@@ -711,9 +770,9 @@
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;      
-    let torchOpBusy = false;    
-    let captureBusy = false;    
+    let isTorchOn = false;
+    let torchOpBusy = false;
+    let captureBusy = false;
 
     let sheetFrozen = false;
     let sheetResults = [];
@@ -726,6 +785,59 @@
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    // ✅ formatting
+    function to2(n){ return Number(n).toFixed(2); }
+
+    // ✅ Risk from peak signal: 0..100 (high = risky/likely No Gap)
+    function calcRiskScore(peakValue, layerThreshold, gapThreshold) {
+      const denom = Math.max(1, (gapThreshold - layerThreshold));
+      const conf = clamp((peakValue - layerThreshold) / denom, 0, 1); // 0..1
+      const risk = clamp((1 - conf) * 100, 0, 100);                   // 0..100
+      return { risk, conf };
+    }
+
+    // ✅ Update live HUD on vp-camera (full-width)
+    function updateGlueLiveHUD(results){
+      if (!glueHud) return;
+
+      const show = (activeTab === "gluegap");
+      glueHud.classList.toggle("display-none", !show);
+      if (!show) return;
+
+      if (!results || results.length === 0){
+        glueHud.innerHTML = `
+          <div class="hud-title">GLUE GAP LIVE <span style="opacity:.6">—</span></div>
+          <div class="hud-sub">No detection</div>
+        `;
+        return;
+      }
+
+      const total = results.length;
+      const ng = results.filter(r => r.status === "NG").length;
+      const ok = total - ng;
+
+      const rows = results.map(r => {
+        const cls = (r.status === "NG") ? "ng" : "ok";
+        const left = `#${r.layer} ${r.status === "NG" ? "NO GAP" : "GAP"}`;
+        const right = `RISK ${to2(r.risk)}<small>W ${to2(r.widthPct)}%</small>`;
+        return `<div class="hud-row ${cls}">
+                  <div class="hud-left">${left}</div>
+                  <div class="hud-right">${right}</div>
+                </div>`;
+      }).join("");
+
+      glueHud.innerHTML = `
+        <div class="hud-title">
+          GLUE GAP LIVE
+          <span style="font-family:var(--font-ui); font-size:.60rem; opacity:.8;">
+            ${ok} OK • ${ng} NG
+          </span>
+        </div>
+        <div class="hud-sub">Risk (0–100) + Width (% of ROI)</div>
+        ${rows}
+      `;
+    }
 
     // =========================================================
     // COVER-MAPPING
@@ -797,12 +909,12 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-        
+
         // Resize Dist Canvas
         const wrap = document.getElementById("dist-wrapper");
-        if(wrap && wrap.offsetWidth) {
-            distCanvas.width = wrap.offsetWidth;
-            distCanvas.height = wrap.offsetHeight;
+        if (wrap && wrap.offsetWidth) {
+          distCanvas.width = wrap.offsetWidth;
+          distCanvas.height = wrap.offsetHeight;
         }
 
       } else {
@@ -848,6 +960,9 @@
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       document.getElementById('target-box').classList.add('display-none');
 
+      // ✅ default hide glue hud unless glue tab
+      glueHud?.classList.add("display-none");
+
       if (mode === 'colex') {
         document.getElementById('ctl-color-algo').classList.remove('display-none');
         document.getElementById('vp-side-panel').classList.remove('hidden');
@@ -860,11 +975,14 @@
         document.getElementById('panel-gluegap').classList.remove('display-none');
         document.getElementById('panel-gluegap').style.display = 'flex';
         resetSheetUI();
+
+        // ✅ show hud in gluegap mode (content updates live in loop)
+        glueHud?.classList.remove("display-none");
       }
 
       // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
-      if(pc) pc.scrollTop = 0;
+      if (pc) pc.scrollTop = 0;
 
       applyAutoFitLayout();
       lucide.createIcons();
@@ -1008,7 +1126,7 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
+    // GLUE GAP DETECTION + BELL CURVE + HISTOGRAM
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1037,7 +1155,7 @@
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
-      // Draw HUD (Overlay)
+      // Draw HUD ROI (Overlay)
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
       sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
@@ -1073,30 +1191,30 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5); 
+        profile[y] = Math.pow(darkness, 1.5);
       }
 
       const smoothed = movingAverage(profile, 4);
-      const { med, mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
+      const { mad } = robustStats(smoothed);
+      const layerThreshold = Math.max(30, mad * 1.5);
       const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
+      const minDist = Math.floor(roiH_v / 12);
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-      
+
       const results = [];
-      let maxW = 0;
 
       peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return; 
+        if (peak.index > roiH_v * 0.96) return;
 
         const localY_v = peak.index;
         const drawY = roiY_disp + localY_v * sy;
+
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
-        
+
         let st = layerStabilizer[idx];
         if (!st) st = { width: gapGeo.width };
         else st.width = lerp(st.width, gapGeo.width, 0.2);
@@ -1105,60 +1223,78 @@
         const dispW = Math.max(40, st.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
-        maxW = Math.max(maxW, dispW);
-        const widthPx = Math.round(dispW); 
-
         const peakValue = smoothed[localY_v];
+
+        // ✅ Width as % of ROI (device-independent)
+        const widthPct = (dispW / roiW_disp) * 100;
+
+        // ✅ Risk Score
+        const { risk } = calcRiskScore(peakValue, layerThreshold, gapThreshold);
+
         let status = "OK";
-        let boxColor = "#34d399"; 
+        let boxColor = "#34d399";
         let bgColor = "rgba(52, 211, 153, 0.2)";
-        let labelText = `#${idx + 1} (${widthPx}px)`; 
-        let xOffset = 65;
+
+        // ✅ On-box label show Risk + Width (no px)
+        let labelText = `RISK ${to2(risk)} • W ${to2(widthPct)}%`;
+        let xOffset = 170;
 
         if (peakValue < gapThreshold) {
-            status = "NG";
-            boxColor = "#ef4444"; 
-            bgColor = "rgba(239, 68, 68, 0.2)";
-            labelText = `NO GAP ${idx + 1}`;
-            xOffset = 80;
+          status = "NG";
+          boxColor = "#ef4444";
+          bgColor = "rgba(239, 68, 68, 0.2)";
+          labelText = `NO GAP • RISK ${to2(risk)} • W ${to2(widthPct)}%`;
+          xOffset = 205;
         }
 
+        // draw band box
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
         sheetCtx.strokeStyle = boxColor;
         sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
+
+        // draw label
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: idx + 1, w: dispW, status: status });
+        results.push({
+          layer: idx + 1,
+          widthPct,
+          risk,
+          status
+        });
       });
+
+      // ✅ Live HUD on vp-camera full-width
+      updateGlueLiveHUD(results);
 
       // Update Header & Summary
       const expected = results.length;
       const ngCount = results.filter(r => r.status === "NG").length;
       const okCount = expected - ngCount;
-      
+
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
       if (ngCount > 0) {
-         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-         header.className = "glue-compact-header status-fail";
+        statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+        header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-         header.className = "glue-compact-header status-pass";
+        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+        header.className = "glue-compact-header status-pass";
       } else {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-         header.className = "glue-compact-header";
+        statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+        header.className = "glue-compact-header";
       }
 
       document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-ng').innerText = ngCount;
 
-      // --- STATS CALCULATION ---
-      const validGaps = results.filter(r => r.status !== "NG").map(r => r.w);
+      // --- STATS CALCULATION (based on widthPct) ---
+      const validGaps = results.filter(r => r.status !== "NG").map(r => r.widthPct);
+
       let avgWidth = 0;
       let uniformity = 100;
       let stdDev = 0;
@@ -1167,158 +1303,143 @@
         const totalW = validGaps.reduce((acc, v) => acc + v, 0);
         avgWidth = totalW / validGaps.length;
 
-        // Variance & SD
         const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
         stdDev = Math.sqrt(variance);
 
-        // Uniformity
         const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
         const avgDev = totalDev / validGaps.length;
-        uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
+        uniformity = Math.max(0, 100 - ((avgDev / Math.max(0.0001, avgWidth)) * 100));
       }
 
       // Update Stats Header
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-          statsHeader.style.display = "grid";
-          statsHeader.innerHTML = `
-            <div class="stat-box">
-                <div class="stat-title">Avg Width</div>
-                <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
+        statsHeader.style.display = "grid";
+        statsHeader.innerHTML = `
+          <div class="stat-box">
+            <div class="stat-title">Avg Width</div>
+            <div class="stat-val">${to2(avgWidth)}<span class="stat-unit">%</span></div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-title">Consistency</div>
+            <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+              ${Math.round(uniformity)}<span class="stat-unit">%</span>
             </div>
-            <div class="stat-box">
-                <div class="stat-title">Consistency</div>
-                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-                ${Math.round(uniformity)}<span class="stat-unit">%</span>
-                </div>
-            </div>
-          `;
-          document.getElementById("empty-scan-msg").style.display = "none";
+          </div>
+        `;
+        document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-          statsHeader.style.display = "none";
-          document.getElementById("empty-scan-msg").style.display = "flex";
+        statsHeader.style.display = "none";
+        document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
-      // --- DRAW BELL CURVE & HISTOGRAM ---
+      // Draw bell curve distribution (uses %)
       drawBellCurve(validGaps, avgWidth, stdDev);
-      
+
       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
-        // Clear canvas
-        distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-        
-        if (values.length < 2) return; 
-        
-        const w = distCanvas.width;
-        const h = distCanvas.height;
-        const padX = 20; 
-        const padY = 20;
+      distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
-        // Range
-        const safeSD = Math.max(stdDev, mean * 0.1); 
-        const minX = mean - 3.5 * safeSD;
-        const maxX = mean + 3.5 * safeSD;
-        const rangeX = maxX - minX;
+      if (values.length < 2) return;
 
-        // Helper Map Functions
-        const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
-        const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
-        const maxY = getGaussian(mean); // peak prob
-        
-        // --- 1. DRAW HISTOGRAM (BARS) ---
-        const binCount = 8; // Number of bars
-        const binWidth = rangeX / binCount;
-        const bins = new Array(binCount).fill(0);
-        
-        values.forEach(v => {
-            const binIdx = Math.floor((v - minX) / binWidth);
-            if (binIdx >= 0 && binIdx < binCount) {
-                bins[binIdx]++;
-            }
-        });
+      const w = distCanvas.width;
+      const h = distCanvas.height;
+      const padX = 20;
+      const padY = 20;
 
-        // Determine max bin count to scale histogram height
-        // Scale so max bar is approx 70% of canvas height
-        const maxBinVal = Math.max(...bins, 1); 
-        const barScaleY = (h - 2*padY) * 0.7;
+      const safeSD = Math.max(stdDev, Math.max(0.1, mean * 0.10));
+      const minX = mean - 3.5 * safeSD;
+      const maxX = mean + 3.5 * safeSD;
+      const rangeX = maxX - minX;
 
-        distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
-        
-        bins.forEach((count, i) => {
-             const hBar = (count / maxBinVal) * barScaleY;
-             const xBar = mapX(minX + i * binWidth);
-             const yBar = h - padY - hBar;
-             const wBar = ((w - 2*padX) / binCount) - 2; // -2 for gap
-             
-             if (hBar > 0) {
-                distCtx.fillRect(xBar, yBar, wBar, hBar);
-             }
-        });
+      const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
+      const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
+      const maxY = getGaussian(mean);
 
-        // --- 2. DRAW BELL CURVE (Overlay) ---
-        const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
+      // Histogram
+      const binCount = 8;
+      const binWidth = rangeX / binCount;
+      const bins = new Array(binCount).fill(0);
+
+      values.forEach(v => {
+        const binIdx = Math.floor((v - minX) / binWidth);
+        if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
+      });
+
+      const maxBinVal = Math.max(...bins, 1);
+      const barScaleY = (h - 2 * padY) * 0.7;
+
+      distCtx.fillStyle = "rgba(255, 255, 255, 0.08)";
+      bins.forEach((count, i) => {
+        const hBar = (count / maxBinVal) * barScaleY;
+        const xBar = mapX(minX + i * binWidth);
+        const yBar = h - padY - hBar;
+        const wBar = ((w - 2 * padX) / binCount) - 2;
+        if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
+      });
+
+      // Bell curve
+      const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
+
+      distCtx.beginPath();
+      distCtx.moveTo(mapX(minX), h - padY);
+
+      const steps = 60;
+      for (let i = 0; i <= steps; i++) {
+        const xVal = minX + (rangeX * (i / steps));
+        const yVal = getGaussian(xVal);
+        distCtx.lineTo(mapX(xVal), mapY(yVal));
+      }
+
+      distCtx.lineTo(mapX(maxX), h - padY);
+      distCtx.closePath();
+
+      const grad = distCtx.createLinearGradient(0, 0, 0, h);
+      grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
+      grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
+      distCtx.fillStyle = grad;
+      distCtx.fill();
+
+      distCtx.strokeStyle = "#3b82f6";
+      distCtx.lineWidth = 2;
+      distCtx.stroke();
+
+      // Center line
+      const cx = mapX(mean);
+      distCtx.beginPath();
+      distCtx.strokeStyle = "rgba(255,255,255,0.3)";
+      distCtx.setLineDash([4, 4]);
+      distCtx.moveTo(cx, padY);
+      distCtx.lineTo(cx, h - padY);
+      distCtx.stroke();
+      distCtx.setLineDash([]);
+
+      // Dots
+      values.forEach(val => {
+        const vx = mapX(val);
+        const vy = mapY(getGaussian(val));
+
+        const dev = Math.abs(val - mean);
+        let color = "#34d399";
+        if (dev > 2 * stdDev) color = "#ef4444";
+        else if (dev > 1 * stdDev) color = "#fbbf24";
 
         distCtx.beginPath();
-        distCtx.moveTo(mapX(minX), h - padY);
-        
-        const steps = 60;
-        for (let i = 0; i <= steps; i++) {
-            const xVal = minX + (rangeX * (i / steps));
-            const yVal = getGaussian(xVal);
-            distCtx.lineTo(mapX(xVal), mapY(yVal));
-        }
-        
-        distCtx.lineTo(mapX(maxX), h - padY);
-        distCtx.closePath();
-        
-        // Gradient Fill
-        const grad = distCtx.createLinearGradient(0, 0, 0, h);
-        grad.addColorStop(0, "rgba(59, 130, 246, 0.4)");
-        grad.addColorStop(1, "rgba(59, 130, 246, 0.05)");
-        distCtx.fillStyle = grad;
+        distCtx.fillStyle = color;
+        distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
         distCtx.fill();
-        
-        distCtx.strokeStyle = "#3b82f6";
-        distCtx.lineWidth = 2;
+        distCtx.shadowColor = color;
+        distCtx.shadowBlur = 6;
         distCtx.stroke();
+        distCtx.shadowBlur = 0;
+      });
 
-        // --- 3. Center Line ---
-        const cx = mapX(mean);
-        distCtx.beginPath();
-        distCtx.strokeStyle = "rgba(255,255,255,0.3)";
-        distCtx.setLineDash([4, 4]);
-        distCtx.moveTo(cx, padY);
-        distCtx.lineTo(cx, h - padY);
-        distCtx.stroke();
-        distCtx.setLineDash([]);
-
-        // --- 4. Individual Measurements (Dots) ---
-        values.forEach(val => {
-            const vx = mapX(val);
-            const vy = mapY(getGaussian(val));
-            
-            const dev = Math.abs(val - mean);
-            let color = "#34d399"; 
-            if (dev > 2 * stdDev) color = "#ef4444"; 
-            else if (dev > 1 * stdDev) color = "#fbbf24"; 
-            
-            distCtx.beginPath();
-            distCtx.fillStyle = color;
-            distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
-            distCtx.fill();
-            distCtx.shadowColor = color;
-            distCtx.shadowBlur = 6;
-            distCtx.stroke();
-            distCtx.shadowBlur = 0;
-        });
-
-        // X-axis label
-        distCtx.fillStyle = "#64748b";
-        distCtx.font = "10px Inter";
-        distCtx.textAlign = "center";
-        distCtx.fillText(Math.round(mean), cx, h - 5);
+      distCtx.fillStyle = "#64748b";
+      distCtx.font = "10px Inter";
+      distCtx.textAlign = "center";
+      distCtx.fillText(to2(mean) + "%", cx, h - 5);
     }
 
     function analyzeGapWidthRow(data, w, h, cy) {
@@ -1383,6 +1504,8 @@
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
+      updateGlueLiveHUD([]);
+
       document.getElementById('sum-total').innerText = "0";
       document.getElementById('sum-gap').innerText = "0";
       document.getElementById('sum-ng').innerText = "0";
@@ -1392,7 +1515,6 @@
       document.getElementById("header-status-group").innerHTML =
         `<div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>`;
 
-      // Reset Stats Header & Show Empty Msg
       document.getElementById("stats-header").style.display = "none";
       document.getElementById("empty-scan-msg").style.display = "flex";
 
@@ -1500,7 +1622,6 @@
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1517,7 +1638,6 @@
       if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1796,7 +1916,6 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
-            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1808,7 +1927,6 @@
           return;
         }
 
-        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
