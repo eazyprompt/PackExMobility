@@ -6,17 +6,13 @@
     name="viewport"
     content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
   />
-  <title>PackEx</title>
+  <title>PackEx Mobility</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
-
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
 
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
@@ -45,7 +41,7 @@
       --frame-gap: clamp(14px, 5.5vw, 60px);
       --gap-layout: 16px;
 
-      /* JS-calculated */
+      /* JS-calculated defaults */
       --viewport-h: 220px;
       --viz-h: 150px;
       --app-h: 100dvh;
@@ -191,8 +187,6 @@
     .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
     .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-    .btn-vp-capture { display: none; } 
-
     .panel {
       flex: 1;
       background: var(--bg-body);
@@ -202,63 +196,42 @@
       padding: 0;
       min-height: 0;
     }
-     
+    
     .panel-content {
       display: flex; flex-direction: column; gap: var(--gap-layout);
       margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-      overflow-y: auto;
-      overflow-x: hidden;
+      overflow-y: auto; overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
     }
 
-    /* GLUE DASHBOARD */
+    /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
     .glue-dashboard { 
         display:flex; flex-direction:column; 
-        height:100%; min-height: 400px;
-        background:#0f172a; 
-        overflow:hidden; 
-        width:100%; 
+        height:100%; min-height: 400px; 
+        background:#0f172a; overflow:hidden; width:100%; 
     }
-     
     .glue-body-split { 
-        flex: 1; 
-        display: flex; 
-        flex-direction: row; 
-        overflow: hidden; 
-        position: relative; 
+        flex: 1; display: flex; flex-direction: row; 
+        overflow: hidden; position: relative; 
     }
-
     .glue-main-area {
-        flex: 7; 
-        display: flex; 
-        flex-direction: column;
-        overflow: hidden;
-        background: #020617;
+        flex: 7; display: flex; flex-direction: column;
+        overflow: hidden; background: #020617;
         border-right: 1px solid var(--border-subtle);
     }
-
     .glue-summary-area {
-        flex: 3;
-        background: #172554;
-        display: flex;
-        flex-direction: column;
-        padding: 16px 12px;
-        gap: 16px;
-        overflow-y: auto;
+        flex: 3; background: #172554;
+        display: flex; flex-direction: column;
+        padding: 16px 12px; gap: 16px; overflow-y: auto;
         padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
     }
 
     .sum-item {
         background: rgba(255,255,255,0.03);
         border: 1px solid rgba(255,255,255,0.08);
-        border-radius: 12px;
-        padding: 10px;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
-        gap: 4px;
+        border-radius: 12px; padding: 10px;
+        display: flex; flex-direction: column; align-items: center; text-align: center; gap: 4px;
     }
     .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
     .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
@@ -266,22 +239,14 @@
     .text-ng { color: var(--danger); }
 
     .btn-header-cap {
-        width: 44px; height: 44px;
-        border-radius: 12px;
-        background: #3b82f6; 
-        color: #fff;
-        border: none;
+        width: 44px; height: 44px; border-radius: 12px;
+        background: #3b82f6; color: #fff; border: none;
         display: flex; align-items: center; justify-content: center;
-        font-size: 1.2rem;
-        cursor: pointer;
-        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
-        transition: 0.2s;
+        font-size: 1.2rem; cursor: pointer;
+        box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4); transition: 0.2s;
     }
     .btn-header-cap:active { transform: scale(0.92); }
-    .btn-header-cap.frozen {
-        background: #ef4444; 
-        box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-    }
+    .btn-header-cap.frozen { background: #ef4444; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); }
 
     .glue-compact-header{
       background: rgba(15, 23, 42, 0.98);
@@ -301,6 +266,7 @@
     .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
     .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
     
+    /* Result Dashboard (Colex) */
     .result-dashboard {
       display: flex; gap: 12px; justify-content: space-between; align-items: center;
       background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
@@ -386,41 +352,25 @@
 
     .display-none { display: none !important; }
 
+    /* Glue Stats */
     .glue-list-header {
-      padding: 12px 16px;
-      background: #0f172a;
-      border-bottom: 1px solid var(--border-subtle);
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      flex-shrink: 0;
+      padding: 12px 16px; background: #0f172a; border-bottom: 1px solid var(--border-subtle);
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex-shrink: 0;
     }
     .stat-box {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      padding: 8px 10px;
-      display: flex; flex-direction: column; gap: 2px;
+      background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px; padding: 8px 10px; display: flex; flex-direction: column; gap: 2px;
     }
     .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
     .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
     .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
+    /* Distribution Canvas */
     .dist-container {
-      flex: 1;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      padding: 10px;
-      overflow: hidden;
-      background: #020617;
+      flex: 1; position: relative; display: flex; flex-direction: column;
+      padding: 10px; overflow: hidden; background: #020617;
     }
-    #dist-canvas {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
-
+    #dist-canvas { width: 100%; height: 100%; display: block; }
     canvas { display:block; }
     #proc-canvas { display:none; }
 
@@ -431,44 +381,21 @@
       .result-dashboard { padding: 12px 14px; }
     }
 
-    .tab-bar .tab-item svg{
-      width: 26px; height: 26px; stroke-width: 2.4;
-    }
+    /* Tab Bar Tweaks */
+    .tab-bar .tab-item svg{ width: 26px; height: 26px; stroke-width: 2.4; }
+    .tab-bar .tab-lbl{ font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2px; }
+    .tab-bar{ height: 66px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 2px); }
+    .tab-bar .tab-item.active svg{ transform: translateY(-3px) scale(1.05); }
 
-    .tab-bar .tab-lbl{
-      font-size: 0.72rem;
-      font-weight: 800;
-      letter-spacing: 0.2px;
-    }
-
-    .tab-bar{
-      height: 66px;
-      padding-top: 6px;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-    }
-
-    .tab-bar .tab-item.active svg{
-      transform: translateY(-3px) scale(1.05);
-    }
+    /* iOS PWA Standalone */
     @media (display-mode: standalone) {
-      html, body {
-        -webkit-text-size-adjust: 100%;
-        text-size-adjust: 100%;
-      }
-      .tab-bar .tab-item svg{
-        width: 30px; height: 30px; stroke-width: 2.6;
-        display: block; flex-shrink: 0;
-      }
-      .tab-bar .tab-lbl{
-        font-size: 0.75rem; font-weight: 800; line-height: 1;
-      }
-      .tab-bar{
-        height: 68px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
-      }
+      html, body { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+      .tab-bar .tab-item svg{ width: 30px; height: 30px; stroke-width: 2.6; display: block; flex-shrink: 0; }
+      .tab-bar .tab-lbl{ font-size: 0.75rem; font-weight: 800; line-height: 1; }
+      .tab-bar{ height: 68px; padding-top: 6px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px); }
     }
     .tab-item svg { transition: transform 0.2s; }
     .tab-item.active svg { transform: translateY(-2px); }
-
   </style>
 </head>
 
@@ -685,8 +612,6 @@
     let sheetFrozen = false;
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
-
-    // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
     // --- helpers ---
@@ -829,7 +754,6 @@
         resetSheetUI();
       }
 
-      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
       if(pc) pc.scrollTop = 0;
 
@@ -894,28 +818,6 @@
       setTimeout(() => document.body.classList.remove("screen-flash"), 120);
     }
 
-    async function withCaptureLighting(fn) {
-      const wasHold = isTorchOn;
-      if (wasHold) {
-        pulseScreenFlash();
-        return await fn();
-      }
-      if (torchSupported && videoTrack?.applyConstraints) {
-        const okOn = await setTorch(true);
-        if (okOn) {
-          await wait(60);
-          try {
-            pulseScreenFlash();
-            return await fn();
-          } finally {
-            await setTorch(false);
-          }
-        }
-      }
-      pulseScreenFlash();
-      return await fn();
-    }
-
     // --- helper (signal processing) ---
     function movingAverage(arr, radius) {
       const out = new Float32Array(arr.length);
@@ -928,23 +830,6 @@
         out[i] = cnt ? (sum / cnt) : arr[i];
       }
       return out;
-    }
-
-    function medianOfSorted(sorted) {
-      const n = sorted.length;
-      if (!n) return 0;
-      const mid = (n / 2) | 0;
-      return (n % 2) ? sorted[mid] : (sorted[mid - 1] + sorted[mid]) / 2;
-    }
-
-    function robustStats(arr) {
-      const a = Array.from(arr);
-      a.sort((x, y) => x - y);
-      const med = medianOfSorted(a);
-      const dev = a.map(v => Math.abs(v - med));
-      dev.sort((x, y) => x - y);
-      const mad = medianOfSorted(dev) || 0;
-      return { med, mad };
     }
 
     function findPeaksDynamic(arr, prominence, minDist) {
@@ -975,7 +860,7 @@
     }
 
     // =========================================================
-    //  UPDATED LOGIC: REVERT TO ORIGINAL DETECTION + ADD WAVE CHECK
+    //  UPDATED LOGIC: TEXTURE & VARIANCE ANALYSIS (NEW)
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -988,35 +873,28 @@
       const dh = sheetCanvas.height;
       if (!dw || !dh) return;
 
-      // ROI setup
+      // 1. ROI Setup
       const roiW_disp = Math.round(dw * 0.50);
-      const roiH_disp = Math.round(dh * 0.70);
+      const roiH_disp = Math.round(dh * 0.85);
       const roiX_disp = Math.round((dw - roiW_disp) / 2);
+      const roiY_disp = Math.round((dh - roiH_disp) / 2);
 
-      const bottomSafe_disp = Math.round(dh * 0.15);
-      let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.2);
-      roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
-
-      // Map ROI to Video Coordinates
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
       const roiX_v = Math.round(roiV.x);
       const roiY_v = Math.round(roiV.y);
 
-      // Draw HUD (Overlay)
+      // Draw ROI
       sheetCtx.clearRect(0, 0, dw, dh);
       sheetCtx.save();
-      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
-      sheetCtx.fillRect(0, 0, dw, dh);
-      sheetCtx.clearRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
-      sheetCtx.strokeStyle = "rgba(52, 211, 153, 0.5)";
+      sheetCtx.strokeStyle = "rgba(59, 130, 246, 0.5)";
       sheetCtx.lineWidth = 2;
-      sheetCtx.setLineDash([10, 10]);
+      sheetCtx.setLineDash([5, 5]);
       sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
       sheetCtx.restore();
 
-      // Get Image Data
+      // Get Data
       if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
         procCanvas.width = roiW_v; procCanvas.height = roiH_v;
       }
@@ -1024,166 +902,210 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
-      // Profile Scan
-      const profile = new Float32Array(roiH_v);
-      const centerStart = Math.floor(roiW_v * 0.35);
-      const centerEnd = Math.floor(roiW_v * 0.65);
+      // 2. Find Peaks (หาตำแหน่งสันลอนกระดาษ - ส่วนที่สว่าง)
+      const lumaProfile = new Float32Array(roiH_v);
+      const centerStart = Math.floor(roiW_v * 0.40);
+      const centerEnd = Math.floor(roiW_v * 0.60);
       const centerW = centerEnd - centerStart;
 
       for (let y = 0; y < roiH_v; y++) {
-        let sumLuma = 0;
+        let sum = 0;
         const rowOffset = y * roiW_v * 4;
         for (let x = centerStart; x < centerEnd; x++) {
           const i = rowOffset + x * 4;
-          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          sumLuma += luma;
+          sum += data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
         }
-        const avgLuma = sumLuma / centerW;
-        const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5); 
+        lumaProfile[y] = sum / centerW;
       }
-
-      const smoothed = movingAverage(profile, 4);
-      const { med, mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
-      const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
-
-      let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
+      const smoothed = movingAverage(lumaProfile, 3);
+      // หา Peak ความสว่าง (ลอนกระดาษ)
+      const flutes = findPeaksDynamic(smoothed, 15, roiH_v / 20); 
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-      
       const results = [];
-      let maxW = 0;
+      const validGaps = [];
 
-      peaks.forEach((peak, idx) => {
-        if (peak.index > roiH_v * 0.96) return; 
+      // 3. Loop through layers (Orange Box Logic)
+      for (let i = 0; i < flutes.length - 1; i++) {
+        const yTop = flutes[i].index;
+        const yBot = flutes[i+1].index;
+        const layerH = yBot - yTop;
 
-        const localY_v = peak.index;
-        const drawY = roiY_disp + localY_v * sy;
+        if (layerH < (roiH_v / 25)) continue; 
+
+        // --- ZONE DEFINITION ---
+        // Zone A (Top - Red): พื้นที่ลอนกระดาษด้านบน (~35% ของความสูงชั้น)
+        const zoneA_H = Math.floor(layerH * 0.35);
+        const zoneA_Y = yTop;
         
-        // 1. ORIGINAL GAP DETECTION (Preserved)
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
-        
-        let st = layerStabilizer[idx];
-        if (!st) st = { width: gapGeo.width };
-        else st.width = lerp(st.width, gapGeo.width, 0.2);
-        layerStabilizer[idx] = st;
+        // Zone B (Bottom - Candidate Gap): พื้นที่ด้านล่าง (~65% ที่เหลือ)
+        const zoneB_Y = yTop + zoneA_H;
+        const zoneB_H = Math.max(1, layerH - zoneA_H - 2); 
 
-        const dispW = Math.max(40, st.width * sx);
-        const dispX = roiX_disp + (roiW_disp - dispW) / 2;
+        // --- TEXTURE ANALYSIS ---
+        const statsA = getZoneStats(data, roiW_v, roiH_v, zoneA_Y, zoneA_H); // Top
+        const statsB = getZoneStats(data, roiW_v, roiH_v, zoneB_Y, zoneB_H); // Bottom
 
-        maxW = Math.max(maxW, dispW);
-        const widthPx = Math.round(dispW); 
+        // --- DECISION LOGIC ---
+        // 1. Texture Drop: ถ้า Zone ล่างเรียบกว่า Zone บนมากๆ (StdDev ลดลง)
+        const textureRatio = statsB.stdDev / (statsA.stdDev || 1);
+        const isTextureDrop = textureRatio < 0.65; // ลดลงเหลือต่ำกว่า 65% ของด้านบน
 
-        const peakValue = smoothed[localY_v];
-        
-        // --- LOGIC: Use Original Detection First, Then Check Wavy ---
-        let status = "OK";
-        let boxColor = "#34d399"; 
-        let bgColor = "rgba(52, 211, 153, 0.2)";
-        let labelText = `#${idx + 1} (${widthPx}px)`; 
-        let xOffset = 65;
-        
-        // 1. Check Darkness/Depth (Original Logic - Reliable)
-        if (peakValue < gapThreshold) {
-            status = "NG";
-            boxColor = "#ef4444"; 
-            bgColor = "rgba(239, 68, 68, 0.2)";
-            labelText = `NG (LOW) ${idx + 1}`;
-            xOffset = 80;
-        }
-        // 2. Check Wavy/Fluting (Secondary Check)
-        // If it looks like a gap, but is too rough inside -> NG (WAVE)
-        else if (gapGeo.roughness > 6.0) { 
-            status = "NG";
-            boxColor = "#fbbf24"; // Orange
-            bgColor = "rgba(251, 191, 36, 0.2)";
-            labelText = `NG (WAVE) ${idx + 1}`;
-            xOffset = 85;
+        // 2. Brightness Drop: Zone ล่างต้องมืดกว่า
+        const isDarker = statsB.mean < (statsA.mean * 0.85);
+        const isVeryDark = statsB.mean < 60; // มืดตึ๊ดตื๋อ ยังไงก็ Gap
+
+        let isGap = false;
+        if (isVeryDark) {
+            isGap = true;
+        } else if (isDarker && isTextureDrop) {
+            isGap = true;
         }
 
-        sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
-        sheetCtx.strokeStyle = boxColor;
-        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
-        sheetCtx.fillStyle = boxColor;
-        sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
+        // --- VISUALIZATION ---
+        const dispY = roiY_disp + yTop * sy;
+        const dispH = layerH * sy;
+        const dispX = roiX_disp + 5; 
+        const dispW = roiW_disp - 10;
+        
+        const dispHa = zoneA_H * sy; // Height of Red Zone on Screen
 
-        results.push({ layer: idx + 1, w: dispW, status: status });
-      });
+        // Draw Orange Box (The Whole Layer)
+        sheetCtx.strokeStyle = "#fbbf24"; 
+        sheetCtx.lineWidth = 2;
+        sheetCtx.strokeRect(dispX, dispY, dispW, dispH);
 
-      // Update Header & Summary
-      const expected = results.length;
-      const ngCount = results.filter(r => r.status === "NG").length;
-      const okCount = expected - ngCount;
-      
-      const statusGroup = document.getElementById("header-status-group");
-      const header = document.getElementById("glue-header");
+        // Draw Top Zone (Red - Flute Reference)
+        sheetCtx.strokeStyle = "rgba(239, 68, 68, 0.8)"; 
+        sheetCtx.lineWidth = 1;
+        sheetCtx.strokeRect(dispX + 2, dispY, dispW - 4, dispHa);
+        
+        // Draw Bottom Zone (Result)
+        const gapDispY = dispY + dispHa;
+        const gapDispH = dispH - dispHa;
 
-      if (ngCount > 0) {
-         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-         header.className = "glue-compact-header status-fail";
-      } else if (expected >= 7 && expected <= 8) {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-         header.className = "glue-compact-header status-pass";
-      } else {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-         header.className = "glue-compact-header";
+        let status = "NG";
+        let color = "#ef4444";
+
+        if (isGap) {
+            status = "OK";
+            color = "#34d399";
+            
+            // Fill Green
+            sheetCtx.fillStyle = "rgba(52, 211, 153, 0.3)";
+            sheetCtx.fillRect(dispX + 2, gapDispY, dispW - 4, gapDispH);
+            sheetCtx.strokeStyle = color;
+            sheetCtx.strokeRect(dispX + 2, gapDispY, dispW - 4, gapDispH);
+            
+            validGaps.push(gapDispH);
+        } else {
+            status = "NG";
+            color = "#ef4444";
+            
+            // Fill Red (No Gap / Texture High)
+            sheetCtx.fillStyle = "rgba(239, 68, 68, 0.2)";
+            sheetCtx.fillRect(dispX + 2, gapDispY, dispW - 4, gapDispH);
+            sheetCtx.strokeStyle = color;
+            
+            // Draw X
+            sheetCtx.beginPath();
+            sheetCtx.moveTo(dispX + 2, gapDispY);
+            sheetCtx.lineTo(dispX + dispW - 2, gapDispY + gapDispH);
+            sheetCtx.stroke();
+            sheetCtx.strokeRect(dispX + 2, gapDispY, dispW - 4, gapDispH);
+        }
+        
+        // Debug Text: Ratio
+        sheetCtx.fillStyle = color;
+        sheetCtx.font = "10px sans-serif";
+        sheetCtx.fillText(`T:${textureRatio.toFixed(2)}`, dispX + dispW + 2, gapDispY + 10); 
+
+        results.push({ layer: i, status: status });
       }
 
-      document.getElementById('sum-total').innerText = expected;
-      document.getElementById('sum-gap').innerText = okCount;
-      document.getElementById('sum-ng').innerText = ngCount;
+      updateGlueStats(results.length, results.filter(r=>r.status==="OK").length, results.filter(r=>r.status==="NG").length, validGaps);
+    }
 
-      // --- STATS CALCULATION ---
-      const validGaps = results.filter(r => r.status !== "NG").map(r => r.w);
-      let avgWidth = 0;
-      let uniformity = 100;
-      let stdDev = 0;
+    // --- HELPER: Calculate Mean & StdDev for a specific zone ---
+    function getZoneStats(data, width, height, yStart, hZone) {
+        let sum = 0;
+        let sumSq = 0;
+        let count = 0;
+        
+        const xStart = Math.floor(width * 0.25);
+        const xEnd = Math.floor(width * 0.75);
+        const yEnd = Math.min(height, yStart + hZone);
 
-      if (validGaps.length > 0) {
-        const totalW = validGaps.reduce((acc, v) => acc + v, 0);
-        avgWidth = totalW / validGaps.length;
+        for (let y = yStart; y < yEnd; y++) {
+            const rowOffset = y * width * 4;
+            for (let x = xStart; x < xEnd; x += 2) { 
+                const i = rowOffset + x * 4;
+                if (i + 1 < data.length) {
+                    const val = data[i+1]; // Green channel for texture
+                    sum += val;
+                    sumSq += val * val;
+                    count++;
+                }
+            }
+        }
+        
+        if (count === 0) return { mean: 0, stdDev: 0 };
+        
+        const mean = sum / count;
+        const variance = (sumSq / count) - (mean * mean);
+        const stdDev = Math.sqrt(Math.max(0, variance));
+        
+        return { mean, stdDev };
+    }
 
-        // Variance & SD
-        const variance = validGaps.reduce((acc, v) => acc + Math.pow(v - avgWidth, 2), 0) / validGaps.length;
-        stdDev = Math.sqrt(variance);
+    // --- STATS UPDATE ---
+    function updateGlueStats(total, ok, ng, gapValues) {
+       const statusGroup = document.getElementById("header-status-group");
+       const header = document.getElementById("glue-header");
 
-        // Uniformity
-        const totalDev = validGaps.reduce((acc, v) => acc + Math.abs(v - avgWidth), 0);
-        const avgDev = totalDev / validGaps.length;
-        uniformity = Math.max(0, 100 - ((avgDev / avgWidth) * 100));
-      }
+       if (ng > 0) {
+           statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
+           header.className = "glue-compact-header status-fail";
+       } else if (total >= 1) {
+           statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+           header.className = "glue-compact-header status-pass";
+       } else {
+           statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+           header.className = "glue-compact-header";
+       }
 
-      // Update Stats Header
-      const statsHeader = document.getElementById("stats-header");
-      if (results.length > 0) {
-          statsHeader.style.display = "grid";
-          statsHeader.innerHTML = `
-            <div class="stat-box">
-                <div class="stat-title">Avg Width</div>
-                <div class="stat-val">${Math.round(avgWidth)}<span class="stat-unit">px</span></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-title">Consistency</div>
-                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-                ${Math.round(uniformity)}<span class="stat-unit">%</span>
-                </div>
-            </div>
-          `;
-          document.getElementById("empty-scan-msg").style.display = "none";
-      } else {
-          statsHeader.style.display = "none";
-          document.getElementById("empty-scan-msg").style.display = "flex";
-      }
-
-      // --- DRAW BELL CURVE & HISTOGRAM ---
-      drawBellCurve(validGaps, avgWidth, stdDev);
-      
-      lucide.createIcons();
+       document.getElementById('sum-total').innerText = total;
+       document.getElementById('sum-gap').innerText = ok;
+       document.getElementById('sum-ng').innerText = ng;
+       
+       // Calculate Stats
+       if (gapValues.length > 0) {
+           const avg = gapValues.reduce((a,b)=>a+b,0) / gapValues.length;
+           const variance = gapValues.reduce((a,b)=>a+Math.pow(b-avg,2),0) / gapValues.length;
+           const stdDev = Math.sqrt(variance);
+           
+           const statsHeader = document.getElementById("stats-header");
+           statsHeader.style.display = "grid";
+           document.getElementById("empty-scan-msg").style.display = "none";
+           
+           statsHeader.innerHTML = `
+             <div class="stat-box">
+                <div class="stat-title">Avg Size</div>
+                <div class="stat-val">${avg.toFixed(1)}</div>
+             </div>
+             <div class="stat-box">
+                <div class="stat-title">Items</div>
+                <div class="stat-val">${gapValues.length}</div>
+             </div>
+           `;
+           drawBellCurve(gapValues, avg, stdDev);
+       } else {
+           document.getElementById("stats-header").style.display = "none";
+           document.getElementById("empty-scan-msg").style.display = "flex";
+           distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+       }
+       lucide.createIcons();
     }
 
     function drawBellCurve(values, mean, stdDev) {
@@ -1192,7 +1114,8 @@
         
         const w = distCanvas.width;
         const h = distCanvas.height;
-        const padX = 20; const padY = 20;
+        const padX = 20; 
+        const padY = 20;
 
         const safeSD = Math.max(stdDev, mean * 0.1); 
         const minX = mean - 3.5 * safeSD;
@@ -1203,15 +1126,14 @@
         const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
         const maxY = getGaussian(mean); 
         
-        const binCount = 8; 
+        // 1. Histogram
+        const binCount = 8;
         const binWidth = rangeX / binCount;
         const bins = new Array(binCount).fill(0);
-        
         values.forEach(v => {
             const binIdx = Math.floor((v - minX) / binWidth);
             if (binIdx >= 0 && binIdx < binCount) bins[binIdx]++;
         });
-
         const maxBinVal = Math.max(...bins, 1); 
         const barScaleY = (h - 2*padY) * 0.7;
 
@@ -1224,8 +1146,8 @@
              if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
         });
 
+        // 2. Bell Curve
         const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
-
         distCtx.beginPath();
         distCtx.moveTo(mapX(minX), h - padY);
         const steps = 60;
@@ -1246,6 +1168,7 @@
         distCtx.lineWidth = 2;
         distCtx.stroke();
 
+        // 3. Center Line
         const cx = mapX(mean);
         distCtx.beginPath();
         distCtx.strokeStyle = "rgba(255,255,255,0.3)";
@@ -1255,6 +1178,7 @@
         distCtx.stroke();
         distCtx.setLineDash([]);
 
+        // 4. Dots
         values.forEach(val => {
             const vx = mapX(val);
             const vy = mapY(getGaussian(val));
@@ -1277,69 +1201,6 @@
         distCtx.font = "10px Inter";
         distCtx.textAlign = "center";
         distCtx.fillText(Math.round(mean), cx, h - 5);
-    }
-
-    // --- REVERTED ANALYZE FUNCTION (ORIGINAL LOGIC + SIMPLE ROUGHNESS) ---
-    function analyzeGapWidthRow(data, w, h, cy) {
-      const rowStart = cy * w * 4;
-
-      const bandLeft = Math.floor(w * 0.25);
-      const bandRight = Math.floor(w * 0.75);
-
-      let minLuma = 255;
-      let minX = ((bandLeft + bandRight) >> 1);
-      let sumL = 0;
-      let cnt = 0;
-
-      // 1. Find Darkest Spot (Center)
-      for (let x = bandLeft; x < bandRight; x += 2) {
-        const i = rowStart + x * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        sumL += luma; cnt++;
-        if (luma < minLuma) { minLuma = luma; minX = x; }
-      }
-
-      const meanL = cnt ? (sumL / cnt) : minLuma;
-      const contrast = Math.max(0, meanL - minLuma);
-      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
-
-      // 2. Expand Left/Right (Standard Edge Detection)
-      let left = minX;
-      while (left > 0) {
-        const i = rowStart + left * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        if (luma > thr) break;
-        left--;
-      }
-
-      let right = minX;
-      while (right < w - 1) {
-        const i = rowStart + right * 4;
-        const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-        if (luma > thr) break;
-        right++;
-      }
-      
-      const width = Math.max(0, right - left);
-
-      // 3. CALCULATE ROUGHNESS (For Fluting Check)
-      // Only runs inside the detected gap
-      let roughness = 0;
-      if (width > 4) {
-          let totalChange = 0;
-          let prevPx = -1;
-          for(let x = left + 2; x <= right - 2; x++){
-              const i = rowStart + x * 4;
-              const curPx = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-              if(prevPx !== -1){
-                  totalChange += Math.abs(curPx - prevPx);
-              }
-              prevPx = curPx;
-          }
-          roughness = totalChange / (width - 4);
-      }
-
-      return { left, right, width, roughness };
     }
 
     function toggleSheetCapture() {
@@ -1378,7 +1239,6 @@
       const btn = document.getElementById("btn-sheet-cap");
       btn.innerHTML = '<i data-lucide="camera"></i>';
       btn.classList.remove("frozen");
-
       lucide.createIcons();
     }
 
@@ -1479,7 +1339,6 @@
       ghostOverlay.src = ghostData;
       ghostOverlay.classList.add("active");
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1496,7 +1355,6 @@
       if (btn.disabled || captureBusy) return;
       btn.disabled = true;
 
-      // MODIFIED: No Flash
       const sample = await captureSmartSample();
 
       btn.disabled = false;
@@ -1775,7 +1633,6 @@
         if (torchSupported && videoTrack?.applyConstraints) {
           const ok = await setTorch(next);
           if (!ok && next) {
-            // fallback: screen lamp
             document.body.classList.add("screen-lamp");
             isTorchOn = true;
             updateTorchUI();
@@ -1787,7 +1644,6 @@
           return;
         }
 
-        // no torch support → use screen lamp as hold
         isTorchOn = next;
         document.body.classList.toggle("screen-lamp", isTorchOn);
         updateTorchUI();
