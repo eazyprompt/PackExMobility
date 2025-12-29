@@ -1042,6 +1042,7 @@
 
     // =========================================================
     // Adaptive robust threshold (Auto K) + Multi-frame confirm
+    // (kept for stability, but RED is now ONLY by mm-range)
     // =========================================================
     let adaptiveAreaK = 2.2;
     const AREA_K_MIN = 1.2;
@@ -1458,6 +1459,7 @@
 
     // =========================================================
     // GLUE GAP DETECTION
+    // ✅ RED only when gapMM is out of [2..10]
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1557,7 +1559,6 @@
       const smoothed = movingAverage(profile, 4);
       const { mad } = robustStats(smoothed);
       const layerThreshold = Math.max(30, mad * 1.5);
-      const gapThreshold = Math.max(100, mad * 4.5);
       const minDist = Math.floor(roiH_v / 12);
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
@@ -1605,89 +1606,32 @@
         metas.push({ idx, localY_v, drawY, dispX, dispW, stableArea, peakValue });
       });
 
+      // keep adaptive K update (for UI only)
       const allAreasThisFrame = metas.map(x => x.stableArea).filter(a => a > 0);
       const hasEnough = allAreasThisFrame.length >= AREA_MIN_SAMPLES;
-
-      const kAuto = hasEnough ? updateAdaptiveKFromAreas(allAreasThisFrame) : adaptiveAreaK;
-
-      let medA = 0, madA = 0;
-      if (hasEnough) {
-        const statsA = robustStats(allAreasThisFrame);
-        medA = statsA.med;
-        madA = statsA.mad;
-      }
+      if (hasEnough) updateAdaptiveKFromAreas(allAreasThisFrame);
 
       const results = [];
 
-      // PASS 2: decide + draw
+      // =========================================================
+      // ✅ PASS 2: RED ONLY when mm out of [2..10]
+      // =========================================================
       metas.forEach(meta => {
         const idx = meta.idx;
         const stableArea = meta.stableArea;
-        const peakValue = meta.peakValue;
 
-        // Primary gap status
-        let isNoGap = (peakValue < gapThreshold);
+        const gapMM_raw = areaPx2ToMm_15cm(stableArea);
+        const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
-        // Low-area candidate
-        let lowCandidate = false;
-        if (hasEnough && madA > 1e-6) {
-          const z = 0.6745 * (stableArea - medA) / madA;
-          lowCandidate = (z < -kAuto);
-          if (stableArea < medA * LOW_AREA_RATIO) lowCandidate = true;
-        }
-
-        // multi-frame confirm
-        let st = layerStabilizer[idx] || { area: stableArea, lowCount: 0, okCount: 0, lowConfirmed: false };
-        if (lowCandidate) {
-          st.lowCount = (st.lowCount || 0) + 1;
-          st.okCount = 0;
-        } else {
-          st.okCount = (st.okCount || 0) + 1;
-          st.lowCount = 0;
-        }
-
-        if (!st.lowConfirmed && st.lowCount >= AREA_ENTER_FRAMES) st.lowConfirmed = true;
-        if (st.lowConfirmed && st.okCount >= AREA_EXIT_FRAMES) st.lowConfirmed = false;
-
-        layerStabilizer[idx] = st;
-
-        const isLowConfirmed = !!st.lowConfirmed;
-
-        // Convert area(px²) -> mm (15cm calibration)
-        const gapMM = areaPx2ToMm_15cm(stableArea);
-
-        // out-of-range mm => RED
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
-        // Colors
-        let status = isNoGap ? "NG" : "OK";
-        let boxColor = "#34d399";
-        let bgColor = "rgba(52, 211, 153, 0.2)";
-        let xOffset = 58;
+        const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
+        const bgColor  = outOfRangeMM ? "rgba(239, 68, 68, 0.18)" : "rgba(52, 211, 153, 0.20)";
 
-        let prefix = `#${idx + 1}`;
-        if (isNoGap) {
-          boxColor = "#ef4444";
-          bgColor = "rgba(239, 68, 68, 0.2)";
-          prefix = `NO GAP ${idx + 1}`;
-          xOffset = 104;
-        } else if (isLowConfirmed) {
-          boxColor = "#ef4444";
-          bgColor = "rgba(239, 68, 68, 0.18)";
-          prefix = `#${idx + 1}`;
-          xOffset = 86;
-        } else if (outOfRangeMM) {
-          boxColor = "#ef4444";
-          bgColor = "rgba(239, 68, 68, 0.18)";
-          prefix = `#${idx + 1}`;
-          xOffset = 104;
-        }
+        const prefix = `#${idx + 1}`;
+        const xOffset = 58;
+        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm`;
 
-        const rangeTag = outOfRangeMM ? "  " : "";
-        // ✅ IMPORTANT: no px² shown in webcam overlay anymore (mm only)
-        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm${rangeTag}`;
-
-        // Draw box + label
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
         sheetCtx.strokeStyle = boxColor;
@@ -1701,17 +1645,14 @@
 
         results.push({
           layer: idx + 1,
-          status,
-          area: stableArea,
           gapMM,
-          lowArea: isLowConfirmed,
           outOfRangeMM
         });
       });
 
-      // Summary counts
+      // Summary counts (ONLY mm-range)
       const expected = results.length;
-      const redCount = results.filter(r => (r.status === "NG") || r.lowArea || r.outOfRangeMM).length;
+      const redCount = results.filter(r => r.outOfRangeMM).length;
       const okCount = expected - redCount;
 
       // Header status
@@ -1738,8 +1679,8 @@
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-red').innerText = redCount;
 
-      // --- STATS CALCULATION (still based on GREEN only, but show mm) ---
-      const valid = results.filter(r => !((r.status === "NG") || r.lowArea || r.outOfRangeMM));
+      // --- STATS CALCULATION (GREEN only = in-range mm) ---
+      const valid = results.filter(r => !r.outOfRangeMM);
       const validMM = valid.map(r => r.gapMM).filter(v => v > 0);
 
       let avgMM = 0;
@@ -1758,11 +1699,11 @@
         uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgMM)) * 100));
       }
 
-      // ✅ Bell curve must show ALL values (including RED/NG/LOW/RANGE)
+      // ✅ Bell curve shows ALL values; red points only when out-of-range mm
       const pointsAll = results
         .map(r => ({
           v: r.gapMM,
-          red: (r.status === "NG") || r.lowArea || r.outOfRangeMM
+          red: r.outOfRangeMM
         }))
         .filter(p => p.v > 0);
 
