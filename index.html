@@ -1600,11 +1600,15 @@
       sheetCtx.setLineDash([10, 10]);
       sheetCtx.strokeRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp);
 
-// ---- add faint red dashed guide line through ROI (vertical / Y-axis) ----
 sheetCtx.save();
-sheetCtx.strokeStyle = "rgba(239, 68, 68, 0.35)"; // red, faint
-sheetCtx.lineWidth = 2;
-sheetCtx.setLineDash([8, 10]); // dash pattern
+
+sheetCtx.strokeStyle = "rgba(239, 68, 68, 0.88)"; // red, stronger
+sheetCtx.lineWidth = 3;                           // thicker
+sheetCtx.setLineDash([10, 8]);                    // dash pattern
+
+// glow for better visibility on dark background
+sheetCtx.shadowColor = "rgba(239, 68, 68, 0.75)";
+sheetCtx.shadowBlur = 10;
 
 const midX = roiX_disp + roiW_disp / 2;
 
@@ -1614,10 +1618,10 @@ sheetCtx.lineTo(midX, roiY_disp + roiH_disp);
 sheetCtx.stroke();
 
 sheetCtx.restore();
-
-
-
       sheetCtx.restore();
+
+
+
 
       // Get Image Data
       if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
