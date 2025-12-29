@@ -11,308 +11,280 @@
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#000000">
+  <meta name="theme-color" content="#020617">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
   <style>
     :root {
-      --app-bg: #030712;
-      --card-bg: rgba(20, 25, 38, 0.65);
-      --card-border: rgba(255, 255, 255, 0.08);
+      /* Deep Space Navy */
+      --bg-core: #020617;
+      --bg-panel: rgba(15, 23, 42, 0.6);
       
-      --accent-blue: #3b82f6;
-      --accent-glow: #60a5fa;
+      /* Brand Colors Neonized */
+      --neon-blue: #3b82f6;
+      --neon-cyan: #06b6d4;
+      --text-white: #ffffff;
+      --text-tech: #64748b;
       
-      --text-main: #ffffff;
-      --text-sub: #94a3b8;
+      --radius-card: 16px;
       
-      --font-body: 'Inter', sans-serif;
-      --font-head: 'Inter Tight', sans-serif;
-      
-      --frame-gap: clamp(12px, 5vw, 40px);
-      --radius: 28px;
+      --font-main: 'Inter', sans-serif;
+      --font-tech: 'JetBrains Mono', monospace;
     }
 
-    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; user-select: none; }
 
     body {
       margin: 0;
       width: 100vw;
       height: 100dvh;
-      background: var(--app-bg);
-      color: var(--text-main);
-      font-family: var(--font-body);
+      background-color: var(--bg-core);
+      color: var(--text-white);
+      font-family: var(--font-main);
       display: flex;
       justify-content: center;
-      align-items: center;
       overflow: hidden;
-      /* Background Ambience */
+      
+      /* High-Tech Grid Background */
       background-image: 
-        radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
-        radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.1), transparent 40%),
-        radial-gradient(circle at 50% 100%, rgba(20, 184, 166, 0.05), transparent 50%);
+        linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
+        radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.4), transparent 70%);
+      background-size: 40px 40px, 40px 40px, 100% 100%;
     }
 
     .app-container {
-      width: calc(100vw - (var(--frame-gap) * 2));
-      height: calc(100dvh - (var(--frame-gap) * 2));
+      width: 100%;
       max-width: 440px;
-      max-height: 850px;
+      height: 100%;
       position: relative;
       display: flex;
       flex-direction: column;
+      padding: 0 24px;
       z-index: 1;
     }
 
-    /* HEADER */
+    /* --- HIGH-TECH HEADER --- */
     .header {
-      padding: 10px 4px 24px;
+      padding: 40px 0 40px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      position: relative;
     }
-    .header-left h1 {
-      font-family: var(--font-head);
-      font-size: 1.5rem;
-      margin: 0;
-      letter-spacing: -0.02em;
-      color: #fff;
-    }
-    /* Two-Tone Title Logic */
-    .header-left h1 span {
-      color: var(--accent-blue);
-      font-weight: 700;
+    /* Subtle tech line under header */
+    .header::after {
+      content: ''; position: absolute; bottom: 20px; left: 0; right: 0; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.3), transparent);
     }
 
-    .header-left .status {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 0.75rem;
-      color: var(--text-sub);
-      margin-top: 4px;
-      font-weight: 500;
+    .brand-title {
+      font-size: 1.8rem;
+      letter-spacing: -0.03em;
+      line-height: 1;
+      text-transform: uppercase;
     }
-    .status-dot {
-      width: 6px;
-      height: 6px;
-      background: #22c55e;
+    .brand-title .text-packex { font-weight: 800; color: var(--text-white); }
+    .brand-title .text-mobility { 
+      font-weight: 600; 
+      color: var(--neon-blue);
+      text-shadow: 0 0 15px rgba(59, 130, 246, 0.6); /* Neon Glow */
+    }
+
+    .profile-radar {
+      width: 44px; height: 44px;
+      display: flex; align-items: center; justify-content: center;
+      position: relative;
+      color: var(--neon-blue);
+    }
+    /* Spinning Radar Ring */
+    .profile-radar::before {
+      content: ''; position: absolute; inset: -4px;
+      border: 2px solid transparent;
+      border-top-color: var(--neon-blue);
+      border-right-color: rgba(59, 130, 246, 0.3);
       border-radius: 50%;
-      box-shadow: 0 0 8px #22c55e;
+      animation: spinRadar 3s linear infinite;
     }
 
-    /* Original Icon Container */
-    .profile-btn {
-      width: 42px;
-      height: 42px;
-      border-radius: 12px; /* Adjusted to look more like app icon shape */
-      background: rgba(255,255,255,0.05);
-      border: 1px solid var(--card-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent-glow);
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    }
-
-    /* MAIN CONTENT */
-    .content {
+    /* --- CONTENT AREA --- */
+    .content-area {
       flex: 1;
-      overflow-y: auto;
-      padding-bottom: 90px;
       display: flex;
       flex-direction: column;
       gap: 20px;
-      -webkit-overflow-scrolling: touch;
     }
 
-    .section-title {
-      font-size: 0.75rem;
+    .section-hud-label {
+      font-family: var(--font-tech);
+      font-size: 0.65rem;
+      color: var(--neon-cyan);
+      letter-spacing: 0.15em;
       text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--text-sub);
-      font-weight: 600;
-      margin-left: 4px;
-      margin-bottom: -10px;
-      opacity: 0.7;
+      display: flex; align-items: center; gap: 8px;
+      opacity: 0.8;
+    }
+    .section-hud-label::after {
+      content: ''; height: 1px; flex: 1;
+      background: linear-gradient(90deg, var(--neon-cyan), transparent);
+      opacity: 0.3;
     }
 
-    /* CARDS */
-    .tool-card {
+    /* --- TECH CARDS --- */
+    .tech-card {
       position: relative;
-      background: var(--card-bg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
-      border: 1px solid var(--card-border);
-      border-radius: var(--radius);
+      display: flex;
+      align-items: center;
       padding: 24px;
+      background: var(--bg-panel);
+      backdrop-filter: blur(10px);
+      border-radius: var(--radius-card);
+      border: 1px solid rgba(59, 130, 246, 0.1);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
       cursor: pointer;
       overflow: hidden;
-      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      min-height: 160px;
+      transition: all 0.3s ease;
+      gap: 20px;
     }
 
-    .tool-card:active { transform: scale(0.97); }
-
-    .tool-card::after {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 40%);
-      pointer-events: none;
+    /* Hover/Active State: Brighten & Glow */
+    .tech-card:active {
+      transform: scale(0.98);
+      background: rgba(59, 130, 246, 0.1);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 25px rgba(59, 130, 246, 0.2);
     }
 
-    /* Card Themes */
-    .card-colex {
-      background: linear-gradient(160deg, rgba(20, 25, 38, 0.8), rgba(20, 25, 38, 0.9)),
-                  radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.15), transparent 50%);
+    /* HUD Brackets Corners */
+    .tech-card::before, .tech-card::after {
+      content: ''; position: absolute; width: 10px; height: 10px;
+      border: 1px solid var(--neon-blue); opacity: 0.5; transition: 0.3s;
     }
-    .card-glue {
-      background-image: 
-        linear-gradient(rgba(20, 184, 166, 0.03) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
-      background-size: 20px 20px;
-      background-color: var(--card-bg);
+    .tech-card::before { top: 8px; left: 8px; border-bottom: none; border-right: none; }
+    .tech-card::after { bottom: 8px; right: 8px; border-top: none; border-left: none; }
+    .tech-card:active::before, .tech-card:active::after { opacity: 1; width: 15px; height: 15px; }
+
+    .card-icon-hex {
+      width: 56px; height: 56px;
+      /* Hexagonal shape */
+      clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+      background: linear-gradient(135deg, var(--neon-blue), #1e40af);
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 0 15px var(--neon-blue);
     }
 
-    .card-icon-box {
-      width: 48px;
-      height: 48px;
-      border-radius: 14px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 16px;
-      border: 1px solid rgba(255,255,255,0.1);
-      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    .card-details { flex: 1; }
+    .card-details h2 {
+      font-size: 1.1rem; font-weight: 700; margin: 0 0 6px 0;
+      text-transform: uppercase; letter-spacing: 0.02em;
+    }
+    .card-details p {
+      margin: 0; font-size: 0.8rem; color: var(--text-tech); line-height: 1.4;
     }
     
-    .colex-ico { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
-    .glue-ico { background: linear-gradient(135deg, #14b8a6, #0ea5e9); color: white; }
-
-    .card-info h2 {
-      font-family: var(--font-head);
-      font-size: 1.25rem;
-      margin: 0 0 6px 0;
-      font-weight: 700;
-    }
-    .card-info p {
-      margin: 0;
-      font-size: 0.85rem;
-      color: var(--text-sub);
-      line-height: 1.4;
-      max-width: 90%;
+    /* Tiny tech ID numbers */
+    .tech-id {
+      font-family: var(--font-tech); font-size: 0.6rem; color: var(--neon-blue);
+      position: absolute; top: 12px; right: 12px; opacity: 0.7;
     }
 
-    .action-arrow {
-      position: absolute;
-      top: 24px; right: 24px;
-      opacity: 0.3; transition: opacity 0.2s;
-    }
-    .tool-card:active .action-arrow { opacity: 1; }
-
-    /* SINGLE HOME BUTTON DOCK */
-    .dock-container {
-      position: absolute;
-      bottom: 24px;
-      left: 0; right: 0;
-      display: flex;
-      justify-content: center;
-      z-index: 10;
+    /* --- HOME THRUSTER BUTTON --- */
+    .dock-area {
+      position: absolute; bottom: 40px; left: 0; right: 0;
+      display: flex; justify-content: center; pointer-events: none;
     }
 
-    .dock-btn {
-      background: rgba(15, 23, 42, 0.9);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      padding: 12px 28px;
+    .thruster-btn {
+      pointer-events: auto;
+      background: linear-gradient(to top, var(--neon-blue), #60a5fa);
+      color: white;
+      padding: 14px 32px;
       border-radius: 100px;
-      border: 1px solid rgba(255,255,255,0.12);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      box-shadow: 0 10px 30px -5px rgba(0,0,0,0.6);
-      color: #fff;
+      display: flex; align-items: center; gap: 12px;
+      font-weight: 700; letter-spacing: 0.1em;
+      box-shadow: 0 10px 30px -5px rgba(59, 130, 246, 0.6);
+      border: 1px solid rgba(255,255,255,0.2);
       cursor: pointer;
-      transition: transform 0.2s, background 0.2s;
-    }
-
-    .dock-btn:active {
-      transform: scale(0.94);
-      background: rgba(255,255,255,0.1);
+      position: relative;
+      transition: transform 0.2s;
     }
     
-    .dock-lbl {
-      font-size: 0.9rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+    .thruster-btn:active { transform: scale(0.94); }
+    
+    /* Pulsing energy effect beneath button */
+    .thruster-btn::after {
+      content: ''; position: absolute; inset: 0; border-radius: 100px;
+      box-shadow: 0 0 20px var(--neon-blue);
+      animation: pulseEnergy 2s infinite;
+      z-index: -1;
     }
 
-    /* Animation */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    /* --- ANIMATIONS --- */
+    @keyframes spinRadar { to { transform: rotate(360deg); } }
+    @keyframes pulseEnergy {
+      0% { opacity: 0.5; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.05); }
+      100% { opacity: 0.5; transform: scale(1); }
     }
-    .tool-card { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
-    .tool-card:nth-child(2) { animation-delay: 0.1s; }
+    /* High-tech reveal animation */
+    @keyframes scanReveal {
+      from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-20px); }
+      to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateX(0); }
+    }
+    .tech-card { animation: scanReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+    .tech-card:nth-child(2) { animation-delay: 0.15s; }
 
   </style>
 </head>
-
 <body>
 
   <div class="app-container">
     
     <header class="header">
-      <div class="header-left">
-        <h1>Pack-Ex <span>Mobility</span></h1>
-        <div class="status">
-          <div class="status-dot"></div> System Ready
-        </div>
+      <div class="brand-title">
+        <span class="text-packex">PackEx</span><br><span class="text-mobility">Mobility</span>
       </div>
-      <div class="profile-btn">
-        <i data-lucide="scan-face" size="24"></i>
+      <div class="profile-radar">
+        <i data-lucide="scan-face" size="24" stroke-width="1.5"></i>
       </div>
     </header>
 
-    <div class="content">
-      
-      <div class="section-title">Operations Module</div>
-      
-      <div class="tool-card card-colex" onclick="location.href='colex.html'">
-        <div class="card-icon-box colex-ico">
-          <i data-lucide="scan-line" size="24"></i>
+    <div class="content-area">
+      <div class="section-hud-label">
+        <i data-lucide="cpu" size="14"></i> ALL MODULES // ACTIVE
+      </div>
+
+      <div class="tech-card" onclick="location.href='colex.html'">
+        <span class="tech-id">ID:CX-01</span>
+        <div class="card-icon-hex">
+          <i data-lucide="scan-line" size="26" stroke-width="2"></i>
         </div>
-        <div class="card-info">
+        <div class="card-details">
           <h2>ColEx Inspector</h2>
-          <p>L*a*b* & Delta E color verification.</p>
+          <p>L*a*b* & Delta E color verification sequence.</p>
         </div>
-        <div class="action-arrow"><i data-lucide="arrow-up-right"></i></div>
       </div>
 
-      <div class="tool-card card-glue" onclick="location.href='gluegap.html'">
-        <div class="card-icon-box glue-ico">
-          <i data-lucide="ruler" size="24"></i>
+      <div class="tech-card" onclick="location.href='gluegap.html'">
+        <span class="tech-id">ID:GG-02</span>
+        <div class="card-icon-hex">
+          <i data-lucide="ruler" size="26" stroke-width="2"></i>
         </div>
-        <div class="card-info">
+        <div class="card-details">
           <h2>Glue Gap Precision</h2>
-          <p>Corrugation gap detection with pass/fail logic.</p>
+          <p>Corrugation gap detection sensors engaged.</p>
         </div>
-        <div class="action-arrow"><i data-lucide="arrow-up-right"></i></div>
       </div>
-
     </div>
 
-    <div class="dock-container">
-      <div class="dock-btn" onclick="location.href='index.html'">
+    <div class="dock-area">
+      <div class="thruster-btn" onclick="location.href='index.html'">
         <i data-lucide="home" size="20"></i>
-        <span class="dock-lbl">HOME</span>
+        <span>HOME BASE</span>
       </div>
     </div>
 
