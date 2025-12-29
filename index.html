@@ -751,7 +751,10 @@
           </div>
 
           <button class="lightctl-auto" id="light-auto" type="button" onclick="toggleLightAuto()">AUTO</button>
-          <button class="lightctl-reset" id="light-reset" type="button" onclick="resetLightBias()">RESET</button>
+          <button class="lightctl-reset" id="light-reset" type="button" onclick="resetLightBias()" title="Reset">
+  <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+</button>
+
         </div>
 
         <div class="hud-overlay">
@@ -1115,6 +1118,8 @@
       lightBiasManual = parseInt(slider.value || "0", 10);
 
       box.classList.toggle("auto-on", !!lightAuto);
+  // ✅ ensure lucide icon renders (for reset button icon)
+  lucide.createIcons();
     }
 
     function toggleLightAuto() {
@@ -1122,18 +1127,30 @@
       syncLightUI();
     }
 
-    function resetLightBias() {
-      lightAuto = false;
-      lightBiasManual = 0;
-      lightBiasEma = 0;
+function resetLightBias() {
+  // ✅ ถ้าอยู่หน้า Glue Gap: เคลียร์ทั้งหน้า แล้วเริ่มคำนวณใหม่ทั้งหมด
+  if (activeTab === 'gluegap') {
+    resetSheetUI();               // ล้าง counts/กราฟ/stabilizer/light/header/overlay
+    sheetFrozen = false;          // กันค้าง Freeze
+    syncSheetCanvasToDisplay();   // กัน overlay/canvas ค้าง
+    applyAutoFitLayout();         // รีเฟรช layout
+    lucide.createIcons();
+    return;
+  }
 
-      const slider = document.getElementById("light-slider");
-      const val = document.getElementById("light-val");
-      if (slider) slider.value = "0";
-      if (val) val.textContent = "0";
+  // ✅ ถ้าไม่ได้อยู่ Glue Gap: รีเซ็ตแค่ Light ตามเดิม
+  lightAuto = false;
+  lightBiasManual = 0;
+  lightBiasEma = 0;
 
-      syncLightUI();
-    }
+  const slider = document.getElementById("light-slider");
+  const val = document.getElementById("light-val");
+  if (slider) slider.value = "0";
+  if (val) val.textContent = "0";
+
+  syncLightUI();
+}
+
 
     document.addEventListener("input", (e) => {
       if (e.target && e.target.id === "light-slider") {
