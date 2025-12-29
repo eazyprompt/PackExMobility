@@ -3,254 +3,326 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-  <title>PackEx - Home</title>
+  <title>PackEx - Mobility</title>
 
   <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
-
-  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
   <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#000000">
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
   <style>
-    :root{
-      --bg-body: #0f172a;
-      --bg-card: #1e293b;
-      --border-subtle: rgba(255,255,255,0.12);
+    :root {
+      --app-bg: #030712;
+      --card-bg: rgba(20, 25, 38, 0.65);
+      --card-border: rgba(255, 255, 255, 0.08);
+      
+      --accent-blue: #3b82f6;
+      --accent-glow: #60a5fa;
+      
       --text-main: #ffffff;
-      --text-muted: #94a3b8;
-      --primary: #3b82f6;
-      --radius-lg: 18px;
-      --font-ui: "Inter", sans-serif;
-
-      --frame-gap: clamp(14px, 5.5vw, 60px);
-      --app-h: 100dvh;
-      --tab-h: 66px;
+      --text-sub: #94a3b8;
+      
+      --font-body: 'Inter', sans-serif;
+      --font-head: 'Inter Tight', sans-serif;
+      
+      --frame-gap: clamp(12px, 5vw, 40px);
+      --radius: 28px;
     }
 
-    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; outline:none; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-    body{
-      background:#020617;
-      color:var(--text-main);
-      font-family:var(--font-ui);
-      margin:0;
-      width:100vw;
-      height:var(--app-h);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      overflow:hidden;
+    body {
+      margin: 0;
+      width: 100vw;
+      height: 100dvh;
+      background: var(--app-bg);
+      color: var(--text-main);
+      font-family: var(--font-body);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      overflow: hidden;
+      /* Background Ambience */
+      background-image: 
+        radial-gradient(circle at 10% 0%, rgba(59, 130, 246, 0.15), transparent 40%),
+        radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.1), transparent 40%),
+        radial-gradient(circle at 50% 100%, rgba(20, 184, 166, 0.05), transparent 50%);
     }
 
-    .app-frame{
+    .app-container {
       width: calc(100vw - (var(--frame-gap) * 2));
-      height: calc(var(--app-h) - (var(--frame-gap) * 2));
-      max-width: 500px;
-      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
-      background: var(--bg-body);
-      display:flex;
-      flex-direction:column;
-      overflow:hidden;
-      position:relative;
-      border-radius: 24px;
-      box-shadow: 0 0 50px rgba(0,0,0,0.6), 0 0 0 1px var(--border-subtle);
-      padding-top: env(safe-area-inset-top);
+      height: calc(100dvh - (var(--frame-gap) * 2));
+      max-width: 440px;
+      max-height: 850px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      z-index: 1;
     }
 
-    header{
-      min-height: 64px;
-      padding: 12px 20px 0;
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      background: var(--bg-body);
-      border-bottom: 1px solid var(--border-subtle);
-      flex-shrink:0;
-      gap:10px;
+    /* HEADER */
+    .header {
+      padding: 10px 4px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .header-left h1 {
+      font-family: var(--font-head);
+      font-size: 1.5rem;
+      margin: 0;
+      letter-spacing: -0.02em;
+      color: #fff;
+    }
+    /* Two-Tone Title Logic */
+    .header-left h1 span {
+      color: var(--accent-blue);
+      font-weight: 700;
     }
 
-    .brand{
-      font-weight:800;
-      font-size:1.25rem;
-      display:flex;
-      align-items:center;
-      gap:10px;
-      color:#fff;
-      min-width:0;
-      white-space:nowrap;
-      overflow:hidden;
-      text-overflow:ellipsis;
+    .header-left .status {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      color: var(--text-sub);
+      margin-top: 4px;
+      font-weight: 500;
     }
-    .brand i{ color: var(--primary); }
-    .brand span{ color: var(--primary); font-weight:400; opacity:.9; font-size:.8em; }
-
-    .home-wrap{
-      flex:1;
-      display:flex;
-      flex-direction:column;
-      gap:16px;
-      padding: 18px 20px;
-      overflow:auto;
-      -webkit-overflow-scrolling:touch;
-      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      background: #22c55e;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #22c55e;
     }
 
-    .hint{
-      color: var(--text-muted);
-      font-size: .8rem;
+    /* Original Icon Container */
+    .profile-btn {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px; /* Adjusted to look more like app icon shape */
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--card-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent-glow);
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* MAIN CONTENT */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 90px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .section-title {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      font-weight: 600;
+      margin-left: 4px;
+      margin-bottom: -10px;
+      opacity: 0.7;
+    }
+
+    /* CARDS */
+    .tool-card {
+      position: relative;
+      background: var(--card-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid var(--card-border);
+      border-radius: var(--radius);
+      padding: 24px;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 160px;
+    }
+
+    .tool-card:active { transform: scale(0.97); }
+
+    .tool-card::after {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent 40%);
+      pointer-events: none;
+    }
+
+    /* Card Themes */
+    .card-colex {
+      background: linear-gradient(160deg, rgba(20, 25, 38, 0.8), rgba(20, 25, 38, 0.9)),
+                  radial-gradient(circle at 100% 0%, rgba(236, 72, 153, 0.15), transparent 50%);
+    }
+    .card-glue {
+      background-image: 
+        linear-gradient(rgba(20, 184, 166, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(20, 184, 166, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-color: var(--card-bg);
+    }
+
+    .card-icon-box {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      border: 1px solid rgba(255,255,255,0.1);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+    
+    .colex-ico { background: linear-gradient(135deg, #ec4899, #8b5cf6); color: white; }
+    .glue-ico { background: linear-gradient(135deg, #14b8a6, #0ea5e9); color: white; }
+
+    .card-info h2 {
+      font-family: var(--font-head);
+      font-size: 1.25rem;
+      margin: 0 0 6px 0;
+      font-weight: 700;
+    }
+    .card-info p {
+      margin: 0;
+      font-size: 0.85rem;
+      color: var(--text-sub);
       line-height: 1.4;
+      max-width: 90%;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
+    .action-arrow {
+      position: absolute;
+      top: 24px; right: 24px;
+      opacity: 0.3; transition: opacity 0.2s;
+    }
+    .tool-card:active .action-arrow { opacity: 1; }
+
+    /* SINGLE HOME BUTTON DOCK */
+    .dock-container {
+      position: absolute;
+      bottom: 24px;
+      left: 0; right: 0;
+      display: flex;
+      justify-content: center;
+      z-index: 10;
     }
 
-    .card{
-      background: var(--bg-card);
-      border: 1px solid var(--border-subtle);
-      border-radius: var(--radius-lg);
-      padding: 14px;
-      display:flex;
-      flex-direction:column;
+    .dock-btn {
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      padding: 12px 28px;
+      border-radius: 100px;
+      border: 1px solid rgba(255,255,255,0.12);
+      display: flex;
+      align-items: center;
       gap: 10px;
-      cursor:pointer;
-      user-select:none;
-      transition: transform .12s ease, border-color .12s ease;
-      min-height: 132px;
-    }
-    .card:active{ transform: scale(0.98); }
-
-    .card-top{
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap:10px;
-    }
-    .card-ico{
-      width: 40px;
-      height: 40px;
-      border-radius: 12px;
-      background: rgba(59,130,246,0.14);
-      border: 1px solid rgba(59,130,246,0.25);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      flex-shrink:0;
-    }
-    .card-ttl{
-      font-weight: 900;
-      letter-spacing: .2px;
-      font-size: .95rem;
-    }
-    .card-sub{
-      color: var(--text-muted);
-      font-size: .72rem;
-      line-height: 1.35;
+      box-shadow: 0 10px 30px -5px rgba(0,0,0,0.6);
+      color: #fff;
+      cursor: pointer;
+      transition: transform 0.2s, background 0.2s;
     }
 
-    .tab-bar{
-      position:absolute;
-      bottom:0;
-      left:0;
-      right:0;
-      height: var(--tab-h);
-      background: rgba(15,23,42,0.9);
-      backdrop-filter: blur(10px);
-      border-top: 1px solid var(--border-subtle);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      z-index:100;
-      padding-bottom: env(safe-area-inset-bottom);
-      gap: 10px;
+    .dock-btn:active {
+      transform: scale(0.94);
+      background: rgba(255,255,255,0.1);
     }
-    .tab-item{
-      height: 100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      gap: 10px;
-      color: #e2e8f0;
-      font-weight: 900;
-      letter-spacing: .3px;
-      cursor:pointer;
-      padding: 0 22px;
-    }
-    .tab-item svg{
-      width: 26px;
-      height: 26px;
-      stroke-width: 2.6;
-    }
-    .tab-lbl{
-      font-size: 0.78rem;
-      line-height: 1;
+    
+    .dock-lbl {
+      font-size: 0.9rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
     }
 
-    @media (max-width: 360px){
-      .grid{ grid-template-columns: 1fr; }
+    /* Animation */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
     }
+    .tool-card { animation: fadeUp 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
+    .tool-card:nth-child(2) { animation-delay: 0.1s; }
+
   </style>
 </head>
 
 <body>
-  <div class="app-frame">
-    <header>
-      <div class="brand"><i data-lucide="scan-face"></i> PackEx <span>Mobility</span></div>
+
+  <div class="app-container">
+    
+    <header class="header">
+      <div class="header-left">
+        <h1>Pack-Ex <span>Mobility</span></h1>
+        <div class="status">
+          <div class="status-dot"></div> System Ready
+        </div>
+      </div>
+      <div class="profile-btn">
+        <i data-lucide="scan-face" size="24"></i>
+      </div>
     </header>
 
-    <div class="home-wrap">
-      <div class="hint">Choose a function</div>
-
-      <div class="grid">
-        <div class="card" onclick="location.href='colex.html'">
-          <div class="card-top">
-            <div class="card-ttl">ColEx</div>
-            <div class="card-ico"><i data-lucide="palette"></i></div>
-          </div>
-          <div class="card-sub">Color inspection (L*a*b*) + Delta E (2000 / 94 / 76)</div>
+    <div class="content">
+      
+      <div class="section-title">Operations Module</div>
+      
+      <div class="tool-card card-colex" onclick="location.href='colex.html'">
+        <div class="card-icon-box colex-ico">
+          <i data-lucide="scan-line" size="24"></i>
         </div>
-
-        <div class="card" onclick="location.href='gluegap.html'">
-          <div class="card-top">
-            <div class="card-ttl">Glue Gap</div>
-            <div class="card-ico"><i data-lucide="layers"></i></div>
-          </div>
-          <div class="card-sub">Corrugation / glue gap detection with PASS / WARNING</div>
+        <div class="card-info">
+          <h2>ColEx Inspector</h2>
+          <p>L*a*b* & Delta E color verification.</p>
         </div>
+        <div class="action-arrow"><i data-lucide="arrow-up-right"></i></div>
+      </div>
+
+      <div class="tool-card card-glue" onclick="location.href='gluegap.html'">
+        <div class="card-icon-box glue-ico">
+          <i data-lucide="ruler" size="24"></i>
+        </div>
+        <div class="card-info">
+          <h2>Glue Gap Precision</h2>
+          <p>Corrugation gap detection with pass/fail logic.</p>
+        </div>
+        <div class="action-arrow"><i data-lucide="arrow-up-right"></i></div>
+      </div>
+
+    </div>
+
+    <div class="dock-container">
+      <div class="dock-btn" onclick="location.href='index.html'">
+        <i data-lucide="home" size="20"></i>
+        <span class="dock-lbl">HOME</span>
       </div>
     </div>
 
-    <div class="tab-bar">
-      <div class="tab-item" onclick="location.href='index.html'">
-        <i data-lucide="home"></i>
-        <span class="tab-lbl">HOME</span>
-      </div>
-    </div>
   </div>
 
   <script>
     lucide.createIcons();
-
-    // keep app-height stable for mobile browsers
-    function syncAppH(){
-      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
-      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
-    }
-    window.addEventListener("resize", syncAppH);
-    if (window.visualViewport) window.visualViewport.addEventListener("resize", syncAppH);
-    syncAppH();
+    document.addEventListener('dblclick', function(event) {
+      event.preventDefault();
+    }, { passive: false });
   </script>
 </body>
 </html>
