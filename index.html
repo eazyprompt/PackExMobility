@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>PackEx - Home</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root{
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --border-subtle: rgba(255,255,255,0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --app-h: 100dvh;
+      --tab-h: 66px;
+    }
+
+    *{ box-sizing:border-box; -webkit-tap-highlight-color:transparent; outline:none; }
+
+    body{
+      background:#020617;
+      color:var(--text-main);
+      font-family:var(--font-ui);
+      margin:0;
+      width:100vw;
+      height:var(--app-h);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+
+    .app-frame{
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 500px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display:flex;
+      flex-direction:column;
+      overflow:hidden;
+      position:relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0,0,0,0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+    }
+
+    header{
+      min-height: 64px;
+      padding: 12px 20px 0;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink:0;
+      gap:10px;
+    }
+
+    .brand{
+      font-weight:800;
+      font-size:1.25rem;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      color:#fff;
+      min-width:0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    .brand i{ color: var(--primary); }
+    .brand span{ color: var(--primary); font-weight:400; opacity:.9; font-size:.8em; }
+
+    .home-wrap{
+      flex:1;
+      display:flex;
+      flex-direction:column;
+      gap:16px;
+      padding: 18px 20px;
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
+
+    .hint{
+      color: var(--text-muted);
+      font-size: .8rem;
+      line-height: 1.4;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+
+    .card{
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+      cursor:pointer;
+      user-select:none;
+      transition: transform .12s ease, border-color .12s ease;
+      min-height: 132px;
+    }
+    .card:active{ transform: scale(0.98); }
+
+    .card-top{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .card-ico{
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: rgba(59,130,246,0.14);
+      border: 1px solid rgba(59,130,246,0.25);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+    }
+    .card-ttl{
+      font-weight: 900;
+      letter-spacing: .2px;
+      font-size: .95rem;
+    }
+    .card-sub{
+      color: var(--text-muted);
+      font-size: .72rem;
+      line-height: 1.35;
+    }
+
+    .tab-bar{
+      position:absolute;
+      bottom:0;
+      left:0;
+      right:0;
+      height: var(--tab-h);
+      background: rgba(15,23,42,0.9);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle);
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      z-index:100;
+      padding-bottom: env(safe-area-inset-bottom);
+      gap: 10px;
+    }
+    .tab-item{
+      height: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      gap: 10px;
+      color: #e2e8f0;
+      font-weight: 900;
+      letter-spacing: .3px;
+      cursor:pointer;
+      padding: 0 22px;
+    }
+    .tab-item svg{
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.6;
+    }
+    .tab-lbl{
+      font-size: 0.78rem;
+      line-height: 1;
+    }
+
+    @media (max-width: 360px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+    <header>
+      <div class="brand"><i data-lucide="scan-face"></i> PackEx <span>Mobility</span></div>
+    </header>
+
+    <div class="home-wrap">
+      <div class="hint">Choose a function</div>
+
+      <div class="grid">
+        <div class="card" onclick="location.href='colex.html'">
+          <div class="card-top">
+            <div class="card-ttl">ColEx</div>
+            <div class="card-ico"><i data-lucide="palette"></i></div>
+          </div>
+          <div class="card-sub">Color inspection (L*a*b*) + Delta E (2000 / 94 / 76)</div>
+        </div>
+
+        <div class="card" onclick="location.href='gluegap.html'">
+          <div class="card-top">
+            <div class="card-ttl">Glue Gap</div>
+            <div class="card-ico"><i data-lucide="layers"></i></div>
+          </div>
+          <div class="card-sub">Corrugation / glue gap detection with PASS / WARNING</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item" onclick="location.href='index.html'">
+        <i data-lucide="home"></i>
+        <span class="tab-lbl">HOME</span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    // keep app-height stable for mobile browsers
+    function syncAppH(){
+      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
+    }
+    window.addEventListener("resize", syncAppH);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", syncAppH);
+    syncAppH();
+  </script>
+</body>
+</html>
