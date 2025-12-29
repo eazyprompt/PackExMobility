@@ -1,0 +1,1466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>PackEx - Warp Control</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+  <!-- iPhone Add to Home Screen -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #172554;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
+
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 16px;
+
+      /* JS-calculated */
+      --viewport-h: 240px;
+      --app-h: 100dvh;
+      --tab-h: 66px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::after{
+      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+    }
+    body.screen-flash::after{ opacity: 1; }
+    body.screen-lamp::after{ opacity: 1; }
+
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 520px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
+    }
+
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand {
+      font-weight: 800; font-size: 1.15rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.85em; }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-icon-header:active{ transform: scale(0.96); }
+
+    .viewport {
+      height: var(--viewport-h);
+      min-height: 0;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+      transition: height 0.25s ease;
+    }
+    .vp-camera {
+      flex: 1; position: relative; overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+      background: #020617; min-width: 0;
+    }
+
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+
+    #sheet-canvas {
+      position: absolute; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index: 20;
+    }
+
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      min-height: 0;
+    }
+
+    .panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-layout);
+      margin: 0 auto;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
+
+    .warp-header {
+      display:flex; justify-content:space-between; align-items:center;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 12px 14px;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    }
+    .wh-left { display:flex; flex-direction:column; gap: 2px; min-width: 0; }
+    .wh-title {
+      font-size: 0.7rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase;
+      color: #60a5fa; display:flex; align-items:center; gap: 8px;
+    }
+    .wh-sub {
+      font-size: 0.75rem; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wh-right { display:flex; align-items:center; gap: 10px; flex-shrink: 0; }
+
+    .gc-status-badge{
+      padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 900;
+      display:flex; align-items:center; gap:6px; letter-spacing:0.4px;
+      background:#1e293b; border:1px solid rgba(255,255,255,0.10); color:#94a3b8;
+      white-space: nowrap;
+    }
+    .status-pass { background: rgba(16,185,129,0.12); color: #34d399; border-color: rgba(52,211,153,0.22); }
+    .status-warn { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+    .status-fail { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(248,113,113,0.22); }
+
+    .btn-header-cap {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: 0.2s;
+    }
+    .btn-header-cap:active { transform: scale(0.92); }
+    .btn-header-cap.frozen {
+      background: #ef4444;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .sum-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      min-height: 86px;
+      justify-content: center;
+    }
+    .sum-lbl { font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; }
+    .sum-val { font-family: var(--font-num); font-size: 1.55rem; font-weight: 900; color: #fff; line-height: 1; }
+    .sum-sub { font-size: 0.7rem; color: #64748b; font-weight: 700; margin-top: 2px; }
+
+    .text-ok { color: var(--success); }
+    .text-warn { color: var(--warn); }
+    .text-ng { color: var(--danger); }
+
+    .chart-card {
+      background: #020617;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      min-height: 170px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+    }
+    .chart-top {
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      gap: 10px;
+    }
+    .chart-title{
+      font-size: 0.65rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #93c5fd;
+      display:flex; align-items:center; gap: 8px;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chart-meta{
+      font-family: var(--font-num);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    #warp-profile {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+
+    .hint-card{
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+    }
+    .hint-ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background: rgba(59,130,246,0.18);
+      border: 1px solid rgba(59,130,246,0.35);
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(59,130,246,0.15);
+    }
+    .hint-ttl{
+      font-weight: 900;
+      font-size: 0.75rem;
+      color: #fff;
+      display:flex; align-items:center; gap: 8px;
+    }
+    .hint-txt{
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    /* TAB BAR (HOME only) */
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: 6px;
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2px; }
+    .tab-bar .tab-item svg{
+      width: 26px; height: 26px; stroke-width: 2.4; transition: transform 0.2s;
+    }
+    .tab-bar .tab-item.active svg{
+      transform: translateY(-3px) scale(1.05);
+    }
+    @media (display-mode: standalone) {
+      .tab-bar .tab-item svg{ width: 30px; height: 30px; stroke-width: 2.6; }
+      .tab-bar{ height: 68px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px); }
+      .tab-lbl{ font-size: 0.75rem; }
+    }
+
+    .display-none { display: none !important; }
+
+    /* =========================================================
+       BEAUTIFUL LIGHT SLIDER (same as your style)
+       ========================================================= */
+    :root{
+      --lightctl-w: 54px;
+      --lightctl-len: clamp(160px, calc(var(--viewport-h) - 150px), 280px);
+    }
+
+    .lightctl{
+      position:absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 40;
+
+      width: var(--lightctl-w);
+      padding: 10px 10px 12px;
+      border-radius: 18px;
+
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 10px;
+
+      pointer-events:auto;
+      -webkit-user-select:none;
+      user-select:none;
+
+      opacity: 1;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .lightctl-head{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+    }
+    .lightctl-ico{
+      width: 16px;
+      height: 16px;
+      opacity: .95;
+      color: rgba(255,255,255,0.9);
+    }
+    .lightctl-title{
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .lightctl-rail{
+      position: relative;
+      height: calc(var(--lightctl-len) + 10px);
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .lightctl-slider{
+      -webkit-appearance: none;
+      appearance: none;
+
+      width: var(--lightctl-len);
+      height: 26px;
+
+      transform: rotate(-90deg);
+      transform-origin: center;
+
+      background: transparent;
+      outline: none;
+      padding: 0;
+
+      touch-action: none;
+    }
+
+    .lightctl-slider::-webkit-slider-runnable-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .lightctl-slider::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      margin-top: -7px;
+    }
+
+    .lightctl-slider::-moz-range-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    .lightctl-value{
+      position:absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-num);
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .lightctl-auto,
+    .lightctl-reset{
+      width: 100%;
+      padding: 7px 0;
+      min-height: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      cursor: pointer;
+      transition: .15s;
+    }
+    .lightctl-auto:active,
+    .lightctl-reset:active{ transform: scale(0.96); }
+
+    .lightctl.auto-on .lightctl-auto{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+    .lightctl.auto-on .lightctl-slider{
+      opacity: .55;
+      pointer-events:none;
+    }
+
+    @media (max-height: 760px) {
+      header { min-height: 58px; padding-top: 10px; }
+      .panel-content{ padding: 12px 14px; }
+      .sum-item{ min-height: 80px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+    <header>
+      <div class="brand"><i data-lucide="ruler"></i> PackEx <span>Warp</span></div>
+      <div class="header-controls">
+        <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
+          <i data-lucide="flashlight" style="width: 18px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="viewport">
+      <div class="vp-camera" id="vp-camera">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="sheet-canvas"></canvas>
+
+        <div class="lightctl" id="lightctl">
+          <div class="lightctl-head">
+            <i data-lucide="sun-medium" class="lightctl-ico"></i>
+            <span class="lightctl-title">LIGHT</span>
+          </div>
+
+          <div class="lightctl-rail">
+            <input id="light-slider" class="lightctl-slider" type="range" min="-30" max="30" step="1" value="0">
+            <div class="lightctl-value" id="light-val">0</div>
+          </div>
+
+          <button class="lightctl-auto" id="light-auto" type="button" onclick="toggleLightAuto()">AUTO</button>
+          <button class="lightctl-reset" id="light-reset" type="button" onclick="resetAll()" title="Reset">
+            <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-content">
+
+        <div class="warp-header">
+          <div class="wh-left">
+            <div class="wh-title"><i data-lucide="scan-line" style="width:14px;"></i> WARP MEASUREMENT</div>
+            <div class="wh-sub" id="warp-hint">Align corrugated edge to the horizontal standard line.</div>
+          </div>
+          <div class="wh-right">
+            <div id="status-badge" class="gc-status-badge">
+              <i data-lucide="minus"></i> READY
+            </div>
+            <button id="btn-freeze" class="btn-header-cap" onclick="toggleFreeze()" title="Freeze">
+              <i data-lucide="camera"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid-two">
+          <div class="sum-item">
+            <div class="sum-val" id="max-warp">--</div>
+            <div class="sum-lbl">Max Warp</div>
+            <div class="sum-sub" id="max-warp-sub">mm (relative)</div>
+          </div>
+
+          <div class="sum-item">
+            <div class="sum-val" id="avg-warp">--</div>
+            <div class="sum-lbl">Avg Warp</div>
+            <div class="sum-sub" id="avg-warp-sub">mm (relative)</div>
+          </div>
+
+          <div class="sum-item">
+            <div class="sum-val" id="direction">--</div>
+            <div class="sum-lbl">Direction</div>
+            <div class="sum-sub">UP / DOWN / TWIST</div>
+          </div>
+
+          <div class="sum-item">
+            <div class="sum-val" id="confidence">--</div>
+            <div class="sum-lbl">Confidence</div>
+            <div class="sum-sub">0–100</div>
+          </div>
+        </div>
+
+        <div class="chart-card">
+          <div class="chart-top">
+            <div class="chart-title"><i data-lucide="activity" style="width:14px;"></i> Warp Profile dy(x)</div>
+            <div class="chart-meta" id="chart-meta">--</div>
+          </div>
+          <canvas id="warp-profile"></canvas>
+        </div>
+
+        <div class="hint-card">
+          <div class="hint-ico"><i data-lucide="info" style="width:18px;"></i></div>
+          <div style="min-width:0;">
+            <div class="hint-ttl">How to scan</div>
+            <div class="hint-txt">
+              Keep the corrugated edge inside the green ROI and align it near the horizontal standard line.
+              The system automatically measures warp without any touch interaction.
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="goHome()">
+        <i data-lucide="home"></i>
+        <span class="tab-lbl">HOME</span>
+      </div>
+    </div>
+
+  </div>
+
+  <canvas id="proc-canvas" width="100" height="100" style="display:none;"></canvas>
+
+  <script>
+    lucide.createIcons();
+
+    function goHome() { window.location.href = "index.html"; }
+
+    // =========================
+    // GLOBALS
+    // =========================
+    const video = document.getElementById("webcam");
+
+    const sheetCanvas = document.getElementById("sheet-canvas");
+    const sheetCtx = sheetCanvas.getContext("2d");
+
+    const procCanvas = document.getElementById("proc-canvas");
+    const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
+
+    const profileCanvas = document.getElementById("warp-profile");
+    const profileCtx = profileCanvas.getContext("2d");
+
+    let videoTrack = null;
+    let torchSupported = false;
+    let isTorchOn = false;
+    let torchOpBusy = false;
+
+    let isRunning = false;
+    let frozen = false;
+
+    // =========================
+    // WARP CONFIG (No Touch)
+    // =========================
+    const ROI_W_RATIO = 0.78;
+    const ROI_H_RATIO = 0.68;
+    const ROI_Y_SHIFT = -0.05;         // slightly up
+    const STANDARD_Y_RATIO = 0.52;     // inside ROI (0..1)
+    const EDGE_BAND_PX = 26;           // search band around standard line (video-space)
+    const SAMPLE_COUNT = 64;           // number of x samples across ROI
+    const GRAD_STEP = 2;               // vertical gradient step
+    const MIN_EDGE_CONTRAST = 18;      // minimum contrast to accept edge
+
+    // Relative "mm" scaling (since no real scale)
+    // We map px -> "mm" with a stable factor so it feels like mm.
+    // If later you want real mm, replace with pxPerMm from width detection.
+    const PX_TO_MM = 0.08;
+
+    // Status thresholds (in "mm relative")
+    const PASS_MAX_MM = 4.0;
+    const WARN_MAX_MM = 6.0;
+
+    // Stabilization
+    const EMA_PROFILE = 0.18;
+    const EMA_METRIC = 0.20;
+
+    let dyEma = null;          // Float32Array
+    let maxMmEma = 0;
+    let avgMmEma = 0;
+    let confEma = 0;
+
+    // =========================
+    // LIGHT CONTROL (same style)
+    // =========================
+    let lightAuto = false;
+    let lightBiasManual = 0;
+    let lightBiasEma = 0;
+    const LIGHT_BIAS_MIN = -30;
+    const LIGHT_BIAS_MAX = 30;
+    const LIGHT_AUTO_EMA = 0.15;
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+
+    function getLightBias() {
+      return clamp(lightAuto ? lightBiasEma : lightBiasManual, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+    }
+
+    function syncLightUI() {
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      const box = document.getElementById("lightctl");
+      if (!slider || !val || !box) return;
+
+      val.textContent = String(slider.value);
+      lightBiasManual = parseInt(slider.value || "0", 10);
+
+      box.classList.toggle("auto-on", !!lightAuto);
+      lucide.createIcons();
+    }
+
+    function toggleLightAuto() {
+      lightAuto = !lightAuto;
+      syncLightUI();
+    }
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "light-slider") {
+        lightAuto = false;
+        syncLightUI();
+      }
+    });
+
+    // Reset (Warp page) => reset light + measurements + freeze
+    function resetAll() {
+      frozen = false;
+      const btn = document.getElementById("btn-freeze");
+      btn.innerHTML = '<i data-lucide="camera"></i>';
+      btn.classList.remove("frozen");
+
+      lightAuto = false;
+      lightBiasManual = 0;
+      lightBiasEma = 0;
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      if (slider) slider.value = "0";
+      if (val) val.textContent = "0";
+      syncLightUI();
+
+      dyEma = null;
+      maxMmEma = 0;
+      avgMmEma = 0;
+      confEma = 0;
+
+      setStatus("READY", "neutral");
+      setSummary("--","--","--","--");
+      profileCtx.clearRect(0,0,profileCanvas.width, profileCanvas.height);
+      document.getElementById("chart-meta").textContent = "--";
+      lucide.createIcons();
+    }
+
+    // =========================
+    // Layout helpers (cover mapping)
+    // =========================
+    function getCoverMetrics() {
+      const vw = video.videoWidth || 0;
+      const vh = video.videoHeight || 0;
+      if (!vw || !vh) return null;
+
+      const r = video.getBoundingClientRect();
+      const dw = r.width || 0;
+      const dh = r.height || 0;
+      if (!dw || !dh) return null;
+
+      const scale = Math.max(dw / vw, dh / vh);
+      const scaledW = vw * scale;
+      const scaledH = vh * scale;
+      const offX = (dw - scaledW) / 2;
+      const offY = (dh - scaledH) / 2;
+
+      return { vw, vh, dw, dh, scale, offX, offY, rect: r };
+    }
+
+    function dispToVideoXY(mx, my, m) {
+      const x = (mx - m.offX) / m.scale;
+      const y = (my - m.offY) / m.scale;
+      return { x, y };
+    }
+
+    function dispRectToVideoRect(rx, ry, rw, rh, m) {
+      const p0 = dispToVideoXY(rx, ry, m);
+      const p1 = dispToVideoXY(rx + rw, ry + rh, m);
+
+      let x = Math.min(p0.x, p1.x);
+      let y = Math.min(p0.y, p1.y);
+      let w = Math.abs(p1.x - p0.x);
+      let h = Math.abs(p1.y - p0.y);
+
+      x = clamp(x, 0, m.vw - 1);
+      y = clamp(y, 0, m.vh - 1);
+      w = clamp(w, 1, m.vw - x);
+      h = clamp(h, 1, m.vh - y);
+
+      return { x, y, w, h };
+    }
+
+    function syncSheetCanvasToDisplay() {
+      const m = getCoverMetrics();
+      if (!m) return;
+      const nw = Math.max(1, Math.round(m.dw));
+      const nh = Math.max(1, Math.round(m.dh));
+      if (sheetCanvas.width !== nw || sheetCanvas.height !== nh) {
+        sheetCanvas.width = nw;
+        sheetCanvas.height = nh;
+        sheetCtx.clearRect(0, 0, nw, nh);
+      }
+    }
+
+    function applyAutoFitLayout() {
+      const frame = document.querySelector(".app-frame");
+      if (!frame) return;
+
+      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
+
+      const frameH = frame.offsetHeight;
+      const camH = Math.round(frameH * 0.45);
+      document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
+
+      // Resize profile canvas to card box
+      const card = document.querySelector(".chart-card");
+      if (card) {
+        const rect = card.getBoundingClientRect();
+        const top = card.querySelector(".chart-top");
+        const topH = top ? top.getBoundingClientRect().height : 44;
+
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height - topH));
+        if (profileCanvas.width !== w || profileCanvas.height !== h) {
+          profileCanvas.width = w;
+          profileCanvas.height = h;
+        }
+      }
+
+      syncSheetCanvasToDisplay();
+    }
+
+    window.addEventListener("resize", applyAutoFitLayout);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
+
+    // =========================
+    // Torch helpers (same logic)
+    // =========================
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function updateTorchUI() {
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold() {
+      if (torchOpBusy) return;
+      torchOpBusy = true;
+
+      const next = !isTorchOn;
+      try {
+        if (torchSupported && videoTrack?.applyConstraints) {
+          const ok = await setTorch(next);
+          if (!ok && next) {
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+          isTorchOn = next;
+          if (!isTorchOn) document.body.classList.remove("screen-lamp");
+          updateTorchUI();
+          return;
+        }
+
+        isTorchOn = next;
+        document.body.classList.toggle("screen-lamp", isTorchOn);
+        updateTorchUI();
+      } finally {
+        torchOpBusy = false;
+      }
+    }
+
+    // =========================
+    // Freeze button
+    // =========================
+    function toggleFreeze() {
+      const btn = document.getElementById("btn-freeze");
+      frozen = !frozen;
+
+      if (frozen) {
+        btn.innerHTML = '<i data-lucide="rotate-ccw"></i>';
+        btn.classList.add("frozen");
+      } else {
+        btn.innerHTML = '<i data-lucide="camera"></i>';
+        btn.classList.remove("frozen");
+      }
+      lucide.createIcons();
+    }
+
+    // =========================
+    // Status + Summary UI
+    // =========================
+    function setStatus(text, mode) {
+      const badge = document.getElementById("status-badge");
+      if (!badge) return;
+
+      const icon =
+        mode === "pass" ? "check-circle-2" :
+        mode === "warn" ? "alert-triangle" :
+        mode === "fail" ? "x-circle" : "minus";
+
+      badge.className = "gc-status-badge";
+      if (mode === "pass") badge.classList.add("status-pass");
+      else if (mode === "warn") badge.classList.add("status-warn");
+      else if (mode === "fail") badge.classList.add("status-fail");
+
+      badge.innerHTML = `<i data-lucide="${icon}"></i> ${text}`;
+      lucide.createIcons();
+    }
+
+    function setSummary(maxMm, avgMm, dir, conf) {
+      document.getElementById("max-warp").textContent = maxMm;
+      document.getElementById("avg-warp").textContent = avgMm;
+      document.getElementById("direction").textContent = dir;
+      document.getElementById("confidence").textContent = conf;
+    }
+
+    // =========================
+    // Core warp measurement (No Touch)
+    // =========================
+    function lumaAt(data, idx) {
+      return data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+    }
+
+    // Find edge near standard line for a given x:
+    // We scan vertically inside a small band and find max gradient.
+    function findEdgeYNearStandard(data, w, h, x, yCenter, band, lightBias) {
+      const y0 = Math.max(1, Math.round(yCenter - band));
+      const y1 = Math.min(h - 2, Math.round(yCenter + band));
+
+      let bestY = null;
+      let bestG = 0;
+      let bestContrast = 0;
+
+      // Bias affects thresholding indirectly by lifting expected contrast
+      const minContrast = MIN_EDGE_CONTRAST + Math.abs(lightBias) * 0.10;
+
+      for (let y = y0; y <= y1; y += 1) {
+        const yA = Math.max(0, y - GRAD_STEP);
+        const yB = Math.min(h - 1, y + GRAD_STEP);
+
+        const iA = (yA * w + x) * 4;
+        const iB = (yB * w + x) * 4;
+
+        const a = lumaAt(data, iA);
+        const b = lumaAt(data, iB);
+        const g = Math.abs(b - a);
+
+        // estimate local contrast by checking small neighborhood
+        const yC = Math.max(0, Math.min(h - 1, y));
+        const iC = (yC * w + x) * 4;
+        const c = lumaAt(data, iC);
+        const contrast = Math.max(Math.abs(c - a), Math.abs(c - b));
+
+        if (g > bestG && contrast >= minContrast) {
+          bestG = g;
+          bestY = y;
+          bestContrast = contrast;
+        }
+      }
+
+      return { y: bestY, grad: bestG, contrast: bestContrast };
+    }
+
+    function medianFilter(arr, win = 5) {
+      const out = new Float32Array(arr.length);
+      const r = Math.max(1, (win / 2) | 0);
+      for (let i = 0; i < arr.length; i++) {
+        const tmp = [];
+        for (let k = -r; k <= r; k++) {
+          const j = i + k;
+          if (j >= 0 && j < arr.length) tmp.push(arr[j]);
+        }
+        tmp.sort((a,b)=>a-b);
+        out[i] = tmp[(tmp.length/2)|0] || arr[i];
+      }
+      return out;
+    }
+
+    function computeDirection(dyArr) {
+      if (!dyArr || dyArr.length < 8) return "--";
+
+      let sum = 0;
+      for (let i=0;i<dyArr.length;i++) sum += dyArr[i];
+      const mean = sum / dyArr.length;
+
+      // detect twist: compare left vs right average
+      const n = dyArr.length;
+      const q = (n/4)|0;
+      let left=0,right=0;
+      for (let i=0;i<q;i++) left += dyArr[i];
+      for (let i=n-q;i<n;i++) right += dyArr[i];
+      left /= Math.max(1,q);
+      right /= Math.max(1,q);
+
+      const twist = Math.abs(left - right);
+
+      if (twist > Math.max(3.5, Math.abs(mean) * 1.4)) return "TWIST";
+      if (mean < -1.5) return "UP";
+      if (mean > 1.5) return "DOWN";
+      return "FLAT";
+    }
+
+    function drawOverlayROIandStandard(roiX, roiY, roiW, roiH, stdY, stdX0, stdX1, hasEdge, modeColor) {
+      const dw = sheetCanvas.width, dh = sheetCanvas.height;
+      sheetCtx.clearRect(0,0,dw,dh);
+
+      // dark mask
+      sheetCtx.save();
+      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
+      sheetCtx.fillRect(0,0,dw,dh);
+      sheetCtx.clearRect(roiX, roiY, roiW, roiH);
+
+      // ROI border
+      sheetCtx.strokeStyle = "rgba(52, 211, 153, 0.55)";
+      sheetCtx.lineWidth = 2;
+      sheetCtx.setLineDash([10,10]);
+      sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
+      sheetCtx.setLineDash([]);
+
+      // standard line (horizontal)
+      sheetCtx.save();
+      const col = modeColor || "rgba(59, 130, 246, 0.95)";
+      sheetCtx.strokeStyle = col;
+      sheetCtx.lineWidth = 3;
+      sheetCtx.shadowColor = "rgba(59, 130, 246, 0.65)";
+      sheetCtx.shadowBlur = 10;
+      sheetCtx.setLineDash([12, 8]);
+      sheetCtx.beginPath();
+      sheetCtx.moveTo(stdX0, stdY);
+      sheetCtx.lineTo(stdX1, stdY);
+      sheetCtx.stroke();
+      sheetCtx.restore();
+
+      // small label
+      sheetCtx.fillStyle = "rgba(15, 23, 42, 0.70)";
+      sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
+      sheetCtx.lineWidth = 1;
+      const labelW = 138, labelH = 24;
+      const lx = roiX + 10;
+      const ly = Math.max(roiY + 10, stdY - 34);
+      sheetCtx.beginPath();
+      roundRect(sheetCtx, lx, ly, labelW, labelH, 10);
+      sheetCtx.fill();
+      sheetCtx.stroke();
+
+      sheetCtx.fillStyle = "rgba(255,255,255,0.92)";
+      sheetCtx.font = "800 11px 'JetBrains Mono'";
+      sheetCtx.fillText("STANDARD LINE", lx + 10, ly + 16);
+
+      // edge hint
+      sheetCtx.fillStyle = hasEdge ? "rgba(52,211,153,0.95)" : "rgba(251,191,36,0.95)";
+      sheetCtx.font = "900 11px 'JetBrains Mono'";
+      const msg = hasEdge ? "EDGE LOCKED" : "SCANNING...";
+      sheetCtx.fillText(msg, lx + 10, ly + 34);
+
+      sheetCtx.restore();
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w/2, h/2);
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+    }
+
+    function drawProfile(dyArr, stdPxToMm, mode) {
+      const w = profileCanvas.width;
+      const h = profileCanvas.height;
+      profileCtx.clearRect(0,0,w,h);
+
+      if (!dyArr || dyArr.length < 8) return;
+
+      // Background grid
+      profileCtx.fillStyle = "rgba(2, 6, 23, 1)";
+      profileCtx.fillRect(0,0,w,h);
+
+      const padX = 14;
+      const padY = 14;
+
+      // mm conversion
+      const mmArr = dyArr.map(v => v * stdPxToMm);
+
+      // bounds
+      let maxAbs = 0;
+      for (const v of mmArr) maxAbs = Math.max(maxAbs, Math.abs(v));
+      maxAbs = Math.max(2.5, maxAbs);
+
+      // grid lines
+      profileCtx.strokeStyle = "rgba(255,255,255,0.08)";
+      profileCtx.lineWidth = 1;
+
+      for (let i=0;i<=4;i++){
+        const yy = padY + (i/4)*(h-2*padY);
+        profileCtx.beginPath();
+        profileCtx.moveTo(padX, yy);
+        profileCtx.lineTo(w-padX, yy);
+        profileCtx.stroke();
+      }
+
+      // center line (0)
+      const y0 = padY + 0.5*(h-2*padY);
+      profileCtx.strokeStyle = "rgba(255,255,255,0.22)";
+      profileCtx.setLineDash([6,6]);
+      profileCtx.beginPath();
+      profileCtx.moveTo(padX, y0);
+      profileCtx.lineTo(w-padX, y0);
+      profileCtx.stroke();
+      profileCtx.setLineDash([]);
+
+      // mapping
+      const mapX = (i) => padX + (i/(mmArr.length-1))*(w-2*padX);
+      const mapY = (mm) => {
+        const t = (mm / (2*maxAbs)) + 0.5;
+        return padY + (1 - t) * (h-2*padY);
+      };
+
+      // line color by status
+      let stroke = "#3b82f6";
+      if (mode === "pass") stroke = "#34d399";
+      else if (mode === "warn") stroke = "#fbbf24";
+      else if (mode === "fail") stroke = "#ef4444";
+
+      // draw polyline
+      profileCtx.beginPath();
+      profileCtx.lineWidth = 2.5;
+      profileCtx.strokeStyle = stroke;
+
+      for (let i=0;i<mmArr.length;i++){
+        const x = mapX(i);
+        const y = mapY(mmArr[i]);
+        if (i===0) profileCtx.moveTo(x,y);
+        else profileCtx.lineTo(x,y);
+      }
+      profileCtx.stroke();
+
+      // fill glow under curve
+      profileCtx.save();
+      profileCtx.globalAlpha = 0.22;
+      profileCtx.fillStyle = stroke;
+      profileCtx.beginPath();
+      profileCtx.moveTo(mapX(0), mapY(0));
+      for (let i=0;i<mmArr.length;i++){
+        profileCtx.lineTo(mapX(i), mapY(mmArr[i]));
+      }
+      profileCtx.lineTo(mapX(mmArr.length-1), mapY(0));
+      profileCtx.closePath();
+      profileCtx.fill();
+      profileCtx.restore();
+
+      // axis labels
+      profileCtx.fillStyle = "rgba(255,255,255,0.55)";
+      profileCtx.font = "800 10px Inter";
+      profileCtx.textAlign = "left";
+      profileCtx.fillText(`+${maxAbs.toFixed(1)} mm`, padX, padY + 10);
+      profileCtx.fillText(`-${maxAbs.toFixed(1)} mm`, padX, h - 6);
+      profileCtx.textAlign = "right";
+      profileCtx.fillText("0", w - padX, y0 - 6);
+
+      // points
+      profileCtx.fillStyle = stroke;
+      for (let i=0;i<mmArr.length;i+=4){
+        const x = mapX(i);
+        const y = mapY(mmArr[i]);
+        profileCtx.beginPath();
+        profileCtx.arc(x,y,3.2,0,Math.PI*2);
+        profileCtx.fill();
+      }
+    }
+
+    function processWarpFrame() {
+      if (frozen) return;
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+      const m = getCoverMetrics();
+      if (!m) return;
+
+      const dw = sheetCanvas.width;
+      const dh = sheetCanvas.height;
+      if (!dw || !dh) return;
+
+      // ROI in display space
+      const roiW_disp = Math.round(dw * ROI_W_RATIO);
+      const roiH_disp = Math.round(dh * ROI_H_RATIO);
+      const roiX_disp = Math.round((dw - roiW_disp) / 2);
+
+      let roiY_disp = Math.round((dh - roiH_disp) / 2 + dh * ROI_Y_SHIFT);
+      roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
+
+      // Standard line in display space
+      const stdY_disp = Math.round(roiY_disp + roiH_disp * STANDARD_Y_RATIO);
+      const stdX0_disp = roiX_disp + 10;
+      const stdX1_disp = roiX_disp + roiW_disp - 10;
+
+      // Convert ROI to video space for processing
+      const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
+      const roiW_v = Math.max(1, Math.round(roiV.w));
+      const roiH_v = Math.max(1, Math.round(roiV.h));
+      const roiX_v = Math.round(roiV.x);
+      const roiY_v = Math.round(roiV.y);
+
+      if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
+        procCanvas.width = roiW_v; procCanvas.height = roiH_v;
+      }
+
+      procCtx.drawImage(video, roiX_v, roiY_v, roiW_v, roiH_v, 0, 0, roiW_v, roiH_v);
+      const img = procCtx.getImageData(0,0,roiW_v,roiH_v);
+      const data = img.data;
+
+      // AUTO light bias estimate (contrast around center)
+      if (lightAuto) {
+        const bandLeft = Math.floor(roiW_v * 0.20);
+        const bandRight = Math.floor(roiW_v * 0.80);
+        const bandTop = Math.floor(roiH_v * 0.20);
+        const bandBot = Math.floor(roiH_v * 0.80);
+
+        let minL = 255, sumL = 0, cnt = 0;
+        for (let y = bandTop; y < bandBot; y += 6) {
+          const row = y * roiW_v * 4;
+          for (let x = bandLeft; x < bandRight; x += 6) {
+            const i = row + x * 4;
+            const l = lumaAt(data, i);
+            sumL += l; cnt++;
+            if (l < minL) minL = l;
+          }
+        }
+        const meanL = cnt ? (sumL/cnt) : 160;
+        const contrast = Math.max(0, meanL - minL);
+
+        const target = 35;
+        const raw = clamp((target - contrast) * 0.7, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+        lightBiasEma = lerp(lightBiasEma, raw, LIGHT_AUTO_EMA);
+        const valEl = document.getElementById("light-val");
+        if (valEl) valEl.textContent = String(Math.round(lightBiasEma));
+      }
+
+      const lightBias = getLightBias();
+
+      // Standard line in video space
+      const stdY_v = Math.round(roiH_v * STANDARD_Y_RATIO);
+
+      // Sample x positions across ROI
+      const x0 = Math.floor(roiW_v * 0.12);
+      const x1 = Math.floor(roiW_v * 0.88);
+      const n = SAMPLE_COUNT;
+
+      const dy = new Float32Array(n);
+      let foundCount = 0;
+      let contrastSum = 0;
+
+      for (let i=0;i<n;i++){
+        const t = i/(n-1);
+        const x = Math.round(x0 + t*(x1-x0));
+
+        const res = findEdgeYNearStandard(
+          data, roiW_v, roiH_v,
+          x,
+          stdY_v,
+          EDGE_BAND_PX,
+          lightBias
+        );
+
+        if (res.y !== null) {
+          dy[i] = (res.y - stdY_v);
+          foundCount++;
+          contrastSum += res.contrast || 0;
+        } else {
+          // missing => set to 0 temporarily (will be filtered)
+          dy[i] = 0;
+        }
+      }
+
+      // Confidence
+      const foundRatio = foundCount / n;
+      const avgContrast = foundCount ? (contrastSum / foundCount) : 0;
+
+      // Extra confidence from stability
+      let conf = clamp(foundRatio * 85 + clamp((avgContrast - 10) * 1.2, 0, 25), 0, 100);
+
+      // Median filter to remove outliers
+      let dyF = medianFilter(dy, 5);
+
+      // If many missing, soften
+      if (foundRatio < 0.45) {
+        conf = conf * 0.55;
+      }
+
+      // EMA stabilize profile
+      if (!dyEma || dyEma.length !== dyF.length) {
+        dyEma = dyF;
+      } else {
+        for (let i=0;i<dyF.length;i++){
+          dyEma[i] = lerp(dyEma[i], dyF[i], EMA_PROFILE);
+        }
+      }
+
+      // Metrics (px)
+      let maxAbsPx = 0;
+      let sumAbsPx = 0;
+
+      for (let i=0;i<dyEma.length;i++){
+        const v = dyEma[i];
+        const av = Math.abs(v);
+        if (av > maxAbsPx) maxAbsPx = av;
+        sumAbsPx += av;
+      }
+
+      const avgAbsPx = sumAbsPx / Math.max(1, dyEma.length);
+
+      // Convert to "mm relative"
+      const maxMm = maxAbsPx * PX_TO_MM;
+      const avgMm = avgAbsPx * PX_TO_MM;
+
+      // EMA stabilize metrics
+      maxMmEma = lerp(maxMmEma, maxMm, EMA_METRIC);
+      avgMmEma = lerp(avgMmEma, avgMm, EMA_METRIC);
+      confEma  = lerp(confEma,  conf,  EMA_METRIC);
+
+      // Direction
+      const dir = computeDirection(dyEma);
+
+      // Status by thresholds
+      let mode = "neutral";
+      if (confEma < 35) mode = "neutral";
+      else if (maxMmEma <= PASS_MAX_MM) mode = "pass";
+      else if (maxMmEma <= WARN_MAX_MM) mode = "warn";
+      else mode = "fail";
+
+      if (confEma < 35) {
+        setStatus("SCANNING", "neutral");
+        document.getElementById("warp-hint").textContent = "Improve alignment / lighting for stronger edge detection.";
+      } else if (mode === "pass") {
+        setStatus("PASS", "pass");
+        document.getElementById("warp-hint").textContent = "Warp is within allowable range.";
+      } else if (mode === "warn") {
+        setStatus("WARNING", "warn");
+        document.getElementById("warp-hint").textContent = "Warp is close to limit. Monitor trend.";
+      } else {
+        setStatus("OUT OF SPEC", "fail");
+        document.getElementById("warp-hint").textContent = "Warp exceeds limit. Check process / moisture / storage.";
+      }
+
+      // Summary UI
+      const fmtMm = (v) => (confEma < 35 ? "--" : v.toFixed(2));
+      const fmtConf = (v) => (v <= 0 ? "--" : Math.round(v).toString());
+
+      const maxStr = fmtMm(maxMmEma);
+      const avgStr = fmtMm(avgMmEma);
+      const dirStr = (confEma < 35 ? "--" : dir);
+      const confStr = fmtConf(confEma);
+
+      setSummary(maxStr, avgStr, dirStr, confStr);
+      document.getElementById("chart-meta").textContent =
+        (confEma < 35 ? "--" : `max=${maxMmEma.toFixed(2)}  avg=${avgMmEma.toFixed(2)}  conf=${Math.round(confEma)}`);
+
+      // Overlay: ROI + horizontal standard line
+      const hasEdge = confEma >= 35;
+      const lineColor =
+        mode === "pass" ? "rgba(52, 211, 153, 0.95)" :
+        mode === "warn" ? "rgba(251, 191, 36, 0.95)" :
+        mode === "fail" ? "rgba(239, 68, 68, 0.95)" :
+        "rgba(59, 130, 246, 0.95)";
+
+      drawOverlayROIandStandard(
+        roiX_disp, roiY_disp, roiW_disp, roiH_disp,
+        stdY_disp, stdX0_disp, stdX1_disp,
+        hasEdge,
+        lineColor
+      );
+
+      // Draw profile dy(x)
+      drawProfile(dyEma, PX_TO_MM, (confEma < 35 ? "neutral" : mode));
+      lucide.createIcons();
+    }
+
+    // =========================
+    // Camera init + loop
+    // =========================
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        video.srcObject = stream;
+        videoTrack = stream.getVideoTracks?.()[0] || null;
+
+        try {
+          const caps = videoTrack?.getCapabilities?.();
+          torchSupported = !!caps?.torch;
+        } catch (e) { torchSupported = false; }
+
+        updateTorchUI();
+
+        video.onloadedmetadata = () => {
+          applyAutoFitLayout();
+          isRunning = true;
+          resetAll();
+          requestAnimationFrame(loop);
+          syncLightUI();
+        };
+      } catch (err) {
+        alert("Camera Error: " + err);
+      }
+    }
+
+    function loop() {
+      if (!isRunning) return;
+      syncSheetCanvasToDisplay();
+      processWarpFrame();
+      requestAnimationFrame(loop);
+    }
+
+    initCamera();
+  </script>
+</body>
+</html>
