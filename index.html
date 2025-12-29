@@ -942,11 +942,113 @@
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    let layerStabilizer = {};
+    let layerStabilizer = {}; // (kept, but tracking below is the main stabilizer)
+
+    // ==============================
+    // ✅ GLUE GAP TRACKING (stabilize boxes)
+    // ==============================
+    let layerTracks = [];
+    let nextTrackId = 1;
+
+    const TRACK_MATCH_MAX_DY = 28;     // px in roiH_v
+    const TRACK_MAX_MISS = 8;
+    const TRACK_MIN_AGE_DRAW = 3;
+    const TRACK_MIN_CONF_DRAW = 0.35;
+
+    const EMA_Y = 0.25;
+    const EMA_X = 0.20;
+    const EMA_W = 0.20;
+    const EMA_AREA = 0.25;
+    const EMA_CONF = 0.20;
+
+    function clampStep(prev, next, ratioStep = 0.25) {
+      if (!prev || prev <= 0) return next;
+      const lo = prev * (1 - ratioStep);
+      const hi = prev * (1 + ratioStep);
+      return clamp(next, lo, hi);
+    }
+
+    function deadband(prev, next, eps = 1.0) {
+      return (Math.abs(next - prev) < eps) ? prev : next;
+    }
+
+    function computeLayerConfidence(peakValue, layerThreshold, gapWidthPx, roiW_v) {
+      const pv = Math.max(0, peakValue || 0);
+      const lt = Math.max(1e-6, layerThreshold || 1);
+
+      const c1 = clamp(pv / (lt * 3.0), 0, 1);
+
+      const gw = Math.max(0, gapWidthPx || 0);
+      const c2 = clamp(gw / Math.max(1, roiW_v * 0.45), 0, 1);
+
+      return clamp(c1 * 0.65 + c2 * 0.35, 0, 1);
+    }
+
+    function updateLayerTracks(measures) {
+      layerTracks.forEach(t => { t._matched = false; });
+
+      for (const m of measures) {
+        let best = null;
+        let bestDy = Infinity;
+
+        for (const t of layerTracks) {
+          if (t._matched) continue;
+          const dy = Math.abs((t.yEma ?? t.y) - m.y);
+          if (dy < bestDy && dy <= TRACK_MATCH_MAX_DY) {
+            bestDy = dy;
+            best = t;
+          }
+        }
+
+        if (best) {
+          best._matched = true;
+          best.miss = 0;
+          best.age = (best.age || 0) + 1;
+
+          best.yEma = lerp(best.yEma ?? m.y, m.y, EMA_Y);
+          best.drawYEma = lerp(best.drawYEma ?? m.drawY, m.drawY, EMA_Y);
+
+          const nextW = clampStep(best.dispWEma ?? m.dispW, m.dispW, 0.25);
+          best.dispWEma = lerp(best.dispWEma ?? nextW, nextW, EMA_W);
+
+          const nextX = clampStep(best.dispXEma ?? m.dispX, m.dispX, 0.35);
+          best.dispXEma = lerp(best.dispXEma ?? nextX, nextX, EMA_X);
+
+          best.areaEma = lerp(best.areaEma ?? m.areaPx2, m.areaPx2, EMA_AREA);
+          best.confEma = lerp(best.confEma ?? m.conf, m.conf, EMA_CONF);
+
+          best.drawYEma = deadband(best.drawYEma, best.drawYEma, 0.6);
+          best.dispXEma = deadband(best.dispXEma, best.dispXEma, 0.6);
+          best.dispWEma = deadband(best.dispWEma, best.dispWEma, 0.6);
+
+        } else {
+          layerTracks.push({
+            id: nextTrackId++,
+            age: 1,
+            miss: 0,
+            yEma: m.y,
+            drawYEma: m.drawY,
+            dispXEma: m.dispX,
+            dispWEma: m.dispW,
+            areaEma: m.areaPx2,
+            confEma: m.conf,
+            _matched: true
+          });
+        }
+      }
+
+      for (const t of layerTracks) {
+        if (!t._matched) {
+          t.miss = (t.miss || 0) + 1;
+        }
+      }
+
+      layerTracks = layerTracks.filter(t => (t.miss || 0) <= TRACK_MAX_MISS);
+      layerTracks.sort((a,b) => (a.yEma ?? 0) - (b.yEma ?? 0));
+    }
 
     // =========================================================
     // ✅ MM CALIBRATION (px² -> mm) @ distance 15 cm
-    //    using piecewise-linear interpolation on your 6 points
     // =========================================================
     const CAL_PTS_15CM = [
       { a: 742,  mm: 1.00 },
@@ -1458,7 +1560,7 @@
     }
 
     // =========================================================
-    // GLUE GAP DETECTION
+    // GLUE GAP DETECTION (stabilized)
     // ✅ RED only when gapMM is out of [2..10]
     // =========================================================
     function processSheetFrame() {
@@ -1575,9 +1677,12 @@
         return { y, y0, y1 };
       });
 
-      // PASS 1: meta
-      const metas = [];
-      bounds.forEach((b, idx) => {
+      // ==============================
+      // PASS 1: build measures (no idx binding)
+      // ==============================
+      const measures = [];
+
+      bounds.forEach((b) => {
         if (b.y > roiH_v * 0.96) return;
 
         const localY_v = b.y;
@@ -1588,37 +1693,53 @@
         const y0 = clamp(b.y0, 0, roiH_v - 1);
         const y1 = clamp(b.y1, 0, roiH_v);
 
-        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias);
-
-        let st = layerStabilizer[idx];
-        if (!st) st = { area: areaPx2, lowCount: 0, okCount: 0, lowConfirmed: false };
-        else st.area = lerp(st.area, areaPx2, 0.25);
-        layerStabilizer[idx] = st;
-
-        const stableArea = Math.max(0, st.area);
+        const areaPx2 = computeLargestBlobAreaPx2(
+          data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias
+        );
 
         const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
+        const conf = computeLayerConfidence(peakValue, layerThreshold, gapGeo.width, roiW_v);
 
-        metas.push({ idx, localY_v, drawY, dispX, dispW, stableArea, peakValue });
+        measures.push({
+          y: localY_v,
+          drawY,
+          dispX,
+          dispW,
+          areaPx2,
+          peakValue,
+          conf
+        });
       });
 
-      // keep adaptive K update (for UI only)
-      const allAreasThisFrame = metas.map(x => x.stableArea).filter(a => a > 0);
-      const hasEnough = allAreasThisFrame.length >= AREA_MIN_SAMPLES;
-      if (hasEnough) updateAdaptiveKFromAreas(allAreasThisFrame);
+      // keep adaptive K update (UI only)
+      const allAreasThisFrame = measures.map(x => x.areaPx2).filter(a => a > 0);
+      if (allAreasThisFrame.length >= AREA_MIN_SAMPLES) {
+        updateAdaptiveKFromAreas(allAreasThisFrame);
+      }
 
+      // ==============================
+      // TRACKING: stabilize across frames
+      // ==============================
+      updateLayerTracks(measures);
+
+      // ==============================
+      // PASS 2: render using stable tracks
+      // ==============================
       const results = [];
 
-      // =========================================================
-      // ✅ PASS 2: RED ONLY when mm out of [2..10]
-      // =========================================================
-      metas.forEach(meta => {
-        const idx = meta.idx;
-        const stableArea = meta.stableArea;
+      const drawableTracks = layerTracks.filter(t =>
+        (t.age || 0) >= TRACK_MIN_AGE_DRAW &&
+        (t.confEma || 0) >= TRACK_MIN_CONF_DRAW
+      );
+
+      drawableTracks.forEach((t, i) => {
+        const layerNo = i + 1;
+
+        const stableArea = Math.max(0, t.areaEma || 0);
 
         const gapMM_raw = areaPx2ToMm_15cm(stableArea);
         const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
@@ -1628,26 +1749,27 @@
         const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
         const bgColor  = outOfRangeMM ? "rgba(239, 68, 68, 0.18)" : "rgba(52, 211, 153, 0.20)";
 
-        const prefix = `#${idx + 1}`;
+        const drawY = t.drawYEma ?? 0;
+        const dispX = t.dispXEma ?? 0;
+        const dispW = t.dispWEma ?? 40;
+
+        const prefix = `#${layerNo}`;
         const xOffset = 58;
         const labelText = `${prefix}  ${gapMM.toFixed(2)} mm`;
 
         sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
+        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
+
         sheetCtx.strokeStyle = boxColor;
         sheetCtx.lineWidth = 2;
         sheetCtx.setLineDash([]);
-        sheetCtx.strokeRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
+        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
 
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, meta.drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({
-          layer: idx + 1,
-          gapMM,
-          outOfRangeMM
-        });
+        results.push({ layer: layerNo, gapMM, outOfRangeMM });
       });
 
       // Summary counts (ONLY mm-range)
@@ -1914,6 +2036,10 @@
       sheetResults = [];
       layerStabilizer = {};
       adaptiveAreaK = 2.2;
+
+      // ✅ reset tracking
+      layerTracks = [];
+      nextTrackId = 1;
 
       lightAuto = false;
       lightBiasManual = 0;
