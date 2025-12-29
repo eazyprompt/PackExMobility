@@ -8,246 +8,241 @@
   />
   <title>PackEx</title>
 
-<link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
 
-<!-- iPhone Add to Home Screen (ตัวหลัก) -->
-<link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
-<link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
-<link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
-<link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+  <!-- iPhone Add to Home Screen (ตัวหลัก) -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#020617">
-<meta name="theme-color" content="#020617" />
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
 
-<link
-  href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
-  rel="stylesheet"
-/>
-<script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
 
-<style>
-  :root {
-    --bg-body: #0f172a;
-    --bg-card: #1e293b;
-    --bg-sidebar: #172554;
-    --border-subtle: rgba(255, 255, 255, 0.12);
-    --text-main: #ffffff;
-    --text-muted: #94a3b8;
-    --primary: #3b82f6;
-    --primary-glow: rgba(59, 130, 246, 0.5);
-    --sample: #ffffff;
-    --success: #34d399;
-    --warn: #fbbf24;
-    --danger: #ef4444;
-    --radius-lg: 18px;
-    --font-ui: "Inter", sans-serif;
-    --font-num: "JetBrains Mono", monospace;
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #172554;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --sample: #ffffff;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
 
-    --frame-gap: clamp(14px, 5.5vw, 60px);
-    --gap-layout: 16px;
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 16px;
 
-    /* JS-calculated */
-    --viewport-h: 220px;
-    --viz-h: 150px;
-    --app-h: 100dvh;
-    --tab-h: 60px;
-  }
+      /* JS-calculated */
+      --viewport-h: 220px;
+      --viz-h: 150px;
+      --app-h: 100dvh;
+      --tab-h: 60px;
+    }
 
-  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
 
-  body {
-    background: #020617;
-    color: var(--text-main);
-    font-family: var(--font-ui);
-    margin: 0;
-    width: 100vw;
-    height: var(--app-h);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-  }
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
 
-  body::after{
-    content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
-    opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
-  }
-  body.screen-flash::after{ opacity: 1; }
-  body.screen-lamp::after{ opacity: 1; }
+    body::after{
+      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+    }
+    body.screen-flash::after{ opacity: 1; }
+    body.screen-lamp::after{ opacity: 1; }
 
-  .app-frame {
-    width: calc(100vw - (var(--frame-gap) * 2));
-    height: calc(var(--app-h) - (var(--frame-gap) * 2));
-    max-width: 500px;
-    max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
-    background: var(--bg-body);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    position: relative;
-    border-radius: 24px;
-    box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: 0;
-  }
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 500px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
+    }
 
-  header {
-    min-height: 64px;
-    padding: 0 20px;
-    padding-top: 12px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--bg-body);
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-    z-index: 50;
-    gap: 10px;
-    min-width: 0;
-  }
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
 
-  .brand {
-    font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
-    min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-  }
-  .brand i { color: var(--primary); }
-  .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
-  .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
-  .algo-selector {
-    appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
-    padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
-    font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
-  }
-  .btn-icon-header {
-    background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
-    width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
-    cursor: pointer; transition: 0.2s; flex-shrink: 0;
-  }
+    .brand {
+      font-weight: 800; font-size: 1.25rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.8em; }
+    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .algo-selector {
+      appearance: none; background: #334155; color: #fff; border: 1px solid var(--border-subtle);
+      padding: 8px 14px; border-radius: 100px; font-size: 0.75rem; font-weight: 600;
+      font-family: var(--font-num); transition: 0.2s; min-width: 0; max-width: 160px;
+    }
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
 
-  .viewport {
-    height: var(--viewport-h);
-    min-height: 0;
-    display: flex;
-    background: #020617;
-    border-bottom: 1px solid var(--border-subtle);
-    flex-shrink: 0;
-    position: relative;
-    transition: height 0.3s ease;
-  }
-  .vp-camera {
-    flex: 1; position: relative; overflow: hidden; display: flex;
-    align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
-    background: #020617; min-width: 0;
-    transition: flex 0.3s ease;
-  }
-  .vp-camera.full-width { border-right: none; }
+    .viewport {
+      height: var(--viewport-h);
+      min-height: 0;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+      transition: height 0.3s ease;
+    }
+    .vp-camera {
+      flex: 1; position: relative; overflow: hidden; display: flex;
+      align-items: center; justify-content: center; border-right: 1px solid var(--border-subtle);
+      background: #020617; min-width: 0;
+      transition: flex 0.3s ease;
+    }
+    .vp-camera.full-width { border-right: none; }
 
-  video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
-  .ghost-overlay {
-    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
-    opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
-  }
-  .ghost-overlay.active { opacity: 0.35; }
-  #sheet-canvas {
-    position: absolute; inset:0; width:100%; height:100%;
-    pointer-events:none; z-index: 20;
-  }
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+    .ghost-overlay {
+      position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+      opacity: 0; pointer-events: none; z-index: 5; transition: opacity 0.3s ease; filter: grayscale(0.2);
+    }
+    .ghost-overlay.active { opacity: 0.35; }
+    #sheet-canvas {
+      position: absolute; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index: 20;
+    }
 
-  .vp-side-panel {
-    flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
-    padding: 16px; overflow-y: auto; flex-shrink: 0;
-    box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
-    transition: width 0.3s ease, flex 0.3s ease;
-  }
-  .vp-side-panel.hidden { display: none; }
+    .vp-side-panel {
+      flex: 1; background: var(--bg-sidebar); display: flex; flex-direction: column;
+      padding: 16px; overflow-y: auto; flex-shrink: 0;
+      box-shadow: inset 5px 0 15px rgba(0, 0, 0, 0.2); min-width: 0;
+      transition: width 0.3s ease, flex 0.3s ease;
+    }
+    .vp-side-panel.hidden { display: none; }
 
-  .vp-header {
-    font-size: 0.7rem; font-weight: 800; color: #60a5fa;
-    text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
-  }
-  .advice-item {
-    background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
-  }
-  .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
-  .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
-  @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
+    .vp-header {
+      font-size: 0.7rem; font-weight: 800; color: #60a5fa;
+      text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 8px;
+    }
+    .advice-item {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px; padding: 12px; margin-bottom: 10px; animation: slideIn 0.3s ease;
+    }
+    .adv-icon-row { display: flex; align-items: center; gap: 8px; font-size: 0.8rem; font-weight: 700; color: #fff; margin-bottom: 4px; }
+    .adv-detail { font-size: 0.7rem; color: var(--text-muted); margin-left: 2px; }
+    @keyframes slideIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-  .hud-overlay {
-    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
-    pointer-events: none; z-index: 10;
-  }
+    .hud-overlay {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 10;
+    }
 
-  .target-box {
-    width: 42px; height: 42px; position: relative;
-    box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
-    border-radius: 12px; transition: transform 0.1s;
-  }
-  .target-box::before {
-    content: ""; position: absolute; inset: -1px;
-    border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
-  }
-  .target-box.flash { transform: scale(0.95); }
-  .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
-  .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
-  .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
+    .target-box {
+      width: 42px; height: 42px; position: relative;
+      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.6);
+      border-radius: 12px; transition: transform 0.1s;
+    }
+    .target-box::before {
+      content: ""; position: absolute; inset: -1px;
+      border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
+    }
+    .target-box.flash { transform: scale(0.95); }
+    .target-box.flash::before { border-color: var(--primary); box-shadow: 0 0 25px var(--primary); }
+    .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.8; }
+    .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
 
-  .btn-vp-capture { display: none; } 
+    .btn-vp-capture { display: none; }
 
-  .panel {
-    flex: 1;
-    background: var(--bg-body);
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    padding: 0;
-    min-height: 0;
-  }
-  
-  /* MODIFIED: Add scrolling to panel content */
-  .panel-content {
-    display: flex; flex-direction: column; gap: var(--gap-layout);
-    margin: 0 auto; width: 100%; height: 100%; min-height: 0;
-    overflow-y: auto; /* Enable vertical scroll */
-    overflow-x: hidden;
-    -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
-    padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
-  }
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      min-height: 0;
+    }
 
-  /* --- LAYOUT 70:30 SPLIT FOR GLUE DASHBOARD --- */
-  /* Ensure Glue Dashboard takes full height of scrollable parent */
-  .glue-dashboard { 
-      display:flex; flex-direction:column; 
-      height:100%; min-height: 400px; /* Safe min-height */
-      background:#0f172a; 
-      overflow:hidden; 
-      width:100%; 
-  }
-  
-  .glue-body-split { 
-      flex: 1; 
-      display: flex; 
-      flex-direction: row; /* Horizontal Split */
-      overflow: hidden; 
-      position: relative; 
-  }
+    .panel-content {
+      display: flex; flex-direction: column; gap: var(--gap-layout);
+      margin: 0 auto; width: 100%; height: 100%; min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
 
-  /* 70% Left - Main Area */
-  .glue-main-area {
-      flex: 7; /* 70% */
-      display: flex; 
+    .glue-dashboard {
+      display:flex; flex-direction:column;
+      height:100%; min-height: 400px;
+      background:#0f172a;
+      overflow:hidden;
+      width:100%;
+    }
+
+    .glue-body-split {
+      flex: 1;
+      display: flex;
+      flex-direction: row;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .glue-main-area {
+      flex: 7;
+      display: flex;
       flex-direction: column;
       overflow: hidden;
       background: #020617;
       border-right: 1px solid var(--border-subtle);
-  }
+    }
 
-  /* 30% Right - Summary Area */
-  .glue-summary-area {
-      flex: 3; /* 30% */
+    .glue-summary-area {
+      flex: 3;
       background: #172554;
       display: flex;
       flex-direction: column;
@@ -255,10 +250,9 @@
       gap: 16px;
       overflow-y: auto;
       padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 10px);
-  }
+    }
 
-  /* Summary Stat Items */
-  .sum-item {
+    .sum-item {
       background: rgba(255,255,255,0.03);
       border: 1px solid rgba(255,255,255,0.08);
       border-radius: 12px;
@@ -268,17 +262,16 @@
       align-items: center;
       text-align: center;
       gap: 4px;
-  }
-  .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
-  .text-ok { color: var(--success); }
-  .text-ng { color: var(--danger); }
+    }
+    .sum-lbl { font-size: 0.55rem; color: #94a3b8; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .sum-val { font-family: var(--font-num); font-size: 1.4rem; font-weight: 800; color: #fff; line-height: 1; }
+    .text-ok { color: var(--success); }
+    .text-ng { color: var(--danger); }
 
-  /* Header Button Style */
-  .btn-header-cap {
+    .btn-header-cap {
       width: 44px; height: 44px;
       border-radius: 12px;
-      background: #3b82f6; /* Primary blue */
+      background: #3b82f6;
       color: #fff;
       border: none;
       display: flex; align-items: center; justify-content: center;
@@ -286,218 +279,440 @@
       cursor: pointer;
       box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
       transition: 0.2s;
-  }
-  .btn-header-cap:active { transform: scale(0.92); }
-  .btn-header-cap.frozen {
-      background: #ef4444; 
+    }
+    .btn-header-cap:active { transform: scale(0.92); }
+    .btn-header-cap.frozen {
+      background: #ef4444;
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
-  }
+    }
 
-  /* Glue Header Layout */
-  .glue-compact-header{
-    background: rgba(15, 23, 42, 0.98);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-    padding: 10px 16px;
-    display:flex; justify-content:space-between; align-items:center;
-    flex-shrink:0; z-index:10;
-  }
-  .gc-left { display:flex; align-items:center; gap:10px; }
-  .gc-right { display:flex; align-items:center; gap:14px; }
+    .glue-compact-header{
+      background: rgba(15, 23, 42, 0.98);
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      padding: 10px 16px;
+      display:flex; justify-content:space-between; align-items:center;
+      flex-shrink:0; z-index:10;
+    }
+    .gc-left { display:flex; align-items:center; gap:10px; }
+    .gc-right { display:flex; align-items:center; gap:14px; }
 
-  .gc-status-badge{
-    padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
-    display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
-    background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
-  }
-  .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
-  .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
-  
-  /* Standard Elements */
-  .result-dashboard {
-    display: flex; gap: 12px; justify-content: space-between; align-items: center;
-    background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
-    border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-    padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
-  }
-  .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-  .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
-  .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
-  .res-badge {
-    padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
-    background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
-    flex-shrink: 0; white-space: nowrap;
-  }
-  .status-match .res-value { color: var(--success); }
-  .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
-  .status-close .res-value { color: var(--warn); }
-  .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
-  .status-diff .res-value { color: var(--danger); }
-  .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
+    .gc-status-badge{
+      padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 800;
+      display:flex; align-items:center; gap:6px; letter-spacing:0.5px;
+      background:#1e293b; border:1px solid rgba(255,255,255,0.1); color:#94a3b8;
+    }
+    .status-pass .gc-status-badge{ background: rgba(16,185,129,0.1); color:#34d399; border-color: rgba(52,211,153,0.2); }
+    .status-fail .gc-status-badge{ background: rgba(239,68,68,0.1); color:#f87171; border-color: rgba(248,113,113,0.2); }
 
-  .cards-container {
-    display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
-    flex-shrink: 1; min-height: 0;
-  }
-  .data-card {
-    background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
-    padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
-  }
-  .card-top { display: flex; justify-content: space-between; align-items: center; }
-  .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
-  .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
-  .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
-  .l-item:last-child { border: none; }
-  .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
-  .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .btn-act {
-    width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
-    color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
-    gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
-  }
-  .btn-act:active { transform: scale(0.96); }
-  .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
-  .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
+    .result-dashboard {
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(12px, 2.2vw, 16px) clamp(14px, 2.5vw, 20px);
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2); flex-shrink: 0; min-width: 0; flex-wrap: wrap;
+    }
+    .res-left { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .res-value { font-family: var(--font-num); font-size: clamp(1.8rem, 6.5vw, 2.5rem); font-weight: 800; color: var(--text-main); line-height: 1; }
+    .res-badge {
+      padding: 8px 14px; border-radius: 10px; font-size: 0.75rem; font-weight: 800;
+      background: #334155; color: #fff; letter-spacing: 0.5px; border: 1px solid rgba(255, 255, 255, 0.1);
+      flex-shrink: 0; white-space: nowrap;
+    }
+    .status-match .res-value { color: var(--success); }
+    .status-match .res-badge { background: rgba(52, 211, 153, 0.2); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+    .status-close .res-value { color: var(--warn); }
+    .status-close .res-badge { background: rgba(251, 191, 36, 0.2); color: var(--warn); border-color: rgba(251, 191, 36, 0.3); }
+    .status-diff .res-value { color: var(--danger); }
+    .status-diff .res-badge { background: rgba(248, 113, 113, 0.2); color: var(--danger); border-color: rgba(248, 113, 113, 0.3); }
 
-  .viz-section {
-    display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
-  }
-  .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
-  .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
-  .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
-  .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
-  .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
-  .di-sam { background: var(--sample); }
-  .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
-  .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
-  .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
-  .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
-  .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
-  .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
-  .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
-  .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
-  .l-mark.ref { background: var(--primary); z-index: 1; }
-  .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
-  .l-mark.visible { opacity: 1; }
+    .cards-container {
+      display: grid; grid-template-columns: 1fr 1fr; gap: clamp(10px, 2.4vw, 16px);
+      flex-shrink: 1; min-height: 0;
+    }
+    .data-card {
+      background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: clamp(10px, 2.2vw, 12px); display: flex; flex-direction: column; gap: 10px; transition: 0.3s; min-width: 0;
+    }
+    .card-top { display: flex; justify-content: space-between; align-items: center; }
+    .color-dot { width: 28px; height: 28px; border-radius: 8px; background: #334155; border: 1px solid rgba(255, 255, 255, 0.15); transition: 0.3s; flex-shrink: 0; }
+    .lab-row { display: flex; justify-content: space-between; background: rgba(15, 23, 42, 0.5); border-radius: 8px; padding: 6px; border: 1px solid rgba(255, 255, 255, 0.05); }
+    .l-item { flex: 1; text-align: center; border-right: 1px solid rgba(255, 255, 255, 0.1); min-width: 0; }
+    .l-item:last-child { border: none; }
+    .l-lbl { font-size: 0.55rem; color: #64748b; font-weight: 700; margin-bottom: 2px; }
+    .l-val { font-family: var(--font-num); font-size: 0.9rem; font-weight: 700; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-act {
+      width: 100%; padding: 12px; border-radius: 10px; border: none; background: rgba(255, 255, 255, 0.05);
+      color: #fff; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 8px; transition: 0.2s; border: 1px solid transparent; font-size: clamp(0.70rem, 2.8vw, 0.75rem);
+    }
+    .btn-act:active { transform: scale(0.96); }
+    .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
+    .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.1), #1e293b 90%); }
 
-  .tab-bar {
-    position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
-    background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
-    border-top: 1px solid var(--border-subtle); display: flex;
-    justify-content: space-around; align-items: center; z-index: 100;
-    padding-bottom: env(safe-area-inset-bottom);
-  }
-  .tab-item {
-    flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
-    color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
-  }
-  .tab-item.active { color: var(--primary); }
-  .tab-lbl { font-size: 0.65rem; font-weight: 700; }
-  .tab-item i { transition: transform 0.2s; }
-  .tab-item.active i { transform: translateY(-2px); }
+    .viz-section {
+      display: flex; gap: 12px; height: var(--viz-h); flex-shrink: 1; min-height: 0;
+    }
+    .graph-box { flex: 1; background: #020617; border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); position: relative; overflow: hidden; min-width: 0; }
+    .plot-legend { position: absolute; top: 10px; left: 10px; z-index: 10; display: flex; gap: 8px; pointer-events: none; }
+    .legend-item { font-size: 0.6rem; color: #fff; font-weight: 700; display: flex; align-items: center; gap: 5px; background: rgba(15, 23, 42, 0.7); padding: 3px 8px; border-radius: 6px; border: 1px solid rgba(255, 255, 255, 0.1); backdrop-filter: blur(4px); }
+    .dot-icon { width: 6px; height: 6px; border-radius: 50%; }
+    .di-ref { background: var(--primary); box-shadow: 0 0 5px var(--primary); }
+    .di-sam { background: var(--sample); }
+    .axis-lbl { position: absolute; font-size: 0.55rem; font-weight: 800; color: rgba(255, 255, 255, 0.6); pointer-events: none; text-shadow: 0 0 4px #000; }
+    .ax-t { top: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-b { bottom: 6px; left: 50%; transform: translateX(-50%); }
+    .ax-l { left: 6px; top: 50%; transform: translateY(-50%) rotate(-90deg); }
+    .ax-r { right: 6px; top: 50%; transform: translateY(-50%) rotate(90deg); }
+    .l-bar-box { width: 40px; background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 50px; display: flex; flex-direction: column; align-items: center; padding: 12px 0; position: relative; flex-shrink: 0; }
+    .l-track { width: 6px; flex: 1; background: linear-gradient(to top, #020617, #fff); border-radius: 4px; position: relative; margin: 6px 0; }
+    .l-mark { position: absolute; left: 50%; transform: translate(-50%, 50%); width: 14px; height: 14px; border-radius: 50%; border: 3px solid var(--bg-card); opacity: 0; transition: bottom 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); }
+    .l-mark.ref { background: var(--primary); z-index: 1; }
+    .l-mark.sam { background: #fff; z-index: 2; width: 12px; height: 12px; border-width: 2px; }
+    .l-mark.visible { opacity: 1; }
 
-  .display-none { display: none !important; }
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.65rem; font-weight: 700; }
+    .tab-item i { transition: transform 0.2s; }
+    .tab-item.active i { transform: translateY(-2px); }
 
-  /* --- ENHANCED LEFT PANEL STYLES --- */
-  .glue-list-header {
-    padding: 12px 16px;
-    background: #0f172a;
-    border-bottom: 1px solid var(--border-subtle);
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    flex-shrink: 0;
-  }
-  .stat-box {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 8px;
-    padding: 8px 10px;
-    display: flex; flex-direction: column; gap: 2px;
-  }
-  .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
-  .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
-  .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
+    .display-none { display: none !important; }
 
-  /* Distribution Canvas Container */
-  .dist-container {
-    flex: 1;
-    position: relative;
-    display: flex;
-    flex-direction: column;
-    padding: 10px;
-    overflow: hidden;
-    background: #020617;
-  }
-  #dist-canvas {
-    width: 100%;
-    height: 100%;
-    display: block;
-  }
+    .glue-list-header {
+      padding: 12px 16px;
+      background: #0f172a;
+      border-bottom: 1px solid var(--border-subtle);
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+    .stat-box {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 8px 10px;
+      display: flex; flex-direction: column; gap: 2px;
+    }
+    .stat-title { font-size: 0.6rem; color: #64748b; font-weight: 700; text-transform: uppercase; }
+    .stat-val { font-family: var(--font-num); font-size: 1.1rem; color: #fff; font-weight: 700; }
+    .stat-unit { font-size: 0.7em; color: #64748b; font-weight: 500; margin-left: 2px; }
 
-  canvas { display:block; }
-  #proc-canvas { display:none; }
+    .dist-container {
+      flex: 1;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      padding: 10px;
+      overflow: hidden;
+      background: #020617;
+    }
+    #dist-canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
 
-  @media (max-height: 760px) {
-    :root { --gap-layout: 12px; }
-    header { min-height: 58px; padding-top: 10px; }
-    .btn-act { padding: 10px; }
-    .result-dashboard { padding: 12px 14px; }
-  }
+    canvas { display:block; }
+    #proc-canvas { display:none; }
 
-  /* Bigger bottom-tab icons + labels (only tab-bar) */
-  .tab-bar .tab-item svg{
-    width: 26px;
-    height: 26px;
-    stroke-width: 2.4;
-  }
-
-  .tab-bar .tab-lbl{
-    font-size: 0.72rem;
-    font-weight: 800;
-    letter-spacing: 0.2px;
-  }
-
-  .tab-bar{
-    height: 66px;
-    padding-top: 6px;
-    padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
-  }
-
-  .tab-bar .tab-item.active svg{
-    transform: translateY(-3px) scale(1.05);
-  }
-
-  @media (display-mode: standalone) {
-    html, body {
-      -webkit-text-size-adjust: 100%;
-      text-size-adjust: 100%;
+    @media (max-height: 760px) {
+      :root { --gap-layout: 12px; }
+      header { min-height: 58px; padding-top: 10px; }
+      .btn-act { padding: 10px; }
+      .result-dashboard { padding: 12px 14px; }
     }
 
     .tab-bar .tab-item svg{
-      width: 30px;
-      height: 30px;
-      stroke-width: 2.6;
-      display: block;
-      flex-shrink: 0;
+      width: 26px;
+      height: 26px;
+      stroke-width: 2.4;
     }
 
     .tab-bar .tab-lbl{
-      font-size: 0.75rem;
+      font-size: 0.72rem;
       font-weight: 800;
-      line-height: 1;
+      letter-spacing: 0.2px;
     }
 
     .tab-bar{
-      height: 68px;
+      height: 66px;
       padding-top: 6px;
-      padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
     }
-  }
 
-  .tab-item svg { transition: transform 0.2s; }
-  .tab-item.active svg { transform: translateY(-2px); }
-</style>
+    .tab-bar .tab-item.active svg{
+      transform: translateY(-3px) scale(1.05);
+    }
+
+    @media (display-mode: standalone) {
+      html, body {
+        -webkit-text-size-adjust: 100%;
+        text-size-adjust: 100%;
+      }
+
+      .tab-bar .tab-item svg{
+        width: 30px;
+        height: 30px;
+        stroke-width: 2.6;
+        display: block;
+        flex-shrink: 0;
+      }
+
+      .tab-bar .tab-lbl{
+        font-size: 0.75rem;
+        font-weight: 800;
+        line-height: 1;
+      }
+
+      .tab-bar{
+        height: 68px;
+        padding-top: 6px;
+        padding-bottom: calc(env(safe-area-inset-bottom) + 4px);
+      }
+    }
+
+    .tab-item svg { transition: transform 0.2s; }
+    .tab-item.active svg { transform: translateY(-2px); }
+
+    /* =========================================================
+       BEAUTIFUL LIGHT SLIDER (Responsive + iOS friendly)
+       ========================================================= */
+    :root{
+      --lightctl-w: 54px;
+      --lightctl-len: clamp(150px, calc(var(--viewport-h) - 190px), 270px);
+    }
+
+    .lightctl{
+      position:absolute;
+      right: 12px;
+      left: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 40;
+
+      width: var(--lightctl-w);
+      padding: 10px 10px 12px;
+      border-radius: 18px;
+
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 10px;
+
+      pointer-events:auto;
+      -webkit-user-select:none;
+      user-select:none;
+
+      opacity: 0;
+      transform: translateY(-50%) translateX(-6px);
+      transition: opacity .18s ease, transform .18s ease;
+    }
+    .lightctl.show{
+      opacity: 1;
+      transform: translateY(-50%) translateX(0px);
+    }
+
+    .lightctl-head{
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+    }
+
+    .lightctl-ico{
+      width: 16px;
+      height: 16px;
+      opacity: .95;
+      color: rgba(255,255,255,0.9);
+    }
+
+    .lightctl-title{
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .lightctl-rail{
+      position: relative;
+      height: calc(var(--lightctl-len) + 10px);
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .lightctl-slider{
+      -webkit-appearance: none;
+      appearance: none;
+
+      width: var(--lightctl-len);
+      height: 26px;
+
+      transform: rotate(-90deg);
+      transform-origin: center;
+
+      background: transparent;
+      outline: none;
+      padding: 0;
+
+      touch-action: none;
+    }
+
+    .lightctl-slider::-webkit-slider-runnable-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .lightctl-slider::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      margin-top: -7px;
+    }
+
+    .lightctl-slider::-moz-range-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    .lightctl-value{
+      position:absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-num);
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .lightctl-auto{
+      width: 100%;
+      padding: 7px 0;
+      min-height: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      cursor: pointer;
+      transition: .15s;
+    }
+    .lightctl-auto:active{ transform: scale(0.96); }
+
+    .lightctl.auto-on .lightctl-auto{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+    .lightctl.auto-on .lightctl-slider{
+      opacity: .55;
+      pointer-events:none;
+    }
+
+    :root{
+      --tab-safe-pad: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
+
+    .dist-container{
+      padding-bottom: var(--tab-safe-pad);
+      box-sizing: border-box;
+    }
+
+    #empty-scan-msg{
+      bottom: var(--tab-safe-pad);
+    }
+
+    .lightctl-reset{
+      width: 100%;
+      padding: 7px 0;
+      min-height: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+
+      cursor: pointer;
+      transition: .15s;
+    }
+    .lightctl-reset:active{ transform: scale(0.96); }
+  </style>
 </head>
 
 <body>
@@ -523,6 +738,21 @@
         <video id="webcam" autoplay playsinline muted></video>
         <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
         <canvas id="sheet-canvas"></canvas>
+
+        <div class="lightctl" id="lightctl">
+          <div class="lightctl-head">
+            <i data-lucide="sun-medium" class="lightctl-ico"></i>
+            <span class="lightctl-title">LIGHT</span>
+          </div>
+
+          <div class="lightctl-rail">
+            <input id="light-slider" class="lightctl-slider" type="range" min="-30" max="30" step="1" value="0">
+            <div class="lightctl-value" id="light-val">0</div>
+          </div>
+
+          <button class="lightctl-auto" id="light-auto" type="button" onclick="toggleLightAuto()">AUTO</button>
+          <button class="lightctl-reset" id="light-reset" type="button" onclick="resetLightBias()">RESET</button>
+        </div>
 
         <div class="hud-overlay">
           <div id="target-box" class="target-box">
@@ -619,7 +849,7 @@
               <div class="gc-left" id="header-status-group">
                 <div class="gc-status-badge"><i data-lucide="minus"></i> READY</div>
               </div>
-              
+
               <div class="gc-right">
                 <button id="btn-sheet-cap" class="btn-header-cap" onclick="toggleSheetCapture()">
                   <i data-lucide="camera"></i>
@@ -630,28 +860,28 @@
             <div class="glue-body-split">
               <div class="glue-main-area" id="layer-list-cont">
                 <div class="glue-list-header" id="stats-header" style="display:none;"></div>
-                
+
                 <div class="dist-container" id="dist-wrapper">
-                   <canvas id="dist-canvas"></canvas>
-                   <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
-                      <i data-lucide="scan-line" width="32"></i>
-                      <span style="font-size:0.75rem;">Align camera to scan</span>
-                   </div>
+                  <canvas id="dist-canvas"></canvas>
+                  <div id="empty-scan-msg" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; color:#475569; gap:10px;">
+                    <i data-lucide="scan-line" width="32"></i>
+                    <span style="font-size:0.75rem;">Align camera to scan</span>
+                  </div>
                 </div>
               </div>
-              
+
               <div class="glue-summary-area">
                 <div class="sum-item">
-                   <div class="sum-val" id="sum-total">0</div>
-                   <div class="sum-lbl">Box Found</div>
+                  <div class="sum-val" id="sum-total">0</div>
+                  <div class="sum-lbl">Box Found</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ok" id="sum-gap">0</div>
-                   <div class="sum-lbl">Glue Gap</div>
+                  <div class="sum-val text-ok" id="sum-gap">0</div>
+                  <div class="sum-lbl">NORMAL GAP</div>
                 </div>
                 <div class="sum-item">
-                   <div class="sum-val text-ng" id="sum-ng">0</div>
-                   <div class="sum-lbl">No Gap</div>
+                  <div class="sum-val text-ng" id="sum-red">0</div>
+                  <div class="sum-lbl">WARNING GAP</div>
                 </div>
               </div>
             </div>
@@ -684,12 +914,10 @@
     const video = document.getElementById("webcam");
     const procCanvas = document.getElementById("proc-canvas");
     const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
-    
-    // Colex Plot
+
     const plotCanvas = document.getElementById("ab-plot");
     const plotCtx = plotCanvas.getContext("2d", { willReadFrequently: true });
-    
-    // Distribution Plot (New)
+
     const distCanvas = document.getElementById("dist-canvas");
     const distCtx = distCanvas.getContext("2d");
 
@@ -706,21 +934,127 @@
 
     let videoTrack = null;
     let torchSupported = false;
-    let isTorchOn = false;      
-    let torchOpBusy = false;    
-    let captureBusy = false;    
+    let isTorchOn = false;
+    let torchOpBusy = false;
+    let captureBusy = false;
 
     let sheetFrozen = false;
     let sheetResults = [];
     let lastOri = { beta: 0, gamma: 0, alpha: 0 };
 
-    // Stabilizer for each detected layer index
     let layerStabilizer = {};
 
-    // --- helpers ---
+    // =========================================================
+    // ✅ MM CALIBRATION (px² -> mm) @ distance 15 cm
+    //    using piecewise-linear interpolation on your 6 points
+    // =========================================================
+    const CAL_PTS_15CM = [
+      { a: 742,  mm: 1.00 },
+      { a: 1910, mm: 7.00 },
+      { a: 2590, mm: 8.00 },
+      { a: 2768, mm: 8.25 },
+      { a: 3390, mm: 8.50 },
+      { a: 3575, mm: 9.00 },
+    ].sort((p,q)=>p.a-q.a);
+
+    function areaPx2ToMm_15cm(areaPx2){
+      const x = Math.max(0, areaPx2 || 0);
+      if (x <= 0) return 0;
+
+      const pts = CAL_PTS_15CM;
+      if (pts.length < 2) return 0;
+
+      if (x <= pts[0].a){
+        const p0 = pts[0], p1 = pts[1];
+        const t = (x - p0.a) / (p1.a - p0.a);
+        return p0.mm + t * (p1.mm - p0.mm);
+      }
+      for (let i=0;i<pts.length-1;i++){
+        const p0 = pts[i], p1 = pts[i+1];
+        if (x >= p0.a && x <= p1.a){
+          const t = (x - p0.a) / (p1.a - p0.a);
+          return p0.mm + t * (p1.mm - p0.mm);
+        }
+      }
+      const p0 = pts[pts.length-2], p1 = pts[pts.length-1];
+      const t = (x - p0.a) / (p1.a - p0.a);
+      return p0.mm + t * (p1.mm - p0.mm);
+    }
+
+    // ✅ mm range rule: out of 2..10 => RED
+    const MM_MIN_OK = 2.0;
+    const MM_MAX_OK = 10.0;
+
+    // =========================================================
+    // LIGHT THRESHOLD CONTROL (AUTO + MANUAL)
+    // =========================================================
+    let lightAuto = false;
+    let lightBiasManual = 0;
+    let lightBiasEma = 0;
+    const LIGHT_BIAS_MIN = -30;
+    const LIGHT_BIAS_MAX = 30;
+    const LIGHT_AUTO_EMA = 0.15;
+
     function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
     function lerp(a, b, t) { return (1 - t) * a + t * b; }
     function wait(ms) { return new Promise((r) => setTimeout(r, ms)); }
+
+    function getLightBias() {
+      return clamp(lightAuto ? lightBiasEma : lightBiasManual, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+    }
+
+    function syncLightUI() {
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      const box = document.getElementById("lightctl");
+      if (!slider || !val || !box) return;
+
+      val.textContent = String(slider.value);
+      lightBiasManual = parseInt(slider.value || "0", 10);
+
+      box.classList.toggle("auto-on", !!lightAuto);
+    }
+
+    function toggleLightAuto() {
+      lightAuto = !lightAuto;
+      syncLightUI();
+    }
+
+    function resetLightBias() {
+      lightAuto = false;
+      lightBiasManual = 0;
+      lightBiasEma = 0;
+
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      if (slider) slider.value = "0";
+      if (val) val.textContent = "0";
+
+      syncLightUI();
+    }
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "light-slider") {
+        lightAuto = false;
+        syncLightUI();
+      }
+    });
+
+    // =========================================================
+    // Adaptive robust threshold (Auto K) + Multi-frame confirm
+    // (kept for stability, but RED is now ONLY by mm-range)
+    // =========================================================
+    let adaptiveAreaK = 2.2;
+    const AREA_K_MIN = 1.2;
+    const AREA_K_MAX = 3.2;
+    const AREA_K_PERCENTILE = 0.08;
+    const AREA_K_EMA = 0.12;
+    const AREA_MIN_SAMPLES = 4;
+
+    const AREA_ENTER_FRAMES = 6;
+    const AREA_EXIT_FRAMES  = 3;
+
+    const LOW_AREA_RATIO = 0.55;
 
     // =========================================================
     // COVER-MAPPING
@@ -792,14 +1126,19 @@
       if (activeTab === 'gluegap') {
         const camH = Math.round(frameH * 0.50);
         document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
-        
-        // Resize Dist Canvas
-        const wrap = document.getElementById("dist-wrapper");
-        if(wrap && wrap.offsetWidth) {
-            distCanvas.width = wrap.offsetWidth;
-            distCanvas.height = wrap.offsetHeight;
-        }
 
+        const wrap = document.getElementById("dist-wrapper");
+        if (wrap && wrap.offsetWidth) {
+          const tabBar = document.querySelector(".tab-bar");
+          const tabHpx = tabBar ? tabBar.getBoundingClientRect().height : 68;
+          const extraPad = 12;
+
+          const w = Math.max(1, Math.floor(wrap.clientWidth));
+          const h = Math.max(1, Math.floor(wrap.clientHeight - tabHpx - extraPad));
+
+          distCanvas.width = w;
+          distCanvas.height = h;
+        }
       } else {
         const header = document.querySelector("header");
         const headerH = header ? header.offsetHeight : 64;
@@ -843,6 +1182,9 @@
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       document.getElementById('target-box').classList.add('display-none');
 
+      const lightCtl = document.getElementById("lightctl");
+      if (lightCtl) lightCtl.classList.remove("show");
+
       if (mode === 'colex') {
         document.getElementById('ctl-color-algo').classList.remove('display-none');
         document.getElementById('vp-side-panel').classList.remove('hidden');
@@ -855,14 +1197,16 @@
         document.getElementById('panel-gluegap').classList.remove('display-none');
         document.getElementById('panel-gluegap').style.display = 'flex';
         resetSheetUI();
+
+        if (lightCtl) lightCtl.classList.add("show");
       }
 
-      // Reset scroll position on tab switch
       const pc = document.querySelector('.panel-content');
-      if(pc) pc.scrollTop = 0;
+      if (pc) pc.scrollTop = 0;
 
       applyAutoFitLayout();
       lucide.createIcons();
+      syncLightUI();
     }
 
     // --- CAMERA ---
@@ -886,6 +1230,7 @@
           applyAutoFitLayout();
           isProcessing = true;
           requestAnimationFrame(loop);
+          syncLightUI();
         };
       } catch (err) {
         alert("Camera Error: " + err);
@@ -975,6 +1320,32 @@
       return { med, mad };
     }
 
+    function quantileSorted(sortedArr, q) {
+      const n = sortedArr.length;
+      if (n === 0) return 0;
+      const pos = (n - 1) * q;
+      const base = Math.floor(pos);
+      const rest = pos - base;
+      if (sortedArr[base + 1] === undefined) return sortedArr[base];
+      return sortedArr[base] + rest * (sortedArr[base + 1] - sortedArr[base]);
+    }
+
+    function updateAdaptiveKFromAreas(areas) {
+      if (!areas || areas.length < AREA_MIN_SAMPLES) return adaptiveAreaK;
+
+      const { med, mad } = robustStats(areas);
+      if (mad <= 1e-6) return adaptiveAreaK;
+
+      const zs = areas.map(a => 0.6745 * (a - med) / mad).sort((x,y)=>x-y);
+      const zLow = quantileSorted(zs, AREA_K_PERCENTILE);
+      let kNew = Math.abs(zLow);
+
+      kNew = clamp(kNew, AREA_K_MIN, AREA_K_MAX);
+      adaptiveAreaK = lerp(adaptiveAreaK, kNew, AREA_K_EMA);
+
+      return adaptiveAreaK;
+    }
+
     function findPeaksDynamic(arr, prominence, minDist) {
       const candidates = [];
       for (let i = 1; i < arr.length - 1; i++) {
@@ -1003,25 +1374,22 @@
     }
 
     // =========================================================
-    // NEW: Largest contour AREA (px^2) inside each detected "box"
-    // - No OpenCV, use connected-components on a downsampled mask
+    // Largest contour AREA (px^2) inside each detected "box"
     // =========================================================
-    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1) {
+    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1, lightBias) {
       x0 = Math.max(0, Math.min(w - 1, x0));
       x1 = Math.max(0, Math.min(w, x1));
       y0 = Math.max(0, Math.min(h - 1, y0));
       y1 = Math.max(0, Math.min(h, y1));
       if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
 
-      // speed/quality tradeoff
-      const ds = 3; // 2 = more accurate, 3 = faster
+      const ds = 3;
       const gw = Math.floor((x1 - x0) / ds);
       const gh = Math.floor((y1 - y0) / ds);
       if (gw < 6 || gh < 6) return 0;
 
       const mask = new Uint8Array(gw * gh);
 
-      // local threshold: derive from mean & min luma in window
       let sum = 0, cnt = 0, minL = 255;
       for (let gy = 0; gy < gh; gy++) {
         const py = y0 + gy * ds;
@@ -1035,9 +1403,10 @@
         }
       }
       const mean = cnt ? sum / cnt : 180;
-      const thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
 
-      // build dark mask
+      let thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
+      thr = clamp(thr + (lightBias || 0), 5, 250);
+
       for (let gy = 0; gy < gh; gy++) {
         const py = y0 + gy * ds;
         const row = py * w * 4;
@@ -1049,7 +1418,6 @@
         }
       }
 
-      // BFS connected components (4-neighbor)
       const visited = new Uint8Array(gw * gh);
       const qx = new Int16Array(gw * gh);
       const qy = new Int16Array(gw * gh);
@@ -1086,13 +1454,12 @@
         }
       }
 
-      // convert back to approx px^2 (undo downsample)
       return bestArea * (ds * ds);
     }
 
     // =========================================================
-    // UPDATED: GLUE GAP DETECTION
-    // - Replace width(px) label with AREA(px^2) label for each box
+    // GLUE GAP DETECTION
+    // ✅ RED only when gapMM is out of [2..10]
     // =========================================================
     function processSheetFrame() {
       if (sheetFrozen) return;
@@ -1114,7 +1481,6 @@
       let roiY_disp = Math.round((dh - roiH_disp) / 2 - bottomSafe_disp * 0.2);
       roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
 
-      // Map ROI to Video Coordinates
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
@@ -1141,6 +1507,36 @@
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
 
+      // AUTO light bias
+      if (lightAuto) {
+        const bandLeft = Math.floor(roiW_v * 0.25);
+        const bandRight = Math.floor(roiW_v * 0.75);
+        const bandTop = Math.floor(roiH_v * 0.15);
+        const bandBot = Math.floor(roiH_v * 0.85);
+
+        let minL = 255, sumL = 0, cnt = 0;
+        for (let y = bandTop; y < bandBot; y += 6) {
+          const row = y * roiW_v * 4;
+          for (let x = bandLeft; x < bandRight; x += 6) {
+            const i = row + x * 4;
+            const luma = data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114;
+            sumL += luma; cnt++;
+            if (luma < minL) minL = luma;
+          }
+        }
+        const meanL = cnt ? (sumL / cnt) : 160;
+        const contrast = Math.max(0, meanL - minL);
+
+        const target = 35;
+        const raw = clamp((target - contrast) * 0.7, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+        lightBiasEma = lerp(lightBiasEma, raw, LIGHT_AUTO_EMA);
+
+        const valEl = document.getElementById("light-val");
+        if (valEl) valEl.textContent = String(Math.round(lightBiasEma));
+      }
+
+      const lightBias = getLightBias();
+
       // Profile Scan
       const profile = new Float32Array(roiH_v);
       const centerStart = Math.floor(roiW_v * 0.35);
@@ -1157,23 +1553,19 @@
         }
         const avgLuma = sumLuma / centerW;
         const darkness = Math.max(0, 255 - avgLuma);
-        profile[y] = Math.pow(darkness, 1.5); 
+        profile[y] = Math.pow(darkness, 1.5);
       }
 
       const smoothed = movingAverage(profile, 4);
       const { mad } = robustStats(smoothed);
-      const layerThreshold = Math.max(30, mad * 1.5); 
-      const gapThreshold = Math.max(100, mad * 4.5);
-      const minDist = Math.floor(roiH_v / 12); 
+      const layerThreshold = Math.max(30, mad * 1.5);
+      const minDist = Math.floor(roiH_v / 12);
 
       let peaks = findPeaksDynamic(smoothed, layerThreshold, minDist);
 
       const sx = roiW_disp / roiW_v;
       const sy = roiH_disp / roiH_v;
-      
-      const results = [];
 
-      // Build per-peak vertical segment bounds (each "box frame")
       const peakYs = peaks.map(p => p.index);
       const bounds = peakYs.map((y, i) => {
         const yPrev = i === 0 ? 0 : peakYs[i - 1];
@@ -1183,158 +1575,197 @@
         return { y, y0, y1 };
       });
 
+      // PASS 1: meta
+      const metas = [];
       bounds.forEach((b, idx) => {
         if (b.y > roiH_v * 0.96) return;
 
         const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
-        // ---- AREA in this "box frame" (segment) ----
-        // Use mid band (25% - 75%) to reduce edge glare/noise
         const x0 = Math.floor(roiW_v * 0.25);
         const x1 = Math.floor(roiW_v * 0.75);
         const y0 = clamp(b.y0, 0, roiH_v - 1);
         const y1 = clamp(b.y1, 0, roiH_v);
 
-        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1);
+        const areaPx2 = computeLargestBlobAreaPx2(data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias);
 
-        // Stabilize area so numbers don't jump too much
         let st = layerStabilizer[idx];
-        if (!st) st = { area: areaPx2 };
+        if (!st) st = { area: areaPx2, lowCount: 0, okCount: 0, lowConfirmed: false };
         else st.area = lerp(st.area, areaPx2, 0.25);
         layerStabilizer[idx] = st;
 
         const stableArea = Math.max(0, st.area);
 
-        // keep your original width bar visual (optional), but label is AREA only
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v);
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
 
-        let status = "OK";
-        let boxColor = "#34d399"; 
-        let bgColor = "rgba(52, 211, 153, 0.2)";
-        let xOffset = 78;
+        metas.push({ idx, localY_v, drawY, dispX, dispW, stableArea, peakValue });
+      });
 
-        // LABEL: show AREA (px^2) instead of width(px)
-        let labelText = `#${idx + 1}  A:${Math.round(stableArea)} px²`;
+      // keep adaptive K update (for UI only)
+      const allAreasThisFrame = metas.map(x => x.stableArea).filter(a => a > 0);
+      const hasEnough = allAreasThisFrame.length >= AREA_MIN_SAMPLES;
+      if (hasEnough) updateAdaptiveKFromAreas(allAreasThisFrame);
 
-        if (peakValue < gapThreshold) {
-          status = "NG";
-          boxColor = "#ef4444";
-          bgColor = "rgba(239, 68, 68, 0.2)";
-          labelText = `NO GAP ${idx + 1}  A:${Math.round(stableArea)} px²`;
-          xOffset = 120;
-        }
+      const results = [];
+
+      // =========================================================
+      // ✅ PASS 2: RED ONLY when mm out of [2..10]
+      // =========================================================
+      metas.forEach(meta => {
+        const idx = meta.idx;
+        const stableArea = meta.stableArea;
+
+        const gapMM_raw = areaPx2ToMm_15cm(stableArea);
+        const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
+
+        const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
+
+        const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
+        const bgColor  = outOfRangeMM ? "rgba(239, 68, 68, 0.18)" : "rgba(52, 211, 153, 0.20)";
+
+        const prefix = `#${idx + 1}`;
+        const xOffset = 58;
+        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm`;
 
         sheetCtx.fillStyle = bgColor;
-        sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.fillRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
         sheetCtx.strokeStyle = boxColor;
-        sheetCtx.strokeRect(dispX, drawY - 8, dispW, 16);
+        sheetCtx.lineWidth = 2;
+        sheetCtx.setLineDash([]);
+        sheetCtx.strokeRect(meta.dispX, meta.drawY - 8, meta.dispW, 16);
 
         sheetCtx.fillStyle = boxColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
-        sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
+        sheetCtx.fillText(labelText, roiX_disp - xOffset, meta.drawY + 4);
 
         results.push({
           layer: idx + 1,
-          status,
-          area: stableArea,
-          peakValue
+          gapMM,
+          outOfRangeMM
         });
       });
 
-      // Update Header & Summary
+      // Summary counts (ONLY mm-range)
       const expected = results.length;
-      const ngCount = results.filter(r => r.status === "NG").length;
-      const okCount = expected - ngCount;
-      
+      const redCount = results.filter(r => r.outOfRangeMM).length;
+      const okCount = expected - redCount;
+
+      // Header status
       const statusGroup = document.getElementById("header-status-group");
       const header = document.getElementById("glue-header");
 
-      if (ngCount > 0) {
-         statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)"><i data-lucide="x-circle"></i> FAIL</div>`;
-         header.className = "glue-compact-header status-fail";
+      if (redCount > 0) {
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge" style="color:#ef4444; background:rgba(239,68,68,0.1); border-color:rgba(248,113,113,0.2)">
+             <i data-lucide="x-circle"></i> WARNING
+           </div>`;
+        header.className = "glue-compact-header status-fail";
       } else if (expected >= 7 && expected <= 8) {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
-         header.className = "glue-compact-header status-pass";
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> PASS</div>`;
+        header.className = "glue-compact-header status-pass";
       } else {
-         statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
-         header.className = "glue-compact-header";
+        statusGroup.innerHTML =
+          `<div class="gc-status-badge"><i data-lucide="alert-circle"></i> SCANNING</div>`;
+        header.className = "glue-compact-header";
       }
 
       document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
-      document.getElementById('sum-ng').innerText = ngCount;
+      document.getElementById('sum-red').innerText = redCount;
 
-      // --- STATS CALCULATION (Area-based) ---
-      const validAreas = results.filter(r => r.status !== "NG").map(r => r.area);
+      // --- STATS CALCULATION (GREEN only = in-range mm) ---
+      const valid = results.filter(r => !r.outOfRangeMM);
+      const validMM = valid.map(r => r.gapMM).filter(v => v > 0);
 
-      let avgArea = 0;
+      let avgMM = 0;
       let uniformity = 100;
       let stdDev = 0;
 
-      if (validAreas.length > 0) {
-        const totalA = validAreas.reduce((acc, v) => acc + v, 0);
-        avgArea = totalA / validAreas.length;
+      if (validMM.length > 0) {
+        const total = validMM.reduce((acc, v) => acc + v, 0);
+        avgMM = total / validMM.length;
 
-        const variance = validAreas.reduce((acc, v) => acc + Math.pow(v - avgArea, 2), 0) / validAreas.length;
+        const variance = validMM.reduce((acc, v) => acc + Math.pow(v - avgMM, 2), 0) / validMM.length;
         stdDev = Math.sqrt(variance);
 
-        const totalDev = validAreas.reduce((acc, v) => acc + Math.abs(v - avgArea), 0);
-        const avgDev = totalDev / validAreas.length;
-        uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgArea)) * 100));
+        const totalDev = validMM.reduce((acc, v) => acc + Math.abs(v - avgMM), 0);
+        const avgDev = totalDev / validMM.length;
+        uniformity = Math.max(0, 100 - ((avgDev / Math.max(1e-6, avgMM)) * 100));
       }
 
-      // Update Stats Header (Area)
+      // ✅ Bell curve shows ALL values; red points only when out-of-range mm
+      const pointsAll = results
+        .map(r => ({
+          v: r.gapMM,
+          red: r.outOfRangeMM
+        }))
+        .filter(p => p.v > 0);
+
+      // If not enough green values, fall back to all for curve center/spread
+      if (validMM.length < 2 && pointsAll.length >= 2) {
+        const allVals = pointsAll.map(p => p.v);
+        const total = allVals.reduce((a,b)=>a+b,0);
+        avgMM = total / allVals.length;
+        const variance = allVals.reduce((acc, v) => acc + Math.pow(v - avgMM, 2), 0) / allVals.length;
+        stdDev = Math.sqrt(variance);
+      }
+
       const statsHeader = document.getElementById("stats-header");
       if (results.length > 0) {
-          statsHeader.style.display = "grid";
-          statsHeader.innerHTML = `
-            <div class="stat-box">
-                <div class="stat-title">Avg Area</div>
-                <div class="stat-val">${Math.round(avgArea)}<span class="stat-unit">px²</span></div>
-            </div>
-            <div class="stat-box">
-                <div class="stat-title">Consistency</div>
-                <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
-                ${Math.round(uniformity)}<span class="stat-unit">%</span>
-                </div>
-            </div>
-          `;
-          document.getElementById("empty-scan-msg").style.display = "none";
+        statsHeader.style.display = "grid";
+        statsHeader.innerHTML = `
+          <div class="stat-box">
+              <div class="stat-title">Avg Gap</div>
+              <div class="stat-val">${avgMM.toFixed(2)}<span class="stat-unit">mm</span></div>
+          </div>
+          <div class="stat-box">
+              <div class="stat-title">Consistency <span style="opacity:.7">(K=${adaptiveAreaK.toFixed(2)})</span></div>
+              <div class="stat-val" style="color:${uniformity > 85 ? '#34d399' : '#fbbf24'}">
+              ${Math.round(uniformity)}<span class="stat-unit">%</span>
+              </div>
+          </div>
+        `;
+        document.getElementById("empty-scan-msg").style.display = "none";
       } else {
-          statsHeader.style.display = "none";
-          document.getElementById("empty-scan-msg").style.display = "flex";
+        statsHeader.style.display = "none";
+        document.getElementById("empty-scan-msg").style.display = "flex";
       }
 
-      // --- DRAW BELL CURVE & HISTOGRAM (Area) ---
-      drawBellCurve(validAreas, avgArea, stdDev);
-      
+      drawBellCurveMM(pointsAll, avgMM, stdDev);
       lucide.createIcons();
     }
 
-    function drawBellCurve(values, mean, stdDev) {
+    // =========================================================
+    // ✅ Bell Curve (mm) — show ALL points
+    // points = [{ v: number(mm), red: boolean }]
+    // =========================================================
+    function drawBellCurveMM(points, mean, stdDev) {
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
-      if (values.length < 2) return; 
-      
+      if (!points || points.length < 2) return;
+
+      const values = points.map(p => p.v);
       const w = distCanvas.width;
       const h = distCanvas.height;
-      const padX = 20; 
+      const padX = 20;
       const padY = 20;
 
-      const safeSD = Math.max(stdDev, mean * 0.1); 
+      const safeSD = Math.max(stdDev || 0, Math.max(0.08, (mean || 1) * 0.08));
       const minX = mean - 3.5 * safeSD;
       const maxX = mean + 3.5 * safeSD;
-      const rangeX = maxX - minX;
+      const rangeX = Math.max(1e-6, (maxX - minX));
 
       const mapX = (val) => padX + ((val - minX) / rangeX) * (w - 2 * padX);
+
       const getGaussian = (x) => (1 / (safeSD * Math.sqrt(2 * Math.PI))) * Math.exp(-0.5 * Math.pow((x - mean) / safeSD, 2));
       const maxY = getGaussian(mean);
-      
-      // Histogram
+
+      // histogram (ALL values)
       const binCount = 8;
       const binWidth = rangeX / binCount;
       const bins = new Array(binCount).fill(0);
@@ -1356,9 +1787,9 @@
         if (hBar > 0) distCtx.fillRect(xBar, yBar, wBar, hBar);
       });
 
-      // Bell curve
       const mapY = (prob) => h - padY - (prob / maxY) * (h - 2 * padY);
 
+      // bell curve
       distCtx.beginPath();
       distCtx.moveTo(mapX(minX), h - padY);
       const steps = 60;
@@ -1380,7 +1811,7 @@
       distCtx.lineWidth = 2;
       distCtx.stroke();
 
-      // Center line
+      // mean line
       const cx = mapX(mean);
       distCtx.beginPath();
       distCtx.strokeStyle = "rgba(255,255,255,0.3)";
@@ -1390,34 +1821,38 @@
       distCtx.stroke();
       distCtx.setLineDash([]);
 
-      // Dots
-      values.forEach(val => {
+      // points (ALL values)
+      points.forEach(p => {
+        const val = p.v;
         const vx = mapX(val);
         const vy = mapY(getGaussian(val));
         const dev = Math.abs(val - mean);
 
         let color = "#34d399";
-        if (dev > 2 * stdDev) color = "#ef4444";
-        else if (dev > 1 * stdDev) color = "#fbbf24";
+        if (p.red) color = "#ef4444";
+        else if (dev > 1.5 * safeSD) color = "#fbbf24";
 
         distCtx.beginPath();
         distCtx.fillStyle = color;
         distCtx.arc(vx, vy, 4, 0, Math.PI * 2);
         distCtx.fill();
+
         distCtx.shadowColor = color;
         distCtx.shadowBlur = 6;
+        distCtx.strokeStyle = "rgba(0,0,0,0.45)";
+        distCtx.lineWidth = 1;
         distCtx.stroke();
         distCtx.shadowBlur = 0;
       });
 
-      // X-axis label = mean area
+      // mean label (mm)
       distCtx.fillStyle = "#64748b";
       distCtx.font = "10px Inter";
       distCtx.textAlign = "center";
-      distCtx.fillText(`${Math.round(mean)} px²`, cx, h - 5);
+      distCtx.fillText(`${mean.toFixed(2)} mm`, cx, h - 5);
     }
 
-    function analyzeGapWidthRow(data, w, h, cy) {
+    function analyzeGapWidthRow(data, w, h, cy, lightBias) {
       const rowStart = cy * w * 4;
 
       const bandLeft = Math.floor(w * 0.25);
@@ -1437,7 +1872,9 @@
 
       const meanL = cnt ? (sumL / cnt) : minLuma;
       const contrast = Math.max(0, meanL - minLuma);
-      const thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+
+      let thr = clamp(minLuma + Math.max(18, contrast * 0.55), 0, 245);
+      thr = clamp(thr + (lightBias || 0), 0, 250);
 
       let left = minX;
       while (left > 0) {
@@ -1476,12 +1913,21 @@
       sheetFrozen = false;
       sheetResults = [];
       layerStabilizer = {};
+      adaptiveAreaK = 2.2;
+
+      lightAuto = false;
+      lightBiasManual = 0;
+      lightBiasEma = 0;
+      const slider = document.getElementById("light-slider");
+      if (slider) slider.value = "0";
+      syncLightUI();
+
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
       document.getElementById('sum-total').innerText = "0";
       document.getElementById('sum-gap').innerText = "0";
-      document.getElementById('sum-ng').innerText = "0";
+      document.getElementById('sum-red').innerText = "0";
 
       const header = document.getElementById("glue-header");
       header.className = "glue-compact-header";
