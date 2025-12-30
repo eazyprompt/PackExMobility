@@ -1006,8 +1006,8 @@
       const twist = Math.abs(left - right);
 
       if (twist > Math.max(3.5, Math.abs(mean) * 1.4)) return "TWIST";
-      if (mean < -1.5) return "DOWN";
-      if (mean > 1.5) return "UP";
+      if (mean < -1.5) return "UP";
+      if (mean > 1.5) return "DOWN";
       return "FLAT";
     }
 
