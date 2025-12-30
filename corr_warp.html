@@ -349,181 +349,198 @@
     /* =========================================================
        BEAUTIFUL LIGHT SLIDER (same as your style)
        ========================================================= */
-    :root{
-      --lightctl-w: 54px;
-      --lightctl-len: clamp(160px, calc(var(--viewport-h) - 150px), 280px);
-    }
+   /* =========================================================
+   BEAUTIFUL LIGHT SLIDER (BOTTOM HORIZONTAL in .viewport)
+   ========================================================= */
+:root{
+  --lightctl-h: 54px;                              /* bar height */
+  --lightctl-pad: 10px;
+  --lightctl-gap: 10px;
+  --lightctl-slider-len: clamp(180px, 52vw, 340px);/* slider length */
+}
 
-    .lightctl{
-      position:absolute;
-      right: 12px;
-      top: 50%;
-      transform: translateY(-50%);
-      z-index: 40;
+/* bottom bar */
+.lightctl{
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  /* ยกขึ้นจากขอบล่าง + safe-area เพื่อไม่ชน home indicator */
+  bottom: calc(12px + env(safe-area-inset-bottom));
 
-      width: var(--lightctl-w);
-      padding: 10px 10px 12px;
-      border-radius: 18px;
+  z-index: 40;
 
-      background: rgba(2, 6, 23, 0.55);
-      border: 1px solid rgba(255,255,255,0.14);
-      backdrop-filter: blur(10px);
+  height: var(--lightctl-h);
+  padding: 10px 12px;
+  border-radius: 18px;
 
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap: 10px;
+  background: rgba(2, 6, 23, 0.55);
+  border: 1px solid rgba(255,255,255,0.14);
+  backdrop-filter: blur(10px);
 
-      pointer-events:auto;
-      -webkit-user-select:none;
-      user-select:none;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--lightctl-gap);
 
-      opacity: 1;
-      transition: opacity .18s ease, transform .18s ease;
-    }
+  pointer-events: auto;
+  -webkit-user-select: none;
+  user-select: none;
 
-    .lightctl-head{
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap: 6px;
-    }
-    .lightctl-ico{
-      width: 16px;
-      height: 16px;
-      opacity: .95;
-      color: rgba(255,255,255,0.9);
-    }
-    .lightctl-title{
-      font-family: var(--font-num);
-      font-size: 10px;
-      font-weight: 900;
-      letter-spacing: .8px;
-      color: rgba(255,255,255,0.75);
-    }
+  opacity: 1;
+  transition: opacity .18s ease, transform .18s ease;
+}
 
-    .lightctl-rail{
-      position: relative;
-      height: calc(var(--lightctl-len) + 10px);
-      width: 100%;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-    }
+/* left block: icon + LIGHT */
+.lightctl-head{
+  display:flex;
+  flex-direction: row;
+  align-items:center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+.lightctl-ico{
+  width: 18px;
+  height: 18px;
+  opacity: .95;
+  color: rgba(255,255,255,0.9);
+}
+.lightctl-title{
+  font-family: var(--font-num);
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: .8px;
+  color: rgba(255,255,255,0.75);
+}
 
-    .lightctl-slider{
-      -webkit-appearance: none;
-      appearance: none;
+/* center: slider area */
+.lightctl-rail{
+  position: relative;
+  height: 100%;
+  flex: 1;
+  min-width: 0;
 
-      width: var(--lightctl-len);
-      height: 26px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
 
-      transform: rotate(-90deg);
-      transform-origin: center;
+/* horizontal slider (no rotate) */
+.lightctl-slider{
+  -webkit-appearance: none;
+  appearance: none;
 
-      background: transparent;
-      outline: none;
-      padding: 0;
+  width: var(--lightctl-slider-len);
+  max-width: 100%;
+  height: 26px;
 
-      touch-action: none;
-    }
+  transform: none;
+  transform-origin: center;
 
-    .lightctl-slider::-webkit-slider-runnable-track{
-      height: 6px;
-      border-radius: 999px;
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.18),
-        rgba(59,130,246,0.55)
-      );
-      border: 1px solid rgba(255,255,255,0.10);
-    }
+  background: transparent;
+  outline: none;
+  padding: 0;
 
-    .lightctl-slider::-webkit-slider-thumb{
-      -webkit-appearance: none;
-      appearance: none;
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 3px solid rgba(59,130,246,0.9);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-      margin-top: -7px;
-    }
+  touch-action: none;
+}
 
-    .lightctl-slider::-moz-range-track{
-      height: 6px;
-      border-radius: 999px;
-      background: linear-gradient(90deg,
-        rgba(255,255,255,0.18),
-        rgba(59,130,246,0.55)
-      );
-      border: 1px solid rgba(255,255,255,0.10);
-    }
-    .lightctl-slider::-moz-range-thumb{
-      width: 18px;
-      height: 18px;
-      border-radius: 999px;
-      background: #ffffff;
-      border: 3px solid rgba(59,130,246,0.9);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-    }
+.lightctl-slider::-webkit-slider-runnable-track{
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.18),
+    rgba(59,130,246,0.55)
+  );
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.lightctl-slider::-webkit-slider-thumb{
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 3px solid rgba(59,130,246,0.9);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+  margin-top: -7px;
+}
 
-    .lightctl-value{
-      position:absolute;
-      bottom: 6px;
-      left: 50%;
-      transform: translateX(-50%);
-      font-family: var(--font-num);
-      font-size: 11px;
-      font-weight: 900;
-      color: rgba(255,255,255,0.92);
+.lightctl-slider::-moz-range-track{
+  height: 6px;
+  border-radius: 999px;
+  background: linear-gradient(90deg,
+    rgba(255,255,255,0.18),
+    rgba(59,130,246,0.55)
+  );
+  border: 1px solid rgba(255,255,255,0.10);
+}
+.lightctl-slider::-moz-range-thumb{
+  width: 18px;
+  height: 18px;
+  border-radius: 999px;
+  background: #ffffff;
+  border: 3px solid rgba(59,130,246,0.9);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+}
 
-      padding: 4px 8px;
-      border-radius: 999px;
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-    }
+/* value pill above slider */
+.lightctl-value{
+  position:absolute;
+  top: -10px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-family: var(--font-num);
+  font-size: 11px;
+  font-weight: 900;
+  color: rgba(255,255,255,0.92);
 
-    .lightctl-auto,
-    .lightctl-reset{
-      width: 100%;
-      padding: 7px 0;
-      min-height: 30px;
-      border-radius: 12px;
-      border: 1px solid rgba(255,255,255,0.12);
-      background: rgba(255,255,255,0.06);
-      color: rgba(255,255,255,0.88);
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.08);
+  border: 1px solid rgba(255,255,255,0.12);
+}
 
-      font-family: var(--font-num);
-      font-size: 9px;
-      font-weight: 900;
-      letter-spacing: 0.4px;
-      line-height: 1;
-      text-transform: uppercase;
+/* right side buttons */
+.lightctl-auto,
+.lightctl-reset{
+  width: 44px;              /* ทำเป็นปุ่มสี่เหลี่ยมเท่ากัน */
+  height: 38px;
+  padding: 0;
+  border-radius: 12px;
 
-      display: flex;
-      align-items: center;
-      justify-content: center;
+  border: 1px solid rgba(255,255,255,0.12);
+  background: rgba(255,255,255,0.06);
+  color: rgba(255,255,255,0.88);
 
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
+  font-family: var(--font-num);
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  line-height: 1;
+  text-transform: uppercase;
 
-      cursor: pointer;
-      transition: .15s;
-    }
-    .lightctl-auto:active,
-    .lightctl-reset:active{ transform: scale(0.96); }
+  display: flex;
+  align-items: center;
+  justify-content: center;
 
-    .lightctl.auto-on .lightctl-auto{
-      background: rgba(59,130,246,0.18);
-      border-color: rgba(59,130,246,0.35);
-      color: #93c5fd;
-    }
-    .lightctl.auto-on .lightctl-slider{
-      opacity: .55;
-      pointer-events:none;
-    }
+  cursor: pointer;
+  transition: .15s;
+  flex-shrink: 0;
+}
+.lightctl-auto:active,
+.lightctl-reset:active{ transform: scale(0.96); }
+
+.lightctl.auto-on .lightctl-auto{
+  background: rgba(59,130,246,0.18);
+  border-color: rgba(59,130,246,0.35);
+  color: #93c5fd;
+}
+.lightctl.auto-on .lightctl-slider{
+  opacity: .55;
+  pointer-events:none;
+}
+
 
     @media (max-height: 760px) {
       header { min-height: 58px; padding-top: 10px; }
@@ -536,7 +553,7 @@
 <body>
   <div class="app-frame">
     <header>
-      <div class="brand"><i data-lucide="ruler"></i> PackEx <span>Warp</span></div>
+      <div class="brand"><i data-lucide="scan-face"></i> PackEx <span>Mobility</span></div>
       <div class="header-controls">
         <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
           <i data-lucide="flashlight" style="width: 18px;"></i>
@@ -575,7 +592,9 @@
         <div class="warp-header">
           <div class="wh-left">
             <div class="wh-title"><i data-lucide="scan-line" style="width:14px;"></i> WARP MEASUREMENT</div>
-            <div class="wh-sub" id="warp-hint">Align corrugated edge to the horizontal standard line.</div>
+
+            <div class="wh-sub" id="warp-hint"></div>
+
           </div>
           <div class="wh-right">
             <div id="status-badge" class="gc-status-badge">
@@ -587,6 +606,13 @@
           </div>
         </div>
 
+   <div class="chart-card">
+          <div class="chart-top">
+            <div class="chart-title"><i data-lucide="activity" style="width:14px;"></i> Warp Profile dy(x)</div>
+            <div class="chart-meta" id="chart-meta">--</div>
+          </div>
+          <canvas id="warp-profile"></canvas>
+        </div>
         <div class="grid-two">
           <div class="sum-item">
             <div class="sum-val" id="max-warp">--</div>
@@ -613,13 +639,7 @@
           </div>
         </div>
 
-        <div class="chart-card">
-          <div class="chart-top">
-            <div class="chart-title"><i data-lucide="activity" style="width:14px;"></i> Warp Profile dy(x)</div>
-            <div class="chart-meta" id="chart-meta">--</div>
-          </div>
-          <canvas id="warp-profile"></canvas>
-        </div>
+     
 
         <div class="hint-card">
           <div class="hint-ico"><i data-lucide="info" style="width:18px;"></i></div>
@@ -1378,16 +1398,16 @@
 
       if (confEma < 35) {
         setStatus("SCANNING", "neutral");
-        document.getElementById("warp-hint").textContent = "Improve alignment / lighting for stronger edge detection.";
+        document.getElementById("warp-hint").textContent = " ";
       } else if (mode === "pass") {
-        setStatus("PASS", "pass");
-        document.getElementById("warp-hint").textContent = "Warp is within allowable range.";
+        setStatus("FOUND", "pass");
+        document.getElementById("warp-hint").textContent = " ";
       } else if (mode === "warn") {
         setStatus("WARNING", "warn");
-        document.getElementById("warp-hint").textContent = "Warp is close to limit. Monitor trend.";
+        document.getElementById("warp-hint").textContent = " ";
       } else {
         setStatus("OUT OF SPEC", "fail");
-        document.getElementById("warp-hint").textContent = "Warp exceeds limit. Check process / moisture / storage.";
+        document.getElementById("warp-hint").textContent = " ";
       }
 
       // Summary UI
