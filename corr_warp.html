@@ -1061,18 +1061,7 @@
         sheetCtx.lineWidth = 1;
 
         sheetCtx.beginPath();
-        roundRect(sheetCtx, x, y, boxW, boxH, 12);
-        sheetCtx.fill();
-        sheetCtx.stroke();
-
-        sheetCtx.fillStyle = "rgba(255,255,255,0.92)";
-        sheetCtx.font = "900 11px 'JetBrains Mono'";
-        sheetCtx.fillText(`DETECTED ${stats.found}/${stats.total}`, x + 12, y + 20);
-
-        sheetCtx.fillStyle = "rgba(255,255,255,0.70)";
-        sheetCtx.font = "800 10px 'JetBrains Mono'";
-        sheetCtx.fillText(`FOUND ${stats.foundPct}%`, x + 12, y + 38);
-        sheetCtx.fillText(`CONTR ${stats.contrast}`, x + 96, y + 38);
+       
       }
 
       sheetCtx.restore();
