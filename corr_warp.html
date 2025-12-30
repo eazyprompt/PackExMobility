@@ -1112,13 +1112,9 @@
       const lx = roiX + 10;
       const ly = Math.max(roiY + 10, stdY - 34);
       sheetCtx.beginPath();
-      roundRect(sheetCtx, lx, ly, labelW, labelH, 10);
-      sheetCtx.fill();
-      sheetCtx.stroke();
+   
 
-      sheetCtx.fillStyle = "rgba(255,255,255,0.92)";
-      sheetCtx.font = "800 11px 'JetBrains Mono'";
-      sheetCtx.fillText("STANDARD LINE", lx + 10, ly + 16);
+  
 
       sheetCtx.fillStyle = hasEdge ? "rgba(52,211,153,0.95)" : "rgba(251,191,36,0.95)";
       sheetCtx.font = "900 11px 'JetBrains Mono'";
