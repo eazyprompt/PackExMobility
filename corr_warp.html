@@ -241,10 +241,7 @@
     .sum-val { font-family: var(--font-num); font-size: 1.55rem; font-weight: 900; color: #fff; line-height: 1; }
     .sum-sub { font-size: 0.7rem; color: #64748b; font-weight: 700; margin-top: 2px; }
 
-    .text-ok { color: var(--success); }
-    .text-warn { color: var(--warn); }
-    .text-ng { color: var(--danger); }
-
+    /* CHART */
     .chart-card {
       background: #020617;
       border: 1px solid var(--border-subtle);
@@ -253,7 +250,11 @@
       position: relative;
       min-height: 170px;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
     }
+
+    /* NOTE: class="invert" จะ “invert เฉพาะการ plot กราฟ” (JS) แต่ไม่สลับตำแหน่ง chart-top แล้ว */
     .chart-top {
       display:flex; justify-content:space-between; align-items:center;
       padding: 10px 12px;
@@ -280,11 +281,7 @@
       font-weight: 800;
       white-space: nowrap;
     }
-    #warp-profile {
-      width: 100%;
-      height: 100%;
-      display: block;
-    }
+    #warp-profile { width: 100%; height: 100%; display: block; flex: 1; }
 
     .hint-card{
       background: rgba(255,255,255,0.03);
@@ -335,212 +332,166 @@
     .tab-bar .tab-item svg{
       width: 26px; height: 26px; stroke-width: 2.4; transition: transform 0.2s;
     }
-    .tab-bar .tab-item.active svg{
-      transform: translateY(-3px) scale(1.05);
+    .tab-bar .tab-item.active svg{ transform: translateY(-3px) scale(1.05); }
+
+    :root{
+      --lightctl-h: 54px;
+      --lightctl-gap: 10px;
+      --lightctl-slider-len: clamp(180px, 52vw, 340px);
     }
-    @media (display-mode: standalone) {
-      .tab-bar .tab-item svg{ width: 30px; height: 30px; stroke-width: 2.6; }
-      .tab-bar{ height: 68px; padding-bottom: calc(env(safe-area-inset-bottom) + 4px); }
-      .tab-lbl{ font-size: 0.75rem; }
+
+    .lightctl{
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 40;
+      height: var(--lightctl-h);
+      padding: 10px 12px;
+      border-radius: 18px;
+
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--lightctl-gap);
+
+      pointer-events: auto;
+      -webkit-user-select: none;
+      user-select: none;
+
+      opacity: 1;
+      transition: opacity .18s ease, transform .18s ease;
     }
 
-    .display-none { display: none !important; }
+    .lightctl-head{ display:flex; flex-direction: row; align-items:center; gap: 8px; flex-shrink: 0; }
+    .lightctl-ico{ width: 18px; height: 18px; opacity: .95; color: rgba(255,255,255,0.9); }
+    .lightctl-title{
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.75);
+    }
 
-    /* =========================================================
-       BEAUTIFUL LIGHT SLIDER (same as your style)
-       ========================================================= */
-   /* =========================================================
-   BEAUTIFUL LIGHT SLIDER (BOTTOM HORIZONTAL in .viewport)
-   ========================================================= */
-:root{
-  --lightctl-h: 54px;                              /* bar height */
-  --lightctl-pad: 10px;
-  --lightctl-gap: 10px;
-  --lightctl-slider-len: clamp(180px, 52vw, 340px);/* slider length */
-}
+    .lightctl-rail{
+      position: relative;
+      height: 100%;
+      flex: 1;
+      min-width: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
 
-/* bottom bar */
-.lightctl{
-  position: absolute;
-  left: 12px;
-  right: 12px;
-  bottom: 12px;
-  /* ยกขึ้นจากขอบล่าง + safe-area เพื่อไม่ชน home indicator */
-  bottom: calc(12px + env(safe-area-inset-bottom));
+    .lightctl-slider{
+      -webkit-appearance: none;
+      appearance: none;
+      width: var(--lightctl-slider-len);
+      max-width: 100%;
+      height: 26px;
+      background: transparent;
+      outline: none;
+      padding: 0;
+      touch-action: none;
+    }
 
-  z-index: 40;
+    .lightctl-slider::-webkit-slider-runnable-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      margin-top: -7px;
+    }
 
-  height: var(--lightctl-h);
-  padding: 10px 12px;
-  border-radius: 18px;
+    .lightctl-slider::-moz-range-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
 
-  background: rgba(2, 6, 23, 0.55);
-  border: 1px solid rgba(255,255,255,0.14);
-  backdrop-filter: blur(10px);
+    .lightctl-value{
+      position:absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-num);
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
 
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-  gap: var(--lightctl-gap);
+    .lightctl-auto,
+    .lightctl-reset{
+      width: 44px;
+      height: 38px;
+      padding: 0;
+      border-radius: 12px;
 
-  pointer-events: auto;
-  -webkit-user-select: none;
-  user-select: none;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
 
-  opacity: 1;
-  transition: opacity .18s ease, transform .18s ease;
-}
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
 
-/* left block: icon + LIGHT */
-.lightctl-head{
-  display:flex;
-  flex-direction: row;
-  align-items:center;
-  gap: 8px;
-  flex-shrink: 0;
-}
-.lightctl-ico{
-  width: 18px;
-  height: 18px;
-  opacity: .95;
-  color: rgba(255,255,255,0.9);
-}
-.lightctl-title{
-  font-family: var(--font-num);
-  font-size: 10px;
-  font-weight: 900;
-  letter-spacing: .8px;
-  color: rgba(255,255,255,0.75);
-}
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-/* center: slider area */
-.lightctl-rail{
-  position: relative;
-  height: 100%;
-  flex: 1;
-  min-width: 0;
+      cursor: pointer;
+      transition: .15s;
+      flex-shrink: 0;
+    }
+    .lightctl-auto:active,
+    .lightctl-reset:active{ transform: scale(0.96); }
 
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
-
-/* horizontal slider (no rotate) */
-.lightctl-slider{
-  -webkit-appearance: none;
-  appearance: none;
-
-  width: var(--lightctl-slider-len);
-  max-width: 100%;
-  height: 26px;
-
-  transform: none;
-  transform-origin: center;
-
-  background: transparent;
-  outline: none;
-  padding: 0;
-
-  touch-action: none;
-}
-
-.lightctl-slider::-webkit-slider-runnable-track{
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-    rgba(255,255,255,0.18),
-    rgba(59,130,246,0.55)
-  );
-  border: 1px solid rgba(255,255,255,0.10);
-}
-.lightctl-slider::-webkit-slider-thumb{
-  -webkit-appearance: none;
-  appearance: none;
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 3px solid rgba(59,130,246,0.9);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-  margin-top: -7px;
-}
-
-.lightctl-slider::-moz-range-track{
-  height: 6px;
-  border-radius: 999px;
-  background: linear-gradient(90deg,
-    rgba(255,255,255,0.18),
-    rgba(59,130,246,0.55)
-  );
-  border: 1px solid rgba(255,255,255,0.10);
-}
-.lightctl-slider::-moz-range-thumb{
-  width: 18px;
-  height: 18px;
-  border-radius: 999px;
-  background: #ffffff;
-  border: 3px solid rgba(59,130,246,0.9);
-  box-shadow: 0 6px 18px rgba(0,0,0,0.35);
-}
-
-/* value pill above slider */
-.lightctl-value{
-  position:absolute;
-  top: -10px;
-  left: 50%;
-  transform: translateX(-50%);
-  font-family: var(--font-num);
-  font-size: 11px;
-  font-weight: 900;
-  color: rgba(255,255,255,0.92);
-
-  padding: 4px 8px;
-  border-radius: 999px;
-  background: rgba(255,255,255,0.08);
-  border: 1px solid rgba(255,255,255,0.12);
-}
-
-/* right side buttons */
-.lightctl-auto,
-.lightctl-reset{
-  width: 44px;              /* ทำเป็นปุ่มสี่เหลี่ยมเท่ากัน */
-  height: 38px;
-  padding: 0;
-  border-radius: 12px;
-
-  border: 1px solid rgba(255,255,255,0.12);
-  background: rgba(255,255,255,0.06);
-  color: rgba(255,255,255,0.88);
-
-  font-family: var(--font-num);
-  font-size: 9px;
-  font-weight: 900;
-  letter-spacing: 0.4px;
-  line-height: 1;
-  text-transform: uppercase;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  cursor: pointer;
-  transition: .15s;
-  flex-shrink: 0;
-}
-.lightctl-auto:active,
-.lightctl-reset:active{ transform: scale(0.96); }
-
-.lightctl.auto-on .lightctl-auto{
-  background: rgba(59,130,246,0.18);
-  border-color: rgba(59,130,246,0.35);
-  color: #93c5fd;
-}
-.lightctl.auto-on .lightctl-slider{
-  opacity: .55;
-  pointer-events:none;
-}
-
+    .lightctl.auto-on .lightctl-auto{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+    .lightctl.auto-on .lightctl-slider{
+      opacity: .55;
+      pointer-events:none;
+    }
 
     @media (max-height: 760px) {
       header { min-height: 58px; padding-top: 10px; }
@@ -592,9 +543,7 @@
         <div class="warp-header">
           <div class="wh-left">
             <div class="wh-title"><i data-lucide="scan-line" style="width:14px;"></i> WARP MEASUREMENT</div>
-
             <div class="wh-sub" id="warp-hint"></div>
-
           </div>
           <div class="wh-right">
             <div id="status-badge" class="gc-status-badge">
@@ -606,13 +555,15 @@
           </div>
         </div>
 
-   <div class="chart-card">
+        <!-- ✅ chart-top อยู่ “ด้านบน” แล้ว / invert ใช้แค่ invert กราฟ (JS) -->
+        <div class="chart-card invert" id="warp-chart">
           <div class="chart-top">
             <div class="chart-title"><i data-lucide="activity" style="width:14px;"></i> Warp Profile dy(x)</div>
             <div class="chart-meta" id="chart-meta">--</div>
           </div>
           <canvas id="warp-profile"></canvas>
         </div>
+
         <div class="grid-two">
           <div class="sum-item">
             <div class="sum-val" id="max-warp">--</div>
@@ -638,8 +589,6 @@
             <div class="sum-sub">0–100</div>
           </div>
         </div>
-
-     
 
         <div class="hint-card">
           <div class="hint-ico"><i data-lucide="info" style="width:18px;"></i></div>
@@ -698,33 +647,34 @@
     // =========================
     const ROI_W_RATIO = 0.78;
     const ROI_H_RATIO = 0.68;
-    const ROI_Y_SHIFT = -0.05;         // slightly up
-    const STANDARD_Y_RATIO = 0.52;     // inside ROI (0..1)
-    const EDGE_BAND_PX = 26;           // search band around standard line (video-space)
-    const SAMPLE_COUNT = 64;           // number of x samples across ROI
-    const GRAD_STEP = 2;               // vertical gradient step
-    const MIN_EDGE_CONTRAST = 18;      // minimum contrast to accept edge
+    const ROI_Y_SHIFT = -0.05;
+    const STANDARD_Y_RATIO = 0.52;
+    const EDGE_BAND_PX = 26;
+    const SAMPLE_COUNT = 64;
+    const GRAD_STEP = 2;
+    const MIN_EDGE_CONTRAST = 18;
 
-    // Relative "mm" scaling (since no real scale)
-    // We map px -> "mm" with a stable factor so it feels like mm.
-    // If later you want real mm, replace with pxPerMm from width detection.
     const PX_TO_MM = 0.08;
 
-    // Status thresholds (in "mm relative")
     const PASS_MAX_MM = 4.0;
     const WARN_MAX_MM = 6.0;
 
-    // Stabilization
     const EMA_PROFILE = 0.18;
     const EMA_METRIC = 0.20;
 
-    let dyEma = null;          // Float32Array
+    let dyEma = null;
     let maxMmEma = 0;
     let avgMmEma = 0;
     let confEma = 0;
 
     // =========================
-    // LIGHT CONTROL (same style)
+    // SHOW DETECTIONS IN VIEWPORT
+    // =========================
+    const SHOW_DETECTIONS = true;     // toggle
+    const DET_LINE_W = 3.0;           // line width for detections (red)
+
+    // =========================
+    // LIGHT CONTROL
     // =========================
     let lightAuto = false;
     let lightBiasManual = 0;
@@ -765,7 +715,6 @@
       }
     });
 
-    // Reset (Warp page) => reset light + measurements + freeze
     function resetAll() {
       frozen = false;
       const btn = document.getElementById("btn-freeze");
@@ -861,7 +810,6 @@
       const camH = Math.round(frameH * 0.45);
       document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
 
-      // Resize profile canvas to card box
       const card = document.querySelector(".chart-card");
       if (card) {
         const rect = card.getBoundingClientRect();
@@ -883,7 +831,7 @@
     if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
 
     // =========================
-    // Torch helpers (same logic)
+    // Torch helpers
     // =========================
     async function setTorch(on) {
       if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
@@ -983,14 +931,12 @@
     }
 
     // =========================
-    // Core warp measurement (No Touch)
+    // Core warp measurement
     // =========================
     function lumaAt(data, idx) {
       return data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
     }
 
-    // Find edge near standard line for a given x:
-    // We scan vertically inside a small band and find max gradient.
     function findEdgeYNearStandard(data, w, h, x, yCenter, band, lightBias) {
       const y0 = Math.max(1, Math.round(yCenter - band));
       const y1 = Math.min(h - 2, Math.round(yCenter + band));
@@ -999,7 +945,6 @@
       let bestG = 0;
       let bestContrast = 0;
 
-      // Bias affects thresholding indirectly by lifting expected contrast
       const minContrast = MIN_EDGE_CONTRAST + Math.abs(lightBias) * 0.10;
 
       for (let y = y0; y <= y1; y += 1) {
@@ -1013,7 +958,6 @@
         const b = lumaAt(data, iB);
         const g = Math.abs(b - a);
 
-        // estimate local contrast by checking small neighborhood
         const yC = Math.max(0, Math.min(h - 1, y));
         const iC = (yC * w + x) * 4;
         const c = lumaAt(data, iC);
@@ -1051,7 +995,6 @@
       for (let i=0;i<dyArr.length;i++) sum += dyArr[i];
       const mean = sum / dyArr.length;
 
-      // detect twist: compare left vs right average
       const n = dyArr.length;
       const q = (n/4)|0;
       let left=0,right=0;
@@ -1068,7 +1011,80 @@
       return "FLAT";
     }
 
-    function drawOverlayROIandStandard(roiX, roiY, roiW, roiH, stdY, stdX0, stdX1, hasEdge, modeColor) {
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w/2, h/2);
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+    }
+
+    // invert เฉพาะกราฟ ถ้า chart-card มี class "invert"
+    function isChartInverted() {
+      const card = document.querySelector(".chart-card");
+      return !!(card && card.classList.contains("invert"));
+    }
+
+    // ✅ แสดงสิ่งที่ detect เจอใน viewport เป็น "เส้นสีแดง"
+    function drawDetectionRedLine(edgePts, stats, roiX, roiY, roiW, roiH) {
+      if (!SHOW_DETECTIONS) return;
+      if (!edgePts || edgePts.length < 2) return;
+
+      sheetCtx.save();
+
+      const red = "rgba(239, 68, 68, 0.95)";
+      sheetCtx.lineWidth = DET_LINE_W;
+      sheetCtx.strokeStyle = red;
+      sheetCtx.shadowColor = "rgba(239, 68, 68, 0.55)";
+      sheetCtx.shadowBlur = 12;
+      sheetCtx.lineJoin = "round";
+      sheetCtx.lineCap = "round";
+
+      sheetCtx.beginPath();
+      sheetCtx.moveTo(edgePts[0].x, edgePts[0].y);
+      for (let i=1;i<edgePts.length;i++) sheetCtx.lineTo(edgePts[i].x, edgePts[i].y);
+      sheetCtx.stroke();
+
+      // (optional) stats pill
+      if (stats) {
+        const pad = 10;
+        const boxW = 168;
+        const boxH = 54;
+        const x = roiX + roiW - boxW - pad;
+        const y = roiY + pad;
+
+        sheetCtx.shadowBlur = 0;
+        sheetCtx.fillStyle = "rgba(15, 23, 42, 0.72)";
+        sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
+        sheetCtx.lineWidth = 1;
+
+        sheetCtx.beginPath();
+        roundRect(sheetCtx, x, y, boxW, boxH, 12);
+        sheetCtx.fill();
+        sheetCtx.stroke();
+
+        sheetCtx.fillStyle = "rgba(255,255,255,0.92)";
+        sheetCtx.font = "900 11px 'JetBrains Mono'";
+        sheetCtx.fillText(`DETECTED ${stats.found}/${stats.total}`, x + 12, y + 20);
+
+        sheetCtx.fillStyle = "rgba(255,255,255,0.70)";
+        sheetCtx.font = "800 10px 'JetBrains Mono'";
+        sheetCtx.fillText(`FOUND ${stats.foundPct}%`, x + 12, y + 38);
+        sheetCtx.fillText(`CONTR ${stats.contrast}`, x + 96, y + 38);
+      }
+
+      sheetCtx.restore();
+    }
+
+    function drawOverlayROIandStandard(
+      roiX, roiY, roiW, roiH,
+      stdY, stdX0, stdX1,
+      hasEdge, modeColor,
+      edgePts,
+      detStats
+    ) {
       const dw = sheetCanvas.width, dh = sheetCanvas.height;
       sheetCtx.clearRect(0,0,dw,dh);
 
@@ -1085,7 +1101,7 @@
       sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
       sheetCtx.setLineDash([]);
 
-      // standard line (horizontal)
+      // standard line (horizontal) - คงสีตามสถานะเหมือนเดิม
       sheetCtx.save();
       const col = modeColor || "rgba(59, 130, 246, 0.95)";
       sheetCtx.strokeStyle = col;
@@ -1099,7 +1115,7 @@
       sheetCtx.stroke();
       sheetCtx.restore();
 
-      // small label
+      // label
       sheetCtx.fillStyle = "rgba(15, 23, 42, 0.70)";
       sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
       sheetCtx.lineWidth = 1;
@@ -1115,51 +1131,40 @@
       sheetCtx.font = "800 11px 'JetBrains Mono'";
       sheetCtx.fillText("STANDARD LINE", lx + 10, ly + 16);
 
-      // edge hint
       sheetCtx.fillStyle = hasEdge ? "rgba(52,211,153,0.95)" : "rgba(251,191,36,0.95)";
       sheetCtx.font = "900 11px 'JetBrains Mono'";
-      const msg = hasEdge ? "EDGE LOCKED" : "SCANNING...";
-      sheetCtx.fillText(msg, lx + 10, ly + 34);
+      sheetCtx.fillText(hasEdge ? "EDGE LOCKED" : "SCANNING...", lx + 10, ly + 34);
+
+      // ✅ red detection line
+      if (hasEdge && edgePts && edgePts.length) {
+        drawDetectionRedLine(edgePts, detStats, roiX, roiY, roiW, roiH);
+      }
 
       sheetCtx.restore();
     }
 
-    function roundRect(ctx, x, y, w, h, r) {
-      const rr = Math.min(r, w/2, h/2);
-      ctx.moveTo(x+rr, y);
-      ctx.arcTo(x+w, y, x+w, y+h, rr);
-      ctx.arcTo(x+w, y+h, x, y+h, rr);
-      ctx.arcTo(x, y+h, x, y, rr);
-      ctx.arcTo(x, y, x+w, y, rr);
-      ctx.closePath();
-    }
-
-    function drawProfile(dyArr, stdPxToMm, mode) {
+    // invert เฉพาะ plot ในกราฟ (ไม่แตะ logic)
+    function drawProfile(dyArr, stdPxToMm, mode, invertDisplay) {
       const w = profileCanvas.width;
       const h = profileCanvas.height;
       profileCtx.clearRect(0,0,w,h);
-
       if (!dyArr || dyArr.length < 8) return;
 
-      // Background grid
       profileCtx.fillStyle = "rgba(2, 6, 23, 1)";
       profileCtx.fillRect(0,0,w,h);
 
       const padX = 14;
       const padY = 14;
 
-      // mm conversion
-      const mmArr = dyArr.map(v => v * stdPxToMm);
+      const sign = invertDisplay ? -1 : 1;
+      const mmArr = dyArr.map(v => v * stdPxToMm * sign);
 
-      // bounds
       let maxAbs = 0;
       for (const v of mmArr) maxAbs = Math.max(maxAbs, Math.abs(v));
       maxAbs = Math.max(2.5, maxAbs);
 
-      // grid lines
       profileCtx.strokeStyle = "rgba(255,255,255,0.08)";
       profileCtx.lineWidth = 1;
-
       for (let i=0;i<=4;i++){
         const yy = padY + (i/4)*(h-2*padY);
         profileCtx.beginPath();
@@ -1168,7 +1173,6 @@
         profileCtx.stroke();
       }
 
-      // center line (0)
       const y0 = padY + 0.5*(h-2*padY);
       profileCtx.strokeStyle = "rgba(255,255,255,0.22)";
       profileCtx.setLineDash([6,6]);
@@ -1178,24 +1182,20 @@
       profileCtx.stroke();
       profileCtx.setLineDash([]);
 
-      // mapping
       const mapX = (i) => padX + (i/(mmArr.length-1))*(w-2*padX);
       const mapY = (mm) => {
         const t = (mm / (2*maxAbs)) + 0.5;
         return padY + (1 - t) * (h-2*padY);
       };
 
-      // line color by status
       let stroke = "#3b82f6";
       if (mode === "pass") stroke = "#34d399";
       else if (mode === "warn") stroke = "#fbbf24";
       else if (mode === "fail") stroke = "#ef4444";
 
-      // draw polyline
       profileCtx.beginPath();
       profileCtx.lineWidth = 2.5;
       profileCtx.strokeStyle = stroke;
-
       for (let i=0;i<mmArr.length;i++){
         const x = mapX(i);
         const y = mapY(mmArr[i]);
@@ -1204,7 +1204,6 @@
       }
       profileCtx.stroke();
 
-      // fill glow under curve
       profileCtx.save();
       profileCtx.globalAlpha = 0.22;
       profileCtx.fillStyle = stroke;
@@ -1218,7 +1217,6 @@
       profileCtx.fill();
       profileCtx.restore();
 
-      // axis labels
       profileCtx.fillStyle = "rgba(255,255,255,0.55)";
       profileCtx.font = "800 10px Inter";
       profileCtx.textAlign = "left";
@@ -1226,16 +1224,6 @@
       profileCtx.fillText(`-${maxAbs.toFixed(1)} mm`, padX, h - 6);
       profileCtx.textAlign = "right";
       profileCtx.fillText("0", w - padX, y0 - 6);
-
-      // points
-      profileCtx.fillStyle = stroke;
-      for (let i=0;i<mmArr.length;i+=4){
-        const x = mapX(i);
-        const y = mapY(mmArr[i]);
-        profileCtx.beginPath();
-        profileCtx.arc(x,y,3.2,0,Math.PI*2);
-        profileCtx.fill();
-      }
     }
 
     function processWarpFrame() {
@@ -1262,7 +1250,7 @@
       const stdX0_disp = roiX_disp + 10;
       const stdX1_disp = roiX_disp + roiW_disp - 10;
 
-      // Convert ROI to video space for processing
+      // Convert ROI to video space
       const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
       const roiW_v = Math.max(1, Math.round(roiV.w));
       const roiH_v = Math.max(1, Math.round(roiV.h));
@@ -1277,7 +1265,6 @@
       const img = procCtx.getImageData(0,0,roiW_v,roiH_v);
       const data = img.data;
 
-      // AUTO light bias estimate (contrast around center)
       if (lightAuto) {
         const bandLeft = Math.floor(roiW_v * 0.20);
         const bandRight = Math.floor(roiW_v * 0.80);
@@ -1305,57 +1292,45 @@
       }
 
       const lightBias = getLightBias();
-
-      // Standard line in video space
       const stdY_v = Math.round(roiH_v * STANDARD_Y_RATIO);
 
-      // Sample x positions across ROI
       const x0 = Math.floor(roiW_v * 0.12);
       const x1 = Math.floor(roiW_v * 0.88);
       const n = SAMPLE_COUNT;
 
       const dy = new Float32Array(n);
+      const xArr = new Int16Array(n);
+      const foundMask = new Uint8Array(n);
+
       let foundCount = 0;
       let contrastSum = 0;
 
       for (let i=0;i<n;i++){
         const t = i/(n-1);
         const x = Math.round(x0 + t*(x1-x0));
+        xArr[i] = x;
 
-        const res = findEdgeYNearStandard(
-          data, roiW_v, roiH_v,
-          x,
-          stdY_v,
-          EDGE_BAND_PX,
-          lightBias
-        );
+        const res = findEdgeYNearStandard(data, roiW_v, roiH_v, x, stdY_v, EDGE_BAND_PX, lightBias);
 
         if (res.y !== null) {
-          dy[i] = (res.y - stdY_v);
+          dy[i] = (res.y - stdY_v); // logic เดิม
+          foundMask[i] = 1;
           foundCount++;
           contrastSum += res.contrast || 0;
         } else {
-          // missing => set to 0 temporarily (will be filtered)
           dy[i] = 0;
+          foundMask[i] = 0;
         }
       }
 
-      // Confidence
       const foundRatio = foundCount / n;
       const avgContrast = foundCount ? (contrastSum / foundCount) : 0;
 
-      // Extra confidence from stability
       let conf = clamp(foundRatio * 85 + clamp((avgContrast - 10) * 1.2, 0, 25), 0, 100);
 
-      // Median filter to remove outliers
       let dyF = medianFilter(dy, 5);
+      if (foundRatio < 0.45) conf = conf * 0.55;
 
-      // If many missing, soften
-      if (foundRatio < 0.45) {
-        conf = conf * 0.55;
-      }
-
-      // EMA stabilize profile
       if (!dyEma || dyEma.length !== dyF.length) {
         dyEma = dyF;
       } else {
@@ -1364,32 +1339,25 @@
         }
       }
 
-      // Metrics (px)
       let maxAbsPx = 0;
       let sumAbsPx = 0;
-
       for (let i=0;i<dyEma.length;i++){
-        const v = dyEma[i];
-        const av = Math.abs(v);
+        const av = Math.abs(dyEma[i]);
         if (av > maxAbsPx) maxAbsPx = av;
         sumAbsPx += av;
       }
 
       const avgAbsPx = sumAbsPx / Math.max(1, dyEma.length);
 
-      // Convert to "mm relative"
       const maxMm = maxAbsPx * PX_TO_MM;
       const avgMm = avgAbsPx * PX_TO_MM;
 
-      // EMA stabilize metrics
       maxMmEma = lerp(maxMmEma, maxMm, EMA_METRIC);
       avgMmEma = lerp(avgMmEma, avgMm, EMA_METRIC);
       confEma  = lerp(confEma,  conf,  EMA_METRIC);
 
-      // Direction
       const dir = computeDirection(dyEma);
 
-      // Status by thresholds
       let mode = "neutral";
       if (confEma < 35) mode = "neutral";
       else if (maxMmEma <= PASS_MAX_MM) mode = "pass";
@@ -1410,36 +1378,60 @@
         document.getElementById("warp-hint").textContent = " ";
       }
 
-      // Summary UI
       const fmtMm = (v) => (confEma < 35 ? "--" : v.toFixed(2));
       const fmtConf = (v) => (v <= 0 ? "--" : Math.round(v).toString());
 
-      const maxStr = fmtMm(maxMmEma);
-      const avgStr = fmtMm(avgMmEma);
-      const dirStr = (confEma < 35 ? "--" : dir);
-      const confStr = fmtConf(confEma);
-
-      setSummary(maxStr, avgStr, dirStr, confStr);
+      setSummary(fmtMm(maxMmEma), fmtMm(avgMmEma), (confEma < 35 ? "--" : dir), fmtConf(confEma));
       document.getElementById("chart-meta").textContent =
         (confEma < 35 ? "--" : `max=${maxMmEma.toFixed(2)}  avg=${avgMmEma.toFixed(2)}  conf=${Math.round(confEma)}`);
 
-      // Overlay: ROI + horizontal standard line
       const hasEdge = confEma >= 35;
+
       const lineColor =
         mode === "pass" ? "rgba(52, 211, 153, 0.95)" :
         mode === "warn" ? "rgba(251, 191, 36, 0.95)" :
         mode === "fail" ? "rgba(239, 68, 68, 0.95)" :
         "rgba(59, 130, 246, 0.95)";
 
+      // build display-space edge points
+      let edgePtsDisp = null;
+      let detStats = null;
+
+      if (hasEdge && SHOW_DETECTIONS) {
+        edgePtsDisp = [];
+        const xScale = roiW_disp / roiW_v;
+        const yScale = roiH_disp / roiH_v;
+
+        for (let i=0;i<n;i++){
+          if (!foundMask[i]) continue;
+          const x_v = xArr[i];
+          const y_v = stdY_v + dyEma[i]; // viewport mapping เดิม
+          edgePtsDisp.push({
+            x: roiX_disp + x_v * xScale,
+            y: roiY_disp + y_v * yScale
+          });
+        }
+
+        detStats = {
+          found: foundCount,
+          total: n,
+          foundPct: Math.round(foundRatio * 100),
+          contrast: Math.round(avgContrast).toString()
+        };
+      }
+
       drawOverlayROIandStandard(
         roiX_disp, roiY_disp, roiW_disp, roiH_disp,
         stdY_disp, stdX0_disp, stdX1_disp,
         hasEdge,
-        lineColor
+        lineColor,
+        edgePtsDisp,
+        detStats
       );
 
-      // Draw profile dy(x)
-      drawProfile(dyEma, PX_TO_MM, (confEma < 35 ? "neutral" : mode));
+      // invert เฉพาะกราฟ
+      drawProfile(dyEma, PX_TO_MM, (confEma < 35 ? "neutral" : mode), isChartInverted());
+
       lucide.createIcons();
     }
 
