@@ -1,0 +1,1908 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>PackEx - Template Diff (No OpenCV)</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
+
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 14px;
+
+      --viewport-h: 260px;
+      --app-h: 100dvh;
+      --tab-h: 66px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 520px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
+    }
+
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
+    .brand {
+      font-weight: 800;
+      font-size: 1.15rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #fff;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.82em; }
+
+    .header-controls { display:flex; align-items:center; gap:10px; }
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: 0.2s;
+      flex-shrink: 0;
+    }
+    .btn-icon-header:active { transform: scale(0.94); }
+
+    .viewport {
+      height: var(--viewport-h);
+      min-height: 0;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+      transition: height 0.25s ease;
+    }
+    .vp-camera {
+      flex: 1;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #020617;
+      min-width: 0;
+    }
+
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 1.0;
+      position: relative;
+      z-index: 1;
+    }
+    .ghost-overlay {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      opacity: 0;
+      pointer-events: none;
+      z-index: 6;
+      transition: opacity 160ms ease;
+      filter: grayscale(0.1) contrast(1.02);
+    }
+    .ghost-overlay.active { opacity: 0.28; }
+
+    #overlay-canvas {
+      position: absolute;
+      inset:0;
+      width:100%;
+      height:100%;
+      pointer-events:none;
+      z-index: 20;
+    }
+
+    /* ======= AUTO AIM HUD (pill + message + arrows) ======= */
+    .aimbar{
+      position:absolute;
+      left: 12px;
+      right: 12px;
+      top: 10px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap: wrap;
+      z-index: 30;
+      pointer-events:none;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(2, 6, 23, 0.62);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      font-family: var(--font-num);
+      font-weight: 900;
+      font-size: 0.72rem;
+      color: #e2e8f0;
+      white-space: nowrap;
+    }
+    .dot{ width:8px;height:8px;border-radius:999px;background:#64748b; }
+    .pill.good .dot{ background: var(--success); }
+    .pill.warn .dot{ background: var(--warn); }
+    .pill.bad  .dot{ background: var(--danger); }
+
+    .aimmsg{
+      flex:1;
+      min-width: 220px;
+      padding: 8px 12px;
+      border-radius: 14px;
+      background: rgba(2, 6, 23, 0.62);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 24px rgba(0,0,0,0.25);
+      font-weight: 900;
+      font-size: 0.78rem;
+      color: #cbd5e1;
+    }
+
+    .hud-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .target-box {
+      width: 44px;
+      height: 44px;
+      position: relative;
+      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.55);
+      border-radius: 12px;
+      transition: transform 0.1s;
+    }
+    .target-box::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: 12px;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    .target-box.stable::before{
+      border-color: rgba(52, 211, 153, 0.95);
+      box-shadow: 0 0 18px rgba(52, 211, 153, 0.45);
+    }
+    .crosshair { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; opacity:0.85; }
+    .ch-c { width:4px; height:4px; background:#fff; border-radius:50%; box-shadow:0 0 2px #000; }
+
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      min-height: 0;
+    }
+
+    .panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-layout);
+      margin: 0 auto;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 10px 20px calc(var(--tab-h) + env(safe-area-inset-bottom) + 14px);
+    }
+
+    .result-dashboard {
+      display: flex;
+      gap: 12px;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      flex-shrink: 0;
+      min-width: 0;
+      flex-wrap: wrap;
+    }
+    .res-left { display:flex; flex-direction:column; gap:2px; min-width:0; }
+    .res-label { font-size:0.65rem; color:var(--text-muted); font-weight:800; text-transform:uppercase; letter-spacing:0.5px; }
+    .res-value { font-family: var(--font-num); font-size: clamp(1.7rem, 6vw, 2.4rem); font-weight: 900; line-height:1; }
+    .res-sub { font-family: var(--font-num); font-size:0.72rem; color:#94a3b8; font-weight:800; margin-top:4px; }
+    .res-badge {
+      padding: 8px 14px;
+      border-radius: 10px;
+      font-size: 0.75rem;
+      font-weight: 900;
+      background: #334155;
+      color: #fff;
+      letter-spacing: 0.5px;
+      border: 1px solid rgba(255, 255, 255, 0.10);
+      flex-shrink: 0;
+      white-space: nowrap;
+      display:flex;
+      align-items:center;
+      gap:8px;
+    }
+    .status-good .res-value { color: var(--success); }
+    .status-good .res-badge { background: rgba(52, 211, 153, 0.18); color: var(--success); border-color: rgba(52,211,153,0.26); }
+    .status-warn .res-value { color: var(--warn); }
+    .status-warn .res-badge { background: rgba(251, 191, 36, 0.18); color: var(--warn); border-color: rgba(251,191,36,0.26); }
+    .status-bad .res-value  { color: var(--danger); }
+    .status-bad .res-badge  { background: rgba(239, 68, 68, 0.18); color: var(--danger); border-color: rgba(239,68,68,0.26); }
+
+    .cards-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+    .data-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: 0.3s;
+      min-width: 0;
+    }
+    .card-top { display:flex; justify-content:space-between; align-items:center; }
+    .tag {
+      font-size:0.72rem;
+      font-weight:900;
+      color: var(--text-muted);
+      display:flex;
+      gap:8px;
+      align-items:center;
+      letter-spacing:0.3px;
+    }
+    .thumb {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.08);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      overflow:hidden;
+    }
+    .thumb img { width:100%; height:100%; object-fit:cover; display:none; }
+    .thumb.has img { display:block; }
+    .mono-row {
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      background: rgba(15, 23, 42, 0.5);
+      border-radius: 10px;
+      padding: 8px 10px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      font-family: var(--font-num);
+      font-size: 0.72rem;
+      font-weight: 800;
+      color:#cbd5e1;
+    }
+    .mono-row span { color:#94a3b8; font-weight:900; }
+
+    .btn-act {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255, 255, 255, 0.05);
+      color: #fff;
+      font-weight: 900;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: 0.15s;
+      font-size: 0.78rem;
+      letter-spacing:0.3px;
+    }
+    .btn-act:active { transform: scale(0.97); }
+    .data-card.active-ref { border-color: var(--primary); background: linear-gradient(165deg, rgba(59, 130, 246, 0.15), #1e293b 90%); }
+    .data-card.active-sam { border-color: #fff; background: linear-gradient(165deg, rgba(255, 255, 255, 0.10), #1e293b 90%); }
+
+    .settings-card{
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: var(--radius-lg);
+      padding: 12px;
+      display:flex;
+      flex-direction:column;
+      gap: 10px;
+    }
+    .settings-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      font-size: 0.75rem;
+      color:#cbd5e1;
+      text-transform: uppercase;
+    }
+    .grid2{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .ctrl{
+      background: rgba(2,6,23,0.35);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 10px 10px;
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      min-width:0;
+    }
+    .ctrl .lbl{
+      font-size: 0.62rem;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      color:#94a3b8;
+      text-transform: uppercase;
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .ctrl .val{
+      font-family: var(--font-num);
+      font-size: 0.74rem;
+      font-weight: 900;
+      color:#e2e8f0;
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+    }
+    input[type="range"]{
+      width: 100%;
+      accent-color: var(--primary);
+    }
+    .toggle-row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .chip{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.05);
+      color:#e2e8f0;
+      font-family: var(--font-num);
+      font-size: 0.70rem;
+      font-weight: 900;
+      cursor: pointer;
+      display:flex;
+      align-items:center;
+      gap: 8px;
+      user-select:none;
+      transition: .15s;
+    }
+    .chip:active{ transform: scale(0.98); }
+    .chip.on{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.30);
+      color:#bfdbfe;
+    }
+
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: 6px;
+    }
+    .tab-item {
+      flex: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      gap: 4px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .tab-lbl { font-size: 0.72rem; font-weight: 900; letter-spacing:0.2px; }
+    .tab-item svg { width: 28px; height: 28px; stroke-width: 2.6; transition: transform 0.2s; }
+    .tab-item:active svg { transform: translateY(-2px) scale(1.04); }
+
+    #proc-canvas { display:none; }
+
+    @media (max-height: 760px) {
+      :root { --gap-layout: 12px; }
+      header { min-height: 58px; padding-top: 10px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+    <header>
+      <div class="brand"><i data-lucide="scan-eye"></i> PackEx <span>Template Diff</span></div>
+      <div class="header-controls">
+        <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
+          <i data-lucide="flashlight" style="width: 18px;"></i>
+        </button>
+        <button class="btn-icon-header" onclick="resetAll()" title="Reset">
+          <i data-lucide="rotate-cw" style="width: 18px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="viewport">
+      <div class="vp-camera" id="vp-camera">
+        <video id="webcam" autoplay playsinline muted></video>
+        <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
+        <canvas id="overlay-canvas"></canvas>
+
+        <div class="aimbar">
+          <div class="pill" id="aim-pill"><span class="dot"></span><span id="aim-val">AIM: --%</span></div>
+          <div class="aimmsg" id="aim-msg">Capture REF to start aiming</div>
+        </div>
+
+        <div class="hud-overlay">
+          <div class="target-box" id="targetBox"><div class="crosshair"><div class="ch-c"></div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-content">
+
+        <div id="result-dashboard" class="result-dashboard">
+          <div class="res-left">
+            <div class="res-label">Similarity</div>
+            <div class="res-value" id="sim-val">--</div>
+            <div class="res-sub" id="sim-sub">READY</div>
+          </div>
+          <div class="res-badge" id="sim-badge"><i data-lucide="sparkles" style="width:18px;"></i> READY</div>
+        </div>
+
+        <div class="cards-container">
+          <div class="data-card" id="card-ref">
+            <div class="card-top">
+              <div class="tag"><i data-lucide="crosshair" width="16"></i> REF</div>
+              <div class="thumb" id="thumb-ref"><img id="thumb-ref-img" alt="ref"></div>
+            </div>
+            <div class="mono-row">
+              <div><span>MEAN</span> <b id="ref-mean">-</b></div>
+              <div><span>STD</span> <b id="ref-std">-</b></div>
+            </div>
+            <button class="btn-act" id="btn-cap-ref" onclick="captureRef()">
+              <i data-lucide="fingerprint" style="width: 18px;"></i> CAPTURE REF
+            </button>
+          </div>
+
+          <div class="data-card" id="card-sam">
+            <div class="card-top">
+              <div class="tag"><i data-lucide="zap" width="16"></i> SAMPLE</div>
+              <div class="thumb" id="thumb-sam"><img id="thumb-sam-img" alt="sam"></div>
+            </div>
+            <div class="mono-row">
+              <div><span>dx/dy</span> <b id="sam-shift">-</b></div>
+              <div><span>rot</span> <b id="sam-rot">-</b></div>
+            </div>
+            <button class="btn-act" id="btn-cap-sam" onclick="captureSam()">
+              <i data-lucide="scan-line" style="width: 18px;"></i> CAPTURE & COMPARE
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-card">
+          <div class="settings-title">
+            <div style="display:flex; align-items:center; gap:10px;">
+              <i data-lucide="sliders-horizontal" style="width:18px;"></i> Print Diff Controls
+            </div>
+            <div style="font-family:var(--font-num); font-size:0.70rem; font-weight:900; color:#94a3b8;">NO OPENCV</div>
+          </div>
+
+          <div class="grid2">
+            <div class="ctrl">
+              <div class="lbl"><span>Diff Threshold</span><span class="val" id="thr-val">28</span></div>
+              <input id="thr" type="range" min="8" max="90" value="28" step="1">
+              <div class="val" style="opacity:.85;">final = max(manual, auto)</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="lbl"><span>Min Blob Area</span><span class="val" id="area-val">700</span></div>
+              <input id="minArea" type="range" min="80" max="5000" value="700" step="10">
+              <div class="val" style="opacity:.85;">filter tiny noise</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="lbl"><span>Denoise Blur</span><span class="val" id="blur-val">3</span></div>
+              <input id="blur" type="range" min="1" max="7" value="3" step="1">
+              <div class="val" style="opacity:.85;">reduce grain/texture</div>
+            </div>
+
+            <div class="ctrl">
+              <div class="lbl"><span>Heatmap</span><span class="val" id="hm-val">70%</span></div>
+              <input id="hmAlpha" type="range" min="10" max="95" value="70" step="1">
+              <div class="val" style="opacity:.85;">overlay strength</div>
+            </div>
+          </div>
+
+          <div class="toggle-row">
+            <div class="chip on" id="tg-aim" onclick="toggleChip('aim')"><i data-lucide="navigation" style="width:16px;"></i> AUTO AIM</div>
+            <div class="chip on" id="tg-align" onclick="toggleChip('align')"><i data-lucide="move" style="width:16px;"></i> ALIGN</div>
+            <div class="chip on" id="tg-rot" onclick="toggleChip('rot')"><i data-lucide="rotate-ccw" style="width:16px;"></i> ROT SEARCH</div>
+            <div class="chip on" id="tg-hp" onclick="toggleChip('hp')"><i data-lucide="waves" style="width:16px;"></i> ILLUM NORMALIZE</div>
+            <div class="chip on" id="tg-edge" onclick="toggleChip('edge')"><i data-lucide="scan" style="width:16px;"></i> EDGE WEIGHT</div>
+            <div class="chip on" id="tg-morph" onclick="toggleChip('morph')"><i data-lucide="boxes" style="width:16px;"></i> MORPH CLEAN</div>
+          </div>
+
+          <button class="btn-act" onclick="compareNow()" style="background: rgba(59,130,246,0.18); border-color: rgba(59,130,246,0.35);">
+            <i data-lucide="sparkles" style="width: 18px;"></i> RE-COMPARE (Current View)
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item" onclick="goHome()">
+        <i data-lucide="home"></i>
+        <span class="tab-lbl">HOME</span>
+      </div>
+    </div>
+  </div>
+
+  <canvas id="proc-canvas" width="10" height="10"></canvas>
+
+  <script>
+    lucide.createIcons();
+
+    // =========================
+    // NAV
+    // =========================
+    function goHome() { window.location.href = "index.html"; }
+
+    // =========================
+    // DOM
+    // =========================
+    const video = document.getElementById("webcam");
+    const procCanvas = document.getElementById("proc-canvas");
+    const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
+
+    const overlayCanvas = document.getElementById("overlay-canvas");
+    const overlayCtx = overlayCanvas.getContext("2d", { willReadFrequently: true });
+
+    const ghostOverlay = document.getElementById("ghost-overlay");
+
+    // UI fields
+    const simVal = document.getElementById("sim-val");
+    const simSub = document.getElementById("sim-sub");
+    const simBadge = document.getElementById("sim-badge");
+    const dash = document.getElementById("result-dashboard");
+
+    const refMeanEl = document.getElementById("ref-mean");
+    const refStdEl  = document.getElementById("ref-std");
+    const samShiftEl= document.getElementById("sam-shift");
+    const samRotEl  = document.getElementById("sam-rot");
+
+    const thr = document.getElementById("thr");
+    const minArea = document.getElementById("minArea");
+    const blur = document.getElementById("blur");
+    const hmAlpha = document.getElementById("hmAlpha");
+    const thrVal = document.getElementById("thr-val");
+    const areaVal = document.getElementById("area-val");
+    const blurVal = document.getElementById("blur-val");
+    const hmVal = document.getElementById("hm-val");
+
+    const thumbRef = document.getElementById("thumb-ref");
+    const thumbSam = document.getElementById("thumb-sam");
+    const thumbRefImg = document.getElementById("thumb-ref-img");
+    const thumbSamImg = document.getElementById("thumb-sam-img");
+
+    const aimPill = document.getElementById("aim-pill");
+    const aimVal  = document.getElementById("aim-val");
+    const aimMsg  = document.getElementById("aim-msg");
+    const targetBox = document.getElementById("targetBox");
+
+    // =========================
+    // SETTINGS
+    // =========================
+    let OPT_AIM = true;
+    let OPT_ALIGN = true;
+    let OPT_ROT = true;
+    let OPT_HP = true;
+    let OPT_EDGE = true;
+    let OPT_MORPH = true;
+
+    function toggleChip(key){
+      if (key === 'aim') OPT_AIM = !OPT_AIM;
+      if (key === 'align') OPT_ALIGN = !OPT_ALIGN;
+      if (key === 'rot') OPT_ROT = !OPT_ROT;
+      if (key === 'hp') OPT_HP = !OPT_HP;
+      if (key === 'edge') OPT_EDGE = !OPT_EDGE;
+      if (key === 'morph') OPT_MORPH = !OPT_MORPH;
+
+      const map = {
+        aim: ["tg-aim", OPT_AIM],
+        align: ["tg-align", OPT_ALIGN],
+        rot: ["tg-rot", OPT_ROT],
+        hp: ["tg-hp", OPT_HP],
+        edge: ["tg-edge", OPT_EDGE],
+        morph: ["tg-morph", OPT_MORPH],
+      };
+      const [id, on] = map[key];
+      const el = document.getElementById(id);
+      if (el) el.classList.toggle("on", !!on);
+      lucide.createIcons();
+      if (refState.ready && samState.ready) compareNow();
+    }
+
+    // =========================
+    // HELPERS (math)
+    // =========================
+    function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
+    function wait(ms){ return new Promise(r => setTimeout(r, ms)); }
+
+    // =========================
+    // CAMERA + TORCH
+    // =========================
+    let videoTrack = null;
+    let torchSupported = false;
+    let isTorchOn = false;
+    let torchOpBusy = false;
+
+    async function initCamera(){
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+          audio: false
+        });
+        video.srcObject = stream;
+        videoTrack = stream.getVideoTracks?.()[0] || null;
+
+        // detect torch
+        try{
+          const caps = videoTrack?.getCapabilities?.();
+          torchSupported = !!caps?.torch;
+        }catch(e){ torchSupported = false; }
+
+        // best effort camera params
+        tryLockCameraParams();
+        updateTorchUI();
+
+        video.onloadedmetadata = () => {
+          applyAutoFitLayout();
+          requestAnimationFrame(loopOverlay);
+        };
+      }catch(err){
+        alert("Camera Error: " + err);
+      }
+    }
+
+    async function tryLockCameraParams(){
+      if (!videoTrack?.applyConstraints) return;
+      try{
+        const caps = videoTrack.getCapabilities?.() || {};
+        const adv = [];
+        if (caps.whiteBalanceMode?.includes?.("continuous")) adv.push({ whiteBalanceMode: "continuous" });
+        if (caps.exposureMode?.includes?.("continuous")) adv.push({ exposureMode: "continuous" });
+        if (caps.focusMode?.includes?.("continuous")) adv.push({ focusMode: "continuous" });
+        if (adv.length) await videoTrack.applyConstraints({ advanced: adv });
+      }catch(e){ /* ignore */ }
+    }
+
+    async function setTorch(on){
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try{
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      }catch(e){ return false; }
+    }
+
+    function updateTorchUI(){
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+      if (isTorchOn){
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      }else{
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold(){
+      if (torchOpBusy) return;
+      torchOpBusy = true;
+      const next = !isTorchOn;
+      try{
+        if (torchSupported && videoTrack?.applyConstraints){
+          const ok = await setTorch(next);
+          if (!ok && next){
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+          isTorchOn = next;
+          updateTorchUI();
+          return;
+        }
+        isTorchOn = next;
+        updateTorchUI();
+      }finally{
+        torchOpBusy = false;
+      }
+    }
+
+    // =========================
+    // COVER-MAPPING (match what user sees in video element)
+    // =========================
+    function getCoverMetrics(){
+      const vw = video.videoWidth || 0;
+      const vh = video.videoHeight || 0;
+      if (!vw || !vh) return null;
+
+      const r = video.getBoundingClientRect();
+      const dw = r.width || 0;
+      const dh = r.height || 0;
+      if (!dw || !dh) return null;
+
+      const scale = Math.max(dw / vw, dh / vh);
+      const scaledW = vw * scale;
+      const scaledH = vh * scale;
+      const offX = (dw - scaledW) / 2;
+      const offY = (dh - scaledH) / 2;
+
+      return { vw, vh, dw, dh, scale, offX, offY, rect: r };
+    }
+
+    function getVisibleVideoCrop(m){
+      const x0 = clamp((0 - m.offX) / m.scale, 0, m.vw-1);
+      const y0 = clamp((0 - m.offY) / m.scale, 0, m.vh-1);
+      const x1 = clamp((m.dw - m.offX) / m.scale, 1, m.vw);
+      const y1 = clamp((m.dh - m.offY) / m.scale, 1, m.vh);
+      const w = Math.max(1, x1 - x0);
+      const h = Math.max(1, y1 - y0);
+      return { x: x0, y: y0, w, h };
+    }
+
+    // =========================
+    // LAYOUT
+    // =========================
+    function applyAutoFitLayout(){
+      const frame = document.querySelector(".app-frame");
+      if (!frame) return;
+
+      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
+
+      const frameH = frame.offsetHeight;
+      const header = document.querySelector("header");
+      const headerH = header ? header.offsetHeight : 64;
+      const tabH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--tab-h")) || 66;
+
+      const available = frameH - headerH - tabH;
+      const camH = Math.max(210, Math.round(available * 0.42));
+      document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
+
+      const r = video.getBoundingClientRect();
+      const dw = Math.max(1, Math.round(r.width));
+      const dh = Math.max(1, Math.round(r.height));
+      if (overlayCanvas.width !== dw || overlayCanvas.height !== dh){
+        overlayCanvas.width = dw;
+        overlayCanvas.height = dh;
+      }
+    }
+    window.addEventListener("resize", applyAutoFitLayout);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
+
+    function loopOverlay(){
+      applyAutoFitLayout();
+      requestAnimationFrame(loopOverlay);
+    }
+
+    // =========================
+    // STATE (REF / SAMPLE)
+    // =========================
+    const CAP_W = 480;
+    const CAP_H = 270;
+
+    const refState = {
+      ready: false,
+      dataURL: "",
+      gray: null,
+      hp: null,
+      edge: null,
+      mean: 0,
+      std: 1
+    };
+
+    const samState = {
+      ready: false,
+      dataURL: "",
+      lastAlign: { dx: 0, dy: 0, ang: 0 }
+    };
+
+    // =========================
+    // CAPTURE (multi-frame average)
+    // =========================
+    function drawVisibleToCanvas(ctx, w, h){
+      const m = getCoverMetrics();
+      if (!m) return false;
+      const crop = getVisibleVideoCrop(m);
+      ctx.drawImage(video, crop.x, crop.y, crop.w, crop.h, 0, 0, w, h);
+      return true;
+    }
+
+    async function captureAveragedFrame(frames = 6, spacingMs = 28){
+      const tmp = document.createElement("canvas");
+      tmp.width = CAP_W; tmp.height = CAP_H;
+      const tctx = tmp.getContext("2d", { willReadFrequently: true });
+
+      const acc = new Float32Array(CAP_W * CAP_H * 3);
+      let got = 0;
+
+      for (let i=0;i<frames;i++){
+        if (video.readyState !== video.HAVE_ENOUGH_DATA) { await wait(spacingMs); continue; }
+        tctx.clearRect(0,0,CAP_W,CAP_H);
+        const ok = drawVisibleToCanvas(tctx, CAP_W, CAP_H);
+        if (!ok) { await wait(spacingMs); continue; }
+        const img = tctx.getImageData(0,0,CAP_W,CAP_H).data;
+        for (let p=0, j=0; p<img.length; p+=4, j+=3){
+          acc[j]   += img[p];
+          acc[j+1] += img[p+1];
+          acc[j+2] += img[p+2];
+        }
+        got++;
+        await wait(spacingMs);
+      }
+      if (!got) return null;
+
+      const out = tctx.createImageData(CAP_W, CAP_H);
+      const d = out.data;
+      const inv = 1.0 / got;
+      for (let j=0, p=0; p<d.length; p+=4, j+=3){
+        d[p]   = Math.round(acc[j]*inv);
+        d[p+1] = Math.round(acc[j+1]*inv);
+        d[p+2] = Math.round(acc[j+2]*inv);
+        d[p+3] = 255;
+      }
+      tctx.putImageData(out,0,0);
+
+      return { canvas: tmp, ctx: tctx, imageData: out };
+    }
+
+    // =========================
+    // IMAGE PIPELINE
+    // =========================
+    function rgbToGray(imgData){
+      const d = imgData.data;
+      const g = new Uint8ClampedArray(CAP_W * CAP_H);
+      for (let i=0, j=0; i<d.length; i+=4, j++){
+        g[j] = (0.299*d[i] + 0.587*d[i+1] + 0.114*d[i+2]) | 0;
+      }
+      return g;
+    }
+
+    function boxBlurGray(src, w, h, r){
+      if (r <= 0) return src;
+      const tmp = new Uint16Array(w*h);
+      const out = new Uint8ClampedArray(w*h);
+      const div = (r*2 + 1);
+
+      for (let y=0;y<h;y++){
+        let sum = 0;
+        let idx = y*w;
+        for (let x=-r; x<=r; x++){
+          const xx = clamp(x, 0, w-1);
+          sum += src[idx + xx];
+        }
+        tmp[idx] = sum;
+        for (let x=1;x<w;x++){
+          const addX = clamp(x + r, 0, w-1);
+          const subX = clamp(x - r - 1, 0, w-1);
+          sum += src[idx + addX] - src[idx + subX];
+          tmp[idx + x] = sum;
+        }
+      }
+
+      for (let x=0;x<w;x++){
+        let sum = 0;
+        for (let y=-r; y<=r; y++){
+          const yy = clamp(y, 0, h-1);
+          sum += tmp[yy*w + x];
+        }
+        out[x] = (sum/div/div) | 0;
+        for (let y=1;y<h;y++){
+          const addY = clamp(y + r, 0, h-1);
+          const subY = clamp(y - r - 1, 0, h-1);
+          sum += tmp[addY*w + x] - tmp[subY*w + x];
+          out[y*w + x] = (sum/div/div) | 0;
+        }
+      }
+      return out;
+    }
+
+    function meanStdGray(g){
+      let sum=0, sum2=0;
+      const n=g.length;
+      for (let i=0;i<n;i++){
+        const v=g[i];
+        sum += v;
+        sum2 += v*v;
+      }
+      const mean = sum / n;
+      const varr = Math.max(1e-6, sum2/n - mean*mean);
+      return { mean, std: Math.sqrt(varr) };
+    }
+
+    function illuminationNormalize(g, w, h){
+      const low = boxBlurGray(g, w, h, 12);
+      const out = new Uint8ClampedArray(w*h);
+      for (let i=0;i<out.length;i++){
+        out[i] = clamp((g[i] - low[i]) + 128, 0, 255) | 0;
+      }
+      return out;
+    }
+
+    function normalizeTo(refG, samG){
+      const r = meanStdGray(refG);
+      const s = meanStdGray(samG);
+      const out = new Uint8ClampedArray(samG.length);
+      const scale = r.std / (s.std || 1e-6);
+      const bias  = r.mean - s.mean * scale;
+      for (let i=0;i<samG.length;i++){
+        out[i] = clamp((samG[i] * scale + bias), 0, 255) | 0;
+      }
+      return out;
+    }
+
+    function gradMag(g,w,h){
+      const out = new Uint8ClampedArray(w*h);
+      for (let y=1;y<h-1;y++){
+        const row=y*w;
+        for (let x=1;x<w-1;x++){
+          const i=row+x;
+          const gx = (g[i+1]-g[i-1]);
+          const gy = (g[i+w]-g[i-w]);
+          out[i] = clamp(Math.abs(gx) + Math.abs(gy), 0, 255) | 0;
+        }
+      }
+      return out;
+    }
+
+    function downsampleNearest(src, sw, sh, dw, dh){
+      const out = new Uint8ClampedArray(dw*dh);
+      const sx = sw / dw;
+      const sy = sh / dh;
+      for (let y=0;y<dh;y++){
+        const yy = Math.min(sh-1, Math.floor(y*sy));
+        for (let x=0;x<dw;x++){
+          const xx = Math.min(sw-1, Math.floor(x*sx));
+          out[y*dw + x] = src[yy*sw + xx];
+        }
+      }
+      return out;
+    }
+
+    function rotateGrayBilinear(src, w, h, deg){
+      if (Math.abs(deg) < 1e-6) return src;
+      const out = new Uint8ClampedArray(w*h);
+      const rad = deg * Math.PI/180;
+      const cos = Math.cos(rad), sin = Math.sin(rad);
+      const cx = (w-1)/2, cy = (h-1)/2;
+
+      for (let y=0;y<h;y++){
+        for (let x=0;x<w;x++){
+          const dx = x - cx, dy = y - cy;
+          const sx =  cos*dx + sin*dy + cx;
+          const sy = -sin*dx + cos*dy + cy;
+
+          if (sx < 0 || sy < 0 || sx > w-1 || sy > h-1){
+            out[y*w+x] = 0;
+            continue;
+          }
+
+          const x0 = Math.floor(sx), y0 = Math.floor(sy);
+          const x1 = Math.min(w-1, x0+1), y1 = Math.min(h-1, y0+1);
+          const fx = sx - x0, fy = sy - y0;
+
+          const p00 = src[y0*w + x0];
+          const p10 = src[y0*w + x1];
+          const p01 = src[y1*w + x0];
+          const p11 = src[y1*w + x1];
+
+          const a = p00*(1-fx) + p10*fx;
+          const b = p01*(1-fx) + p11*fx;
+          out[y*w+x] = (a*(1-fy) + b*fy) | 0;
+        }
+      }
+      return out;
+    }
+
+    function bestShiftSAD(ref, sam, w, h, maxShift, step=2){
+      let best = { dx:0, dy:0, score: Infinity };
+      for (let dy=-maxShift; dy<=maxShift; dy++){
+        for (let dx=-maxShift; dx<=maxShift; dx++){
+          let s = 0;
+          for (let y=0; y<h; y+=step){
+            const yy = y + dy;
+            if (yy < 0 || yy >= h) continue;
+            const row = y*w;
+            const row2 = yy*w;
+            for (let x=0; x<w; x+=step){
+              const xx = x + dx;
+              if (xx < 0 || xx >= w) continue;
+              s += Math.abs(ref[row + x] - sam[row2 + xx]);
+            }
+          }
+          if (s < best.score) best = { dx, dy, score: s };
+        }
+      }
+      return best;
+    }
+
+    function transformSampleToCanvas(sampleCanvas, angDeg, dx, dy){
+      const out = document.createElement("canvas");
+      out.width = CAP_W; out.height = CAP_H;
+      const ctx = out.getContext("2d", { willReadFrequently:true });
+
+      ctx.save();
+      ctx.clearRect(0,0,CAP_W,CAP_H);
+
+      ctx.translate(dx, dy);
+      const cx = CAP_W/2, cy = CAP_H/2;
+      ctx.translate(cx, cy);
+      ctx.rotate(angDeg * Math.PI/180);
+      ctx.translate(-cx, -cy);
+
+      ctx.drawImage(sampleCanvas, 0,0, CAP_W, CAP_H);
+      ctx.restore();
+      return out;
+    }
+
+    // Robust threshold (median+MAD)
+    function medianOfSorted(sorted){
+      const n = sorted.length;
+      if (!n) return 0;
+      const mid = (n/2) | 0;
+      return (n % 2) ? sorted[mid] : (sorted[mid-1] + sorted[mid]) / 2;
+    }
+    function robustMedianMad(arr){
+      const a = Array.from(arr);
+      a.sort((x,y)=>x-y);
+      const med = medianOfSorted(a);
+      const dev = a.map(v => Math.abs(v - med)).sort((x,y)=>x-y);
+      const mad = medianOfSorted(dev) || 0;
+      return { med, mad };
+    }
+
+    // Otsu threshold (0..255)
+    function otsuThreshold(u8){
+      const hist = new Uint32Array(256);
+      for (let i=0;i<u8.length;i++) hist[u8[i]]++;
+
+      const total = u8.length;
+      let sumAll = 0;
+      for (let t=0;t<256;t++) sumAll += t * hist[t];
+
+      let sumB = 0;
+      let wB = 0;
+      let maxVar = -1;
+      let bestT = 0;
+
+      for (let t=0;t<256;t++){
+        wB += hist[t];
+        if (wB === 0) continue;
+        const wF = total - wB;
+        if (wF === 0) break;
+
+        sumB += t * hist[t];
+        const mB = sumB / wB;
+        const mF = (sumAll - sumB) / wF;
+        const between = wB * wF * (mB - mF) * (mB - mF);
+        if (between > maxVar){
+          maxVar = between;
+          bestT = t;
+        }
+      }
+      return bestT;
+    }
+
+    // Morphology (binary) - 3x3
+    function erode(bin, w, h){
+      const out = new Uint8Array(w*h);
+      for (let y=1;y<h-1;y++){
+        for (let x=1;x<w-1;x++){
+          const i = y*w+x;
+          let ok = 1;
+          for (let yy=-1;yy<=1;yy++){
+            const row = (y+yy)*w;
+            for (let xx=-1;xx<=1;xx++){
+              if (!bin[row + (x+xx)]) { ok = 0; yy=2; break; }
+            }
+          }
+          out[i] = ok;
+        }
+      }
+      return out;
+    }
+    function dilate(bin, w, h){
+      const out = new Uint8Array(w*h);
+      for (let y=1;y<h-1;y++){
+        for (let x=1;x<w-1;x++){
+          const i = y*w+x;
+          let ok = 0;
+          for (let yy=-1;yy<=1;yy++){
+            const row = (y+yy)*w;
+            for (let xx=-1;xx<=1;xx++){
+              if (bin[row + (x+xx)]) { ok = 1; yy=2; break; }
+            }
+          }
+          out[i] = ok;
+        }
+      }
+      return out;
+    }
+
+    function findBlobs(bin, w, h, minA){
+      const visited = new Uint8Array(w*h);
+      const blobs = [];
+      const q = new Int32Array(w*h);
+
+      for (let i=0;i<bin.length;i++){
+        if (!bin[i] || visited[i]) continue;
+        visited[i] = 1;
+
+        let head=0, tail=0;
+        q[tail++] = i;
+
+        let area=0;
+        let minX=1e9, minY=1e9, maxX=-1, maxY=-1;
+
+        while(head<tail){
+          const idx = q[head++];
+          area++;
+
+          const y = (idx / w) | 0;
+          const x = idx - y*w;
+          if (x < minX) minX = x;
+          if (y < minY) minY = y;
+          if (x > maxX) maxX = x;
+          if (y > maxY) maxY = y;
+
+          const n1 = idx - 1;
+          const n2 = idx + 1;
+          const n3 = idx - w;
+          const n4 = idx + w;
+
+          if (x > 0 && bin[n1] && !visited[n1]) { visited[n1]=1; q[tail++]=n1; }
+          if (x < w-1 && bin[n2] && !visited[n2]) { visited[n2]=1; q[tail++]=n2; }
+          if (y > 0 && bin[n3] && !visited[n3]) { visited[n3]=1; q[tail++]=n3; }
+          if (y < h-1 && bin[n4] && !visited[n4]) { visited[n4]=1; q[tail++]=n4; }
+        }
+
+        if (area >= minA){
+          blobs.push({ area, x:minX, y:minY, w:(maxX-minX+1), h:(maxY-minY+1) });
+        }
+      }
+
+      blobs.sort((a,b)=>b.area-a.area);
+      return blobs;
+    }
+
+    // Heatmap + aim arrows + boxes
+    function drawHeatmapAndBoxes(diff, thrFinal, blobs, aimOverlay=null){
+      const W = overlayCanvas.width;
+      const H = overlayCanvas.height;
+      overlayCtx.clearRect(0,0,W,H);
+
+      // Aim overlay arrows first (so heatmap is behind? we draw heatmap first then arrows & boxes)
+      // Heatmap
+      const alpha = clamp(parseInt(hmAlpha.value||"70",10)/100, 0.05, 0.95);
+      const img = overlayCtx.createImageData(W,H);
+      const d = img.data;
+
+      const sx = CAP_W / W;
+      const sy = CAP_H / H;
+
+      for (let y=0;y<H;y++){
+        const yy = Math.min(CAP_H-1, Math.floor(y*sy));
+        for (let x=0;x<W;x++){
+          const xx = Math.min(CAP_W-1, Math.floor(x*sx));
+          const v = diff ? (diff[yy*CAP_W + xx] || 0) : 0;
+          const t = diff ? clamp((v - thrFinal) / Math.max(1, (255 - thrFinal)), 0, 1) : 0;
+          const a = (t * alpha * 255) | 0;
+
+          const idx = (y*W + x)*4;
+          d[idx] = 255;
+          d[idx+1] = (80 + (1-t)*60) | 0;
+          d[idx+2] = (60 + (1-t)*50) | 0;
+          d[idx+3] = a;
+        }
+      }
+      overlayCtx.putImageData(img,0,0);
+
+      // Boxes
+      if (blobs && blobs.length){
+        overlayCtx.save();
+        overlayCtx.lineWidth = 2.5;
+        overlayCtx.shadowColor = "rgba(239,68,68,0.65)";
+        overlayCtx.shadowBlur = 10;
+        overlayCtx.strokeStyle = "rgba(239,68,68,0.95)";
+        overlayCtx.fillStyle = "rgba(2,6,23,0.55)";
+        overlayCtx.font = "900 12px 'JetBrains Mono'";
+        overlayCtx.textBaseline = "top";
+
+        blobs.slice(0, 18).forEach((b, idx)=>{
+          const x = (b.x / CAP_W) * W;
+          const y = (b.y / CAP_H) * H;
+          const w = (b.w / CAP_W) * W;
+          const h = (b.h / CAP_H) * H;
+
+          overlayCtx.strokeRect(x,y,w,h);
+
+          const label = `#${idx+1}  A:${b.area}`;
+          const pad = 6;
+          const tw = overlayCtx.measureText(label).width + pad*2;
+          const th = 18;
+
+          overlayCtx.fillRect(x, Math.max(0,y- (th+6)), tw, th);
+          overlayCtx.fillStyle = "rgba(239,68,68,0.95)";
+          overlayCtx.fillText(label, x+pad, Math.max(0,y- (th+6)) + 2);
+          overlayCtx.fillStyle = "rgba(2,6,23,0.55)";
+        });
+
+        overlayCtx.restore();
+      }
+
+      // Aim arrows last (on top)
+      if (aimOverlay){
+        drawAimArrows(aimOverlay);
+      }
+    }
+
+    function drawAimArrows(aim){
+      const W = overlayCanvas.width, H = overlayCanvas.height;
+      const cx = W/2, cy = H/2;
+
+      overlayCtx.save();
+      overlayCtx.globalAlpha = 0.95;
+      overlayCtx.lineWidth = 5;
+      overlayCtx.lineCap = "round";
+      overlayCtx.lineJoin = "round";
+
+      // nice shadow
+      overlayCtx.shadowColor = "rgba(0,0,0,0.55)";
+      overlayCtx.shadowBlur = 10;
+
+      // choose color based on aim quality
+      const col = aim.quality > 0.92 ? "rgba(52,211,153,0.95)"
+                : aim.quality > 0.82 ? "rgba(251,191,36,0.95)"
+                : "rgba(239,68,68,0.95)";
+      overlayCtx.strokeStyle = col;
+      overlayCtx.fillStyle = col;
+
+      // arrows helper
+      function arrow(x1,y1,x2,y2){
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(x1,y1);
+        overlayCtx.lineTo(x2,y2);
+        overlayCtx.stroke();
+
+        // arrow head
+        const ang = Math.atan2(y2-y1, x2-x1);
+        const ah = 14;
+        const a1 = ang + Math.PI*0.85;
+        const a2 = ang - Math.PI*0.85;
+
+        overlayCtx.beginPath();
+        overlayCtx.moveTo(x2,y2);
+        overlayCtx.lineTo(x2 + Math.cos(a1)*ah, y2 + Math.sin(a1)*ah);
+        overlayCtx.lineTo(x2 + Math.cos(a2)*ah, y2 + Math.sin(a2)*ah);
+        overlayCtx.closePath();
+        overlayCtx.fill();
+      }
+
+      const m = 90; // arrow length
+      if (aim.dirX === -1) arrow(cx+70, cy, cx-70, cy); // move left
+      if (aim.dirX ===  1) arrow(cx-70, cy, cx+70, cy); // move right
+      if (aim.dirY === -1) arrow(cx, cy+70, cx, cy-70); // move up
+      if (aim.dirY ===  1) arrow(cx, cy-70, cx, cy+70); // move down
+
+      // rotate hint (draw curved arrow)
+      if (aim.dirRot !== 0){
+        overlayCtx.shadowBlur = 8;
+        const r = 70;
+        overlayCtx.beginPath();
+        const start = aim.dirRot > 0 ? -0.6 : (Math.PI + 0.6);
+        const end   = aim.dirRot > 0 ? (Math.PI + 0.6) : -0.6;
+        overlayCtx.arc(cx, cy, r, start, end, aim.dirRot < 0);
+        overlayCtx.stroke();
+
+        // head
+        const hx = cx + r*Math.cos(end);
+        const hy = cy + r*Math.sin(end);
+        arrow(hx - 0.1, hy - 0.1, hx, hy);
+      }
+
+      overlayCtx.restore();
+    }
+
+    // =========================
+    // AUTO AIM loop (no OpenCV)
+    // =========================
+    const aimState = {
+      quality: 0,
+      dx: 0, dy: 0, ang: 0,
+      stableCount: 0,
+      lastMsg: ""
+    };
+
+    let aimLoopOn = false;
+    let aimLoopBusy = false;
+
+    function setAimUI(q, msg, mode){
+      const pct = Math.round(q*100);
+      aimVal.textContent = `AIM: ${isFinite(pct) ? pct : "--"}%`;
+
+      aimPill.classList.remove("good","warn","bad");
+      if (mode === "good") aimPill.classList.add("good");
+      else if (mode === "warn") aimPill.classList.add("warn");
+      else if (mode === "bad") aimPill.classList.add("bad");
+
+      aimMsg.textContent = msg || "";
+    }
+
+    function computeAimDirections(dx, dy, ang){
+      // dx,dy: how sample must move to match ref (in pixels). We'll guide user opposite direction of error.
+      const thXY = 3.0;
+      const thAng = 0.55;
+
+      let dirX = 0, dirY = 0, dirRot = 0;
+
+      // if dx positive means sample is shifted right relative to ref; user needs move phone RIGHT? (depends)
+      // For user-friendly: tell "move phone LEFT" when dx>0 (to reduce dx).
+      if (dx > thXY) dirX = -1;       // show LEFT
+      else if (dx < -thXY) dirX = 1;  // show RIGHT
+
+      if (dy > thXY) dirY = -1;       // show UP
+      else if (dy < -thXY) dirY = 1;  // show DOWN
+
+      if (ang > thAng) dirRot = -1;   // rotate CCW
+      else if (ang < -thAng) dirRot = 1; // rotate CW
+
+      return { dirX, dirY, dirRot };
+    }
+
+    async function aimTick(){
+      if (!OPT_AIM || !refState.ready) return;
+      if (aimLoopBusy) return;
+      aimLoopBusy = true;
+
+      try{
+        // fast capture (few frames)
+        const cap = await captureAveragedFrame(3, 18);
+        if (!cap) return;
+
+        // preprocess current view
+        let g = rgbToGray(cap.imageData);
+        const rBlur = parseInt(blur.value||"3",10);
+        g = boxBlurGray(g, CAP_W, CAP_H, rBlur);
+
+        let hp = OPT_HP ? illuminationNormalize(g, CAP_W, CAP_H) : g;
+        hp = normalizeTo(refState.hp, hp);
+        const edge = gradMag(hp, CAP_W, CAP_H);
+
+        // low-res align on edges
+        const LW=160, LH=90;
+        const refLow = downsampleNearest(refState.edge, CAP_W, CAP_H, LW, LH);
+        const samLow0 = downsampleNearest(edge, CAP_W, CAP_H, LW, LH);
+
+        const angList = OPT_ROT ? [-1.5,-1,-0.5,0,0.5,1,1.5] : [0];
+        const maxShift = 12;
+        const step = 2;
+
+        let best = { dx:0, dy:0, ang:0, score: Infinity };
+
+        for (const ang of angList){
+          const samRot = rotateGrayBilinear(samLow0, LW, LH, ang);
+          const sh = bestShiftSAD(refLow, samRot, LW, LH, maxShift, step);
+          if (sh.score < best.score){
+            best = { dx: sh.dx, dy: sh.dy, ang, score: sh.score };
+          }
+        }
+
+        const dxFull = best.dx * (CAP_W / LW);
+        const dyFull = best.dy * (CAP_H / LH);
+        const ang = best.ang;
+
+        // quality score (normalize score)
+        // heuristic: lower SAD is better. Convert to 0..1
+        const norm = (LW*LH/(step*step)) * 45; // tuning constant
+        const q = clamp(1.0 - (best.score / (norm || 1)), 0, 1);
+
+        aimState.quality = q;
+        aimState.dx = dxFull;
+        aimState.dy = dyFull;
+        aimState.ang = ang;
+
+        const dirs = computeAimDirections(dxFull, dyFull, ang);
+
+        // stable logic
+        const stable = (q > 0.92 && Math.abs(dxFull) < 2.2 && Math.abs(dyFull) < 2.2 && Math.abs(ang) < 0.55);
+        aimState.stableCount = stable ? Math.min(999, aimState.stableCount + 1) : 0;
+
+        targetBox.classList.toggle("stable", aimState.stableCount >= 8);
+
+        let mode = (q > 0.92) ? "good" : (q > 0.82 ? "warn" : "bad");
+
+        let msg = `Hold steady then capture. (dx ${dxFull.toFixed(1)}, dy ${dyFull.toFixed(1)}, rot ${ang.toFixed(1)}°)`;
+        if (!refState.ready) msg = "Capture REF to start aiming";
+        else{
+          const hints = [];
+          if (dirs.dirX === -1) hints.push("⬅ move LEFT");
+          if (dirs.dirX ===  1) hints.push("➡ move RIGHT");
+          if (dirs.dirY === -1) hints.push("⬆ move UP");
+          if (dirs.dirY ===  1) hints.push("⬇ move DOWN");
+          if (dirs.dirRot ===  1) hints.push("↻ rotate CW");
+          if (dirs.dirRot === -1) hints.push("↺ rotate CCW");
+
+          if (hints.length){
+            msg = `${hints.join(" • ")}  (dx ${dxFull.toFixed(1)}, dy ${dyFull.toFixed(1)}, rot ${ang.toFixed(1)}°)`;
+            mode = "bad";
+          }else{
+            msg = `Good. Hold steady then capture. (dx ${dxFull.toFixed(1)}, dy ${dyFull.toFixed(1)}, rot ${ang.toFixed(1)}°)`;
+            mode = "good";
+          }
+        }
+
+        setAimUI(q, msg, mode);
+
+        // draw just arrows overlay (no diff heatmap while aiming)
+        drawHeatmapAndBoxes(null, 0, null, { ...dirs, quality:q });
+
+      } finally {
+        aimLoopBusy = false;
+      }
+    }
+
+    function startAimLoop(){
+      if (aimLoopOn) return;
+      aimLoopOn = true;
+      const tick = async ()=>{
+        if (!aimLoopOn) return;
+        if (OPT_AIM && refState.ready) await aimTick();
+        setTimeout(tick, 160);
+      };
+      tick();
+    }
+    function stopAimLoop(){
+      aimLoopOn = false;
+    }
+
+    // =========================
+    // CAPTURE REF / SAMPLE
+    // =========================
+    let captureBusy = false;
+
+    async function captureRef(){
+      if (captureBusy) return;
+      captureBusy = true;
+      try{
+        const cap = await captureAveragedFrame(7, 26);
+        if (!cap) return;
+
+        const dataURL = cap.canvas.toDataURL("image/jpeg", 0.82);
+        refState.dataURL = dataURL;
+
+        thumbRef.classList.add("has");
+        thumbRefImg.src = dataURL;
+
+        ghostOverlay.src = dataURL;
+        ghostOverlay.classList.add("active");
+
+        let g = rgbToGray(cap.imageData);
+
+        const rBlur = parseInt(blur.value||"3",10);
+        g = boxBlurGray(g, CAP_W, CAP_H, rBlur);
+
+        let hp = OPT_HP ? illuminationNormalize(g, CAP_W, CAP_H) : g;
+        const { mean, std } = meanStdGray(hp);
+        const edge = gradMag(hp, CAP_W, CAP_H);
+
+        refState.gray = g;
+        refState.hp = hp;
+        refState.edge = edge;
+        refState.mean = mean;
+        refState.std = std;
+        refState.ready = true;
+
+        refMeanEl.textContent = mean.toFixed(1);
+        refStdEl.textContent  = std.toFixed(1);
+
+        document.getElementById("card-ref").classList.add("active-ref");
+        lucide.createIcons();
+
+        setStatus("READY", "--", "READY", "neutral");
+
+        // start auto aim
+        startAimLoop();
+        setAimUI(0, "Aiming... keep same view as REF", "warn");
+
+      } finally {
+        captureBusy = false;
+      }
+    }
+
+    async function captureSam(){
+      if (captureBusy) return;
+      if (!refState.ready){
+        setStatus("Need REF first", "--", "CAPTURE REF", "warn");
+        return;
+      }
+      captureBusy = true;
+      try{
+        const cap = await captureAveragedFrame(7, 26);
+        if (!cap) return;
+
+        const dataURL = cap.canvas.toDataURL("image/jpeg", 0.82);
+        samState.dataURL = dataURL;
+
+        thumbSam.classList.add("has");
+        thumbSamImg.src = dataURL;
+        document.getElementById("card-sam").classList.add("active-sam");
+
+        samState.ready = true;
+
+        await compareNow(cap.canvas);
+      } finally {
+        captureBusy = false;
+      }
+    }
+
+    // =========================
+    // COMPARE (no OpenCV) — improved to detect large changes
+    // =========================
+    async function compareNow(optionalSampleCanvas=null){
+      if (!refState.ready) return;
+
+      // obtain sample canvas
+      let sampleCanvas = optionalSampleCanvas;
+      if (!sampleCanvas){
+        const cap = await captureAveragedFrame(5, 22);
+        if (!cap) return;
+        sampleCanvas = cap.canvas;
+        samState.dataURL = sampleCanvas.toDataURL("image/jpeg", 0.82);
+        thumbSam.classList.add("has");
+        thumbSamImg.src = samState.dataURL;
+        samState.ready = true;
+      }
+
+      // preprocess sample
+      const sctx = sampleCanvas.getContext("2d", { willReadFrequently:true });
+      const sImg = sctx.getImageData(0,0,CAP_W,CAP_H);
+
+      let sG = rgbToGray(sImg);
+      const rBlur = parseInt(blur.value||"3",10);
+      sG = boxBlurGray(sG, CAP_W, CAP_H, rBlur);
+
+      let sHP = OPT_HP ? illuminationNormalize(sG, CAP_W, CAP_H) : sG;
+      sHP = normalizeTo(refState.hp, sHP);
+      let sEdge = gradMag(sHP, CAP_W, CAP_H);
+
+      // alignment search on low-res edges
+      let best = { dx:0, dy:0, ang:0, score: Infinity };
+
+      if (OPT_ALIGN){
+        const LW=160, LH=90;
+        const refLow = downsampleNearest(refState.edge, CAP_W, CAP_H, LW, LH);
+        const samLow0 = downsampleNearest(sEdge, CAP_W, CAP_H, LW, LH);
+
+        const angList = OPT_ROT ? [-1.5,-1,-0.5,0,0.5,1,1.5] : [0];
+        const maxShift = 12; // low-res
+        const step = 2;
+
+        for (const ang of angList){
+          const samRot = rotateGrayBilinear(samLow0, LW, LH, ang);
+          const sh = bestShiftSAD(refLow, samRot, LW, LH, maxShift, step);
+          if (sh.score < best.score){
+            best = { dx: sh.dx, dy: sh.dy, ang, score: sh.score };
+          }
+        }
+
+        const dxFull = best.dx * (CAP_W / 160);
+        const dyFull = best.dy * (CAP_H / 90);
+
+        const alignedCanvas = transformSampleToCanvas(sampleCanvas, best.ang, dxFull, dyFull);
+
+        // re-preprocess aligned sample
+        const actx = alignedCanvas.getContext("2d", { willReadFrequently:true });
+        const aImg = actx.getImageData(0,0,CAP_W,CAP_H);
+
+        let aG = rgbToGray(aImg);
+        aG = boxBlurGray(aG, CAP_W, CAP_H, rBlur);
+
+        let aHP = OPT_HP ? illuminationNormalize(aG, CAP_W, CAP_H) : aG;
+        aHP = normalizeTo(refState.hp, aHP);
+        let aEdge = gradMag(aHP, CAP_W, CAP_H);
+
+        sG = aG; sHP = aHP; sEdge = aEdge;
+        samState.lastAlign = { dx: dxFull, dy: dyFull, ang: best.ang };
+      } else {
+        samState.lastAlign = { dx: 0, dy: 0, ang: 0 };
+      }
+
+      // diff map — IMPORTANT FIX:
+      // include RAW gray diff too (so "hand removed" is detected even if HP normalization reduces it)
+      const diff = new Uint8ClampedArray(CAP_W * CAP_H);
+      let sum = 0;
+
+      for (let i=0;i<diff.length;i++){
+        const dRaw = Math.abs(refState.gray[i] - sG[i]);
+        const dHP  = Math.abs(refState.hp[i]   - sHP[i]);
+
+        if (OPT_EDGE){
+          const dE = Math.abs(refState.edge[i] - sEdge[i]);
+          // blended robust: raw + hp + edge
+          const v = clamp((0.20*dRaw + 0.50*dHP + 0.30*dE), 0, 255) | 0;
+          diff[i] = v;
+          sum += v;
+        } else {
+          const v = clamp((0.35*dRaw + 0.65*dHP), 0, 255) | 0;
+          diff[i] = v;
+          sum += v;
+        }
+      }
+
+      // auto thresholds
+      const thrManual = parseInt(thr.value||"28",10);
+
+      const { med, mad } = robustMedianMad(diff);
+      const thrMad = clamp(med + 3.2*mad, 8, 90);
+
+      const thrOtsu = clamp(otsuThreshold(diff), 8, 120);
+
+      // IMPORTANT FIX: cap auto threshold so "large diffs" still pass
+      const thrAuto = Math.min(thrMad, 70, thrOtsu + 18); // gentle cap
+      let thrFinal = Math.max(thrManual, thrAuto);
+
+      // binary mask
+      let bin = new Uint8Array(diff.length);
+      for (let i=0;i<diff.length;i++){
+        bin[i] = (diff[i] >= thrFinal) ? 1 : 0;
+      }
+
+      // morph
+      if (OPT_MORPH){
+        bin = dilate(erode(bin, CAP_W, CAP_H), CAP_W, CAP_H);
+        bin = erode(dilate(bin, CAP_W, CAP_H), CAP_W, CAP_H);
+      }
+
+      // blobs
+      const minA = parseInt(minArea.value||"700",10);
+      let blobs = findBlobs(bin, CAP_W, CAP_H, minA);
+
+      // fallback: if blobs empty but mean diff is large, loosen threshold a bit
+      const meanDiff = sum / diff.length;
+      if (blobs.length === 0 && meanDiff > (thrFinal * 0.70)){
+        const thr2 = Math.max(10, Math.floor(thrFinal * 0.80));
+        for (let i=0;i<diff.length;i++){
+          bin[i] = (diff[i] >= thr2) ? 1 : 0;
+        }
+        if (OPT_MORPH){
+          bin = dilate(erode(bin, CAP_W, CAP_H), CAP_W, CAP_H);
+          bin = erode(dilate(bin, CAP_W, CAP_H), CAP_W, CAP_H);
+        }
+        blobs = findBlobs(bin, CAP_W, CAP_H, Math.max(120, Math.floor(minA*0.55)));
+        thrFinal = thr2;
+      }
+
+      // Similarity score
+      const similarity = clamp(100 - (meanDiff/255)*100, 0, 100);
+
+      // status
+      const major = blobs.length;
+      let status = "MATCH";
+      let mode = "good";
+
+      if (major >= 1) { status = (major <= 2) ? "CHECK" : "DIFF"; mode = (major <= 2) ? "warn" : "bad"; }
+      if (similarity < 90) { status = "DIFF"; mode = "bad"; }
+      if (similarity < 96 && mode === "good") { status = "CHECK"; mode = "warn"; }
+
+      // update UI
+      const dx = samState.lastAlign.dx || 0;
+      const dy = samState.lastAlign.dy || 0;
+      const ang = samState.lastAlign.ang || 0;
+
+      samShiftEl.textContent = `${dx.toFixed(1)}, ${dy.toFixed(1)}`;
+      samRotEl.textContent = `${ang.toFixed(1)}°`;
+
+      simVal.textContent = `${similarity.toFixed(1)}%`;
+      simSub.textContent = `thr=${thrFinal.toFixed(0)} (manual ${thrManual} / auto ${thrAuto.toFixed(0)} / otsu ${thrOtsu}) • blobs=${blobs.length}`;
+      setStatus(status, `${similarity.toFixed(1)}%`, `${status}`, mode);
+
+      // aim overlay arrows (still helpful after compare)
+      const dirs = computeAimDirections(dx, dy, ang);
+      drawHeatmapAndBoxes(diff, thrFinal, blobs, { ...dirs, quality: aimState.quality || 0 });
+
+      lucide.createIcons();
+    }
+
+    function setStatus(subText, valueText, badgeText, mode){
+      dash.classList.remove("status-good","status-warn","status-bad");
+      if (mode === "good") dash.classList.add("status-good");
+      else if (mode === "warn") dash.classList.add("status-warn");
+      else if (mode === "bad") dash.classList.add("status-bad");
+
+      simVal.textContent = valueText;
+      simSub.textContent = (typeof subText === "string") ? subText : "READY";
+
+      const icon = (mode==="good") ? "check-circle-2" : (mode==="warn" ? "alert-triangle" : "x-circle");
+      simBadge.innerHTML = `<i data-lucide="${icon}" style="width:18px;"></i> ${badgeText}`;
+    }
+
+    function resetAll(){
+      refState.ready = false;
+      refState.dataURL = "";
+      refState.gray = refState.hp = refState.edge = null;
+      refState.mean = 0; refState.std = 1;
+
+      samState.ready = false;
+      samState.dataURL = "";
+      samState.lastAlign = { dx:0, dy:0, ang:0 };
+
+      ghostOverlay.classList.remove("active");
+      ghostOverlay.src = "";
+
+      overlayCtx.clearRect(0,0,overlayCanvas.width, overlayCanvas.height);
+
+      thumbRef.classList.remove("has");
+      thumbSam.classList.remove("has");
+      thumbRefImg.src = "";
+      thumbSamImg.src = "";
+
+      document.getElementById("card-ref").classList.remove("active-ref");
+      document.getElementById("card-sam").classList.remove("active-sam");
+
+      refMeanEl.textContent = "-";
+      refStdEl.textContent = "-";
+      samShiftEl.textContent = "-";
+      samRotEl.textContent = "-";
+
+      setStatus("READY", "--", "READY", "neutral");
+      lucide.createIcons();
+
+      targetBox.classList.remove("stable");
+      setAimUI(0, "Capture REF to start aiming", "bad");
+      stopAimLoop();
+    }
+
+    // =========================
+    // UI bindings
+    // =========================
+    function syncSliders(){
+      thrVal.textContent = String(thr.value);
+      areaVal.textContent = String(minArea.value);
+      blurVal.textContent = String(blur.value);
+      hmVal.textContent = `${hmAlpha.value}%`;
+    }
+    document.addEventListener("input", (e)=>{
+      if ([thr, minArea, blur, hmAlpha].includes(e.target)){
+        syncSliders();
+        if (refState.ready && samState.ready) compareNow();
+      }
+    });
+    syncSliders();
+
+    // =========================
+    // Start
+    // =========================
+    initCamera();
+  </script>
+</body>
+</html>
