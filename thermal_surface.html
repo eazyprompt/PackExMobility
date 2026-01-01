@@ -1,0 +1,1259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>PackEx - Thermal Surface (Relative)</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+  <!-- iPhone Add to Home Screen -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #ef4444;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
+
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --viewport-h: 220px;
+      --app-h: 100dvh;
+      --tab-h: 66px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::after{
+      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+    }
+    body.screen-flash::after{ opacity: 1; }
+    body.screen-lamp::after{ opacity: 1; }
+
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 500px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+    }
+
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand {
+      font-weight: 800; font-size: 1.1rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 600; opacity: 0.95; font-size: 0.78em; }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border-subtle);
+      color: #fff;
+      width: 36px; height: 36px; border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-icon-header:active{ transform: scale(0.96); }
+
+    /* Capture uses same tone as AUTO */
+    .btn-icon-header.capture-btn{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+
+    .viewport {
+      height: var(--viewport-h);
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+    }
+    .vp-camera {
+      flex: 1; position: relative; overflow: hidden; display: flex;
+      align-items: center; justify-content: center; background: #020617; min-width: 0;
+    }
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+
+    #sheet-canvas{
+      position:absolute; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index: 20;
+    }
+
+    .hud-overlay {
+      position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+      pointer-events: none; z-index: 10;
+    }
+    .target-box {
+      width: 42px; height: 42px; position: relative;
+      box-shadow: 0 0 0 100vmax rgba(2, 6, 23, 0.55);
+      border-radius: 12px;
+    }
+    .target-box::before {
+      content: ""; position: absolute; inset: -1px;
+      border: 2px solid rgba(255, 255, 255, 0.9); border-radius: 12px;
+    }
+    .crosshair { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; opacity: 0.85; }
+    .ch-c { width: 4px; height: 4px; background: #fff; border-radius: 50%; box-shadow: 0 0 2px #000; }
+
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-height: 0;
+    }
+    .panel-content{
+      height:100%;
+      overflow-y:auto;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 18px;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 14px);
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
+
+    .result-dashboard {
+      display: flex; gap: 12px; justify-content: space-between; align-items: center;
+      background: linear-gradient(145deg, #1e293b 0%, #0f172a 100%);
+      border: 1px solid var(--border-subtle); border-radius: var(--radius-lg);
+      padding: 14px 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      flex-wrap: wrap;
+    }
+    .res-left { display:flex; flex-direction:column; gap:2px; }
+    .res-label { font-size: 0.65rem; color: var(--text-muted); font-weight: 800; letter-spacing: .5px; text-transform: uppercase; }
+    .res-value { font-family: var(--font-num); font-size: 2.3rem; font-weight: 900; line-height: 1; }
+    .res-badge {
+      padding: 8px 12px; border-radius: 10px; font-size: 0.75rem; font-weight: 900;
+      background: #334155; color: #fff; border: 1px solid rgba(255,255,255,0.12);
+      letter-spacing: .4px;
+    }
+    .status-ok .res-value { color: var(--success); }
+    .status-warn .res-value { color: var(--warn); }
+    .status-hot .res-value { color: var(--danger); }
+
+    .cards{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+    .sum-item{
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px 10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 6px;
+      text-align:center;
+    }
+    .sum-lbl{ font-size: .62rem; color:#94a3b8; font-weight:900; letter-spacing:.4px; text-transform: uppercase; }
+    .sum-val{ font-family: var(--font-num); font-size: 1.55rem; font-weight: 900; }
+    .text-ok{ color: var(--success); }
+    .text-warn{ color: var(--warn); }
+    .text-hot{ color: var(--danger); }
+
+    .note{
+      font-size: .75rem;
+      color: #94a3b8;
+      line-height: 1.35;
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      padding: 12px 12px;
+      border-radius: 14px;
+    }
+
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-top: 6px;
+      padding-bottom: calc(env(safe-area-inset-bottom) + 2px);
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 6px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.72rem; font-weight: 900; letter-spacing: 0.2px; }
+    .tab-bar .tab-item svg { width: 28px; height: 28px; stroke-width: 2.6; }
+
+    :root{
+      --lightctl-w: 54px;
+      --lightctl-len: clamp(150px, calc(var(--viewport-h) - 190px), 270px);
+    }
+
+    .lightctl{
+      position:absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 40;
+
+      width: var(--lightctl-w);
+      padding: 10px 10px 12px;
+      border-radius: 18px;
+
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap: 10px;
+
+      pointer-events:auto;
+      -webkit-user-select:none;
+      user-select:none;
+    }
+
+    .lightctl-head{ display:flex; flex-direction:column; align-items:center; gap: 6px; }
+    .lightctl-ico{ width: 16px; height: 16px; opacity: .95; color: rgba(255,255,255,0.9); }
+    .lightctl-title{
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .lightctl-rail{
+      position: relative;
+      height: calc(var(--lightctl-len) + 10px);
+      width: 100%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .lightctl-slider{
+      -webkit-appearance: none;
+      appearance: none;
+
+      width: var(--lightctl-len);
+      height: 26px;
+
+      transform: rotate(-90deg);
+      transform-origin: center;
+
+      background: transparent;
+      outline: none;
+      padding: 0;
+
+      touch-action: none;
+    }
+
+    .lightctl-slider::-webkit-slider-runnable-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+
+    .lightctl-slider::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      margin-top: -7px;
+    }
+
+    .lightctl-value{
+      position:absolute;
+      bottom: 6px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-num);
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .lightctl-auto,
+    .lightctl-reset{
+      width: 100%;
+      padding: 7px 0;
+      min-height: 30px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+      transition: .15s;
+    }
+    .lightctl-auto:active,
+    .lightctl-reset:active{ transform: scale(0.96); }
+
+    .lightctl.auto-on .lightctl-auto{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+    .lightctl.auto-on .lightctl-slider{
+      opacity: .55;
+      pointer-events:none;
+    }
+
+
+/* ===== Header (same as your reference) ===== */
+.app-header{
+  min-height: 64px;
+  padding: 0 20px;
+  padding-top: 12px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  background: var(--bg-body);
+  border-bottom: 1px solid var(--border-subtle);
+  flex-shrink:0;
+  z-index:50;
+  gap:10px;
+  min-width:0;
+}
+
+.brand{
+  font-weight: 800;
+  font-size: 1.25rem;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  color:#fff;
+
+  min-width:0;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis;
+}
+.brand i{ color: var(--primary); }
+.brand span{
+  color: var(--primary);
+  font-weight: 400;
+  opacity: 0.9;
+  font-size: 0.8em;
+}
+
+.header-controls{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  min-width:0;
+}
+
+.algo-selector{
+  appearance:none;
+  background:#334155;
+  color:#fff;
+  border:1px solid var(--border-subtle);
+  padding:8px 14px;
+  border-radius:100px;
+  font-size:0.75rem;
+  font-weight:600;
+  font-family: var(--font-num);
+  transition:0.2s;
+  min-width:0;
+  max-width:160px;
+}
+
+.btn-icon-header{
+  background: rgba(255,255,255,0.05);
+  border: 1px solid var(--border-subtle);
+  color:#fff;
+
+  width:36px;
+  height:36px;
+  border-radius:50%;
+
+  display:flex;
+  align-items:center;
+  justify-content:center;
+
+  cursor:pointer;
+  transition:0.2s;
+  flex-shrink:0;
+}
+.btn-icon-header:active{ transform: scale(0.96); }
+
+/* small screens */
+@media (max-height: 760px){
+  .app-header{ min-height: 58px; padding-top: 10px; }
+}
+
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+<header class="app-header">
+  <div class="brand">
+    <i data-lucide="scan-face"></i>
+    PackEx <span>Mobility</span>
+  </div>
+
+  <div class="header-controls">
+    <!-- OPTIONAL: ตัวเลือกโหมด (ถ้าอยากมี) -->
+    
+    <!-- Torch button -->
+    <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
+      <i data-lucide="flashlight" style="width:18px;"></i>
+    </button>
+  </div>
+</header>
+
+
+    <div class="viewport">
+      <div class="vp-camera" id="vp-camera">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="sheet-canvas"></canvas>
+
+        <div class="lightctl auto-on" id="lightctl">
+          <div class="lightctl-head">
+            <i data-lucide="flame" class="lightctl-ico"></i>
+            <span class="lightctl-title">SENS</span>
+          </div>
+
+          <div class="lightctl-rail">
+            <input id="sens-slider" class="lightctl-slider" type="range" min="-20" max="40" step="1" value="8">
+            <div class="lightctl-value" id="sens-val">8</div>
+          </div>
+
+          <button class="lightctl-auto" id="sens-auto" type="button" onclick="toggleSensAuto()">AUTO</button>
+
+          <button class="lightctl-reset" id="sens-reset" type="button" onclick="resetThermal()" title="Reset">
+            <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+          </button>
+        </div>
+
+        <div class="hud-overlay">
+          <div class="target-box">
+            <div class="crosshair"><div class="ch-c"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-content">
+        <div id="result-dashboard" class="result-dashboard status-ok">
+          <div class="res-left">
+            <div class="res-label">MAX HEAT INDEX</div>
+            <div class="res-value" id="max-heat">--</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div class="res-badge" id="heat-status" style="display:none;">READY</div>
+
+            <!-- ✅ CHANGED: camera icon replaces snowflake (and uses auto-tone color) -->
+            <button class="btn-icon-header capture-btn" id="btn-capture" onclick="captureFrame()" title="Capture">
+              <i data-lucide="camera" style="width: 18px;"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="cards">
+          <div class="sum-item">
+            <div class="sum-lbl">AVG HEAT</div>
+            <div class="sum-val text-ok" id="avg-heat">--</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">HOTSPOTS</div>
+            <div class="sum-val text-warn" id="hotspots">0</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">MOTION</div>
+            <div class="sum-val" id="motion-read">--</div>
+          </div>
+          <div class="sum-item">
+            <div class="sum-lbl">OVERLAY</div>
+            <div class="sum-val" id="overlay-val">65%</div>
+          </div>
+        </div>
+
+        <div class="note">
+          <b>Important:</b> This is a <b>Relative Heat Index (0–100)</b> from the RGB camera image.
+          It improves practicality using <b>exposure normalization + motion lock + persistence</b>.
+          It cannot output real temperature (°C) without a true thermal sensor/module ค่ะ
+        </div>
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="goHome()">
+        <i data-lucide="home"></i>
+        <span class="tab-lbl">HOME</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- processing canvases -->
+  <canvas id="proc-canvas" width="180" height="140" style="display:none;"></canvas>
+  <canvas id="heat-canvas" width="180" height="140" style="display:none;"></canvas>
+
+  <script>
+    lucide.createIcons();
+
+    function goHome() { window.location.href = "index.html"; }
+
+    // ====== Globals ======
+    const video = document.getElementById("webcam");
+    const sheetCanvas = document.getElementById("sheet-canvas");
+    const sheetCtx = sheetCanvas.getContext("2d");
+
+    const procCanvas = document.getElementById("proc-canvas");
+    const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
+
+    const heatCanvas = document.getElementById("heat-canvas");
+    const heatCtx = heatCanvas.getContext("2d", { willReadFrequently: true });
+
+    let videoTrack = null;
+    let torchSupported = false;
+    let isTorchOn = false;
+    let torchOpBusy = false;
+
+    let isProcessing = false;
+    let frozen = false;
+
+    // UI
+    const sensSlider = document.getElementById("sens-slider");
+    const sensVal = document.getElementById("sens-val");
+    const dash = document.getElementById("result-dashboard");
+    const maxHeatEl = document.getElementById("max-heat");
+    const avgHeatEl = document.getElementById("avg-heat");
+    const hsEl = document.getElementById("hotspots");
+    const statusEl = document.getElementById("heat-status");
+    const motionReadEl = document.getElementById("motion-read");
+
+    // Sensitivity logic
+    let sensAuto = true;
+    let sensManual = parseInt(sensSlider.value || "8", 10);
+    let sensEma = sensManual;
+    const SENS_EMA = 0.12;
+
+    // overlay alpha (fixed)
+    const OVERLAY_ALPHA = 0.65;
+
+    function clamp(v,a,b){ return Math.max(a, Math.min(b,v)); }
+    function lerp(a,b,t){ return (1-t)*a + t*b; }
+
+    // ====== Cover mapping ======
+    function getCoverMetrics() {
+      const vw = video.videoWidth || 0;
+      const vh = video.videoHeight || 0;
+      if (!vw || !vh) return null;
+
+      const r = video.getBoundingClientRect();
+      const dw = r.width || 0;
+      const dh = r.height || 0;
+      if (!dw || !dh) return null;
+
+      const scale = Math.max(dw / vw, dh / vh);
+      const scaledW = vw * scale;
+      const scaledH = vh * scale;
+      const offX = (dw - scaledW) / 2;
+      const offY = (dh - scaledH) / 2;
+
+      return { vw, vh, dw, dh, scale, offX, offY, rect: r };
+    }
+
+    function dispToVideoXY(mx, my, m) {
+      const x = (mx - m.offX) / m.scale;
+      const y = (my - m.offY) / m.scale;
+      return { x, y };
+    }
+
+    function dispRectToVideoRect(rx, ry, rw, rh, m) {
+      const p0 = dispToVideoXY(rx, ry, m);
+      const p1 = dispToVideoXY(rx + rw, ry + rh, m);
+
+      let x = Math.min(p0.x, p1.x);
+      let y = Math.min(p0.y, p1.y);
+      let w = Math.abs(p1.x - p0.x);
+      let h = Math.abs(p1.y - p0.y);
+
+      x = clamp(x, 0, m.vw - 1);
+      y = clamp(y, 0, m.vh - 1);
+      w = clamp(w, 1, m.vw - x);
+      h = clamp(h, 1, m.vh - y);
+
+      return { x, y, w, h };
+    }
+
+    function syncSheetCanvasToDisplay() {
+      const m = getCoverMetrics();
+      if (!m) return;
+      const nw = Math.max(1, Math.round(m.dw));
+      const nh = Math.max(1, Math.round(m.dh));
+      if (sheetCanvas.width !== nw || sheetCanvas.height !== nh) {
+        sheetCanvas.width = nw;
+        sheetCanvas.height = nh;
+        sheetCtx.clearRect(0,0,nw,nh);
+      }
+    }
+
+    function applyAutoFitLayout(){
+      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
+
+      const frame = document.querySelector(".app-frame");
+      if (frame){
+        const frameH = frame.offsetHeight;
+        const camH = Math.round(frameH * 0.50);
+        document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
+      }
+      syncSheetCanvasToDisplay();
+    }
+    window.addEventListener("resize", applyAutoFitLayout);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
+
+    // ====== UI actions ======
+    function toggleSensAuto(){
+      sensAuto = !sensAuto;
+      document.getElementById("lightctl").classList.toggle("auto-on", !!sensAuto);
+      lucide.createIcons();
+    }
+
+    // ✅ Capture: flash + freeze toggle (press again to unfreeze)
+    function captureFrame(){
+      frozen = !frozen;
+      document.body.classList.add("screen-flash");
+      setTimeout(()=>document.body.classList.remove("screen-flash"),120);
+
+      // icon toggle camera/camera-off (optional visual)
+      const btn = document.getElementById("btn-capture");
+      if (btn){
+        btn.innerHTML = frozen
+          ? '<i data-lucide="camera-off" style="width:18px;"></i>'
+          : '<i data-lucide="camera" style="width:18px;"></i>';
+        lucide.createIcons();
+      }
+    }
+
+    function resetThermal(){
+      frozen = false;
+      sensAuto = true;
+      sensManual = 8;
+      sensEma = 8;
+      sensSlider.value = "8";
+      sensVal.textContent = "8";
+      document.getElementById("lightctl").classList.add("auto-on");
+
+      maxHeatEl.textContent = "--";
+      avgHeatEl.textContent = "--";
+      hsEl.textContent = "0";
+      statusEl.textContent = "READY";
+      dash.className = "result-dashboard status-ok";
+      motionReadEl.textContent = "--";
+
+      // reset buffers
+      bgRef = null;
+      heatConfEma = null;
+      heatPersist = null;
+      motionEma = 0;
+
+      sheetCtx.clearRect(0,0,sheetCanvas.width,sheetCanvas.height);
+
+      // reset capture icon
+      const btn = document.getElementById("btn-capture");
+      if (btn){
+        btn.innerHTML = '<i data-lucide="camera" style="width:18px;"></i>';
+      }
+      lucide.createIcons();
+    }
+
+    document.addEventListener("input", (e)=>{
+      if (e.target && e.target.id === "sens-slider"){
+        sensAuto = false;
+        document.getElementById("lightctl").classList.remove("auto-on");
+        sensManual = parseInt(sensSlider.value || "0", 10);
+        sensVal.textContent = String(sensManual);
+      }
+    });
+
+    // ====== Thermal (relative) core ======
+    function heatColor(t){
+      t = clamp(t,0,1);
+      const x = t * 4;
+      const seg = Math.floor(x);
+      const f = x - seg;
+
+      const A = [
+        [  0,  80, 255],
+        [  0, 255, 255],
+        [  0, 255, 120],
+        [255, 255,   0],
+        [255,  60,   0],
+      ];
+      const p0 = A[clamp(seg,0,4)];
+      const p1 = A[clamp(seg+1,0,4)];
+      return [
+        Math.round(lerp(p0[0], p1[0], f)),
+        Math.round(lerp(p0[1], p1[1], f)),
+        Math.round(lerp(p0[2], p1[2], f)),
+      ];
+    }
+
+    function boxBlurGray(src, w, h){
+      const out = new Float32Array(w*h);
+      for (let y=0;y<h;y++){
+        for (let x=0;x<w;x++){
+          let s=0,c=0;
+          for (let yy=-1;yy<=1;yy++){
+            const y2 = y+yy;
+            if (y2<0||y2>=h) continue;
+            for (let xx=-1;xx<=1;xx++){
+              const x2 = x+xx;
+              if (x2<0||x2>=w) continue;
+              s += src[y2*w+x2];
+              c++;
+            }
+          }
+          out[y*w+x] = c ? (s/c) : src[y*w+x];
+        }
+      }
+      return out;
+    }
+
+    function findHotspots(mask, w, h, minArea){
+      const visited = new Uint8Array(w*h);
+      const boxes = [];
+      const qx = new Int16Array(w*h);
+      const qy = new Int16Array(w*h);
+
+      for (let i=0;i<w*h;i++){
+        if (!mask[i] || visited[i]) continue;
+
+        let head=0, tail=0;
+        visited[i]=1;
+        qx[tail]=i%w; qy[tail]=Math.floor(i/w); tail++;
+
+        let minX=1e9,minY=1e9,maxX=-1e9,maxY=-1e9, area=0;
+
+        while (head<tail){
+          const x=qx[head], y=qy[head]; head++;
+          area++;
+          if (x<minX) minX=x;
+          if (y<minY) minY=y;
+          if (x>maxX) maxX=x;
+          if (y>maxY) maxY=y;
+
+          const nb = [[x-1,y],[x+1,y],[x,y-1],[x,y+1]];
+          for (const [nx,ny] of nb){
+            if (nx<0||ny<0||nx>=w||ny>=h) continue;
+            const j = ny*w+nx;
+            if (mask[j] && !visited[j]){
+              visited[j]=1;
+              qx[tail]=nx; qy[tail]=ny; tail++;
+            }
+          }
+        }
+
+        if (area >= minArea){
+          boxes.push({minX,minY,maxX,maxY,area});
+        }
+      }
+      boxes.sort((a,b)=>b.area-a.area);
+      return boxes.slice(0, 10);
+    }
+
+    function getSens(){
+      return sensAuto ? sensEma : sensManual;
+    }
+
+    function updateStatus(maxIndex, hotspots){
+      let status = "OK";
+      let cls = "status-ok";
+      if (hotspots >= 1 && maxIndex >= 80){
+        status = "HOT";
+        cls = "status-hot";
+      } else if (maxIndex >= 65){
+        status = "WARM";
+        cls = "status-warn";
+      }
+      dash.className = "result-dashboard " + cls;
+      statusEl.textContent = status;
+    }
+
+    function drawRoiFrame(sheetCtx, roiX, roiY, roiW, roiH){
+      sheetCtx.save();
+      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.55)";
+      sheetCtx.fillRect(0,0,sheetCanvas.width,sheetCanvas.height);
+      sheetCtx.clearRect(roiX, roiY, roiW, roiH);
+
+      sheetCtx.strokeStyle = "rgba(59, 130, 246, 0.65)";
+      sheetCtx.lineWidth = 2;
+      sheetCtx.setLineDash([10,10]);
+      sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
+      sheetCtx.setLineDash([]);
+
+      sheetCtx.strokeStyle = "rgba(255,255,255,0.18)";
+      sheetCtx.beginPath();
+      sheetCtx.moveTo(roiX + roiW/2, roiY);
+      sheetCtx.lineTo(roiX + roiW/2, roiY + roiH);
+      sheetCtx.stroke();
+
+      sheetCtx.restore();
+    }
+
+    // ====== robust stats (exposure normalization) ======
+    function meanStd(arr){
+      let s=0, s2=0, n=arr.length;
+      for (let i=0;i<n;i++){ const v=arr[i]; s+=v; s2+=v*v; }
+      const m = s/n;
+      const v = Math.max(1e-6, s2/n - m*m);
+      return {m, sd: Math.sqrt(v)};
+    }
+
+    function matchMeanStd(cur, bg){
+      const a = meanStd(cur);
+      const b = meanStd(bg);
+      const out = new Float32Array(cur.length);
+      const gain = b.sd / a.sd;
+      const bias = b.m - a.m * gain;
+      for (let i=0;i<cur.length;i++){
+        out[i] = cur[i]*gain + bias;
+      }
+      return out;
+    }
+
+    // ====== Background + Confidence persistence ======
+    let bgRef = null;
+    let heatConfEma = null;
+    let heatPersist = null;
+
+    // motion lock (auto)
+    let motionEma = 0;
+    const MOTION_EMA = 0.12;
+
+    // auto tuned params
+    const CONF_EMA = 0.22;
+    const MIN_PERSIST = 10;
+    const MAX_PERSIST = 22;
+    const MIN_MOTION_THR = 5.5;
+    const MAX_MOTION_THR = 9.5;
+
+    function renderThermal(){
+      if (frozen) return;
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+      const m = getCoverMetrics();
+      if (!m) return;
+
+      syncSheetCanvasToDisplay();
+
+      const dw = sheetCanvas.width, dh = sheetCanvas.height;
+      if (!dw || !dh) return;
+
+      // ROI on display
+      const roiW_disp = Math.round(dw * 0.62);
+      const roiH_disp = Math.round(dh * 0.68);
+      const roiX_disp = Math.round((dw - roiW_disp) / 2);
+      const roiY_disp = Math.round((dh - roiH_disp) / 2);
+
+      const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
+
+      // processing resolution
+      const PW = 180;
+      const PH = Math.round(PW * (roiV.h / roiV.w));
+      const w = clamp(PW, 120, 240);
+      const h = clamp(PH, 90, 220);
+
+      if (procCanvas.width !== w || procCanvas.height !== h){
+        procCanvas.width = w;
+        procCanvas.height = h;
+        heatCanvas.width = w;
+        heatCanvas.height = h;
+        bgRef = null;
+        heatConfEma = null;
+        heatPersist = null;
+        motionEma = 0;
+      }
+
+      // draw ROI
+      procCtx.drawImage(video, roiV.x, roiV.y, roiV.w, roiV.h, 0, 0, w, h);
+      const img = procCtx.getImageData(0,0,w,h);
+      const d = img.data;
+
+      // grayscale
+      const cur = new Float32Array(w*h);
+      let min=1e9, max=-1e9, sum=0;
+      for (let i=0, p=0; i<d.length; i+=4, p++){
+        const y = d[i]*0.299 + d[i+1]*0.587 + d[i+2]*0.114;
+        cur[p]=y;
+        if (y<min) min=y;
+        if (y>max) max=y;
+        sum += y;
+      }
+      const mean = sum/(w*h);
+      const contrast = Math.max(1, max - min);
+
+      if (!bgRef){
+        bgRef = boxBlurGray(cur, w, h);
+        heatConfEma = new Float32Array(w*h);
+        heatPersist = new Uint8Array(w*h);
+      }
+
+      const curB = boxBlurGray(cur, w, h);
+
+      // motion score vs background
+      let mad = 0;
+      for (let p=0; p<w*h; p++){
+        mad += Math.abs(curB[p] - bgRef[p]);
+      }
+      mad /= (w*h);
+      motionEma = motionEma*(1-MOTION_EMA) + mad*MOTION_EMA;
+
+      const motionThr = clamp(
+        lerp(MIN_MOTION_THR, MAX_MOTION_THR, clamp(contrast/90, 0, 1)),
+        MIN_MOTION_THR, MAX_MOTION_THR
+      );
+      motionReadEl.textContent = motionEma.toFixed(1);
+      const motionLocked = motionEma > motionThr;
+
+      // Auto sensitivity
+      if (sensAuto){
+        const target = clamp(30 - (contrast/8), -10, 28);
+        sensEma = lerp(sensEma, target, SENS_EMA);
+        sensVal.textContent = String(Math.round(sensEma));
+      } else {
+        sensVal.textContent = String(sensManual);
+      }
+
+      // background update
+      if (!motionLocked){
+        const slowAlpha = 0.02;
+        for (let p=0; p<w*h; p++){
+          bgRef[p] = bgRef[p]*(1-slowAlpha) + curB[p]*slowAlpha;
+        }
+      }
+
+      // exposure normalization
+      const curN = matchMeanStd(curB, bgRef);
+
+      const sens = getSens();
+      const base = mean + sens * 1.2;
+      const scale = Math.max(10, contrast * 0.55);
+
+      const heatImg = heatCtx.createImageData(w, h);
+      const hd = heatImg.data;
+
+      let maxIdx = 0;
+      let avgIdx = 0;
+
+      const eps = 1e-6;
+      const mask = new Uint8Array(w*h);
+
+      const persistNeed = Math.round(
+        clamp(lerp(MIN_PERSIST, MAX_PERSIST, clamp(contrast/95, 0, 1)), MIN_PERSIST, MAX_PERSIST)
+      );
+
+      const hotThr = clamp(70 + (sens * 0.6), 60, 88);
+      const confThr = clamp(0.45 + clamp((contrast-55)/300, 0, 0.12), 0.45, 0.57);
+
+      for (let p=0; p<w*h; p++){
+        const idx = clamp(((curN[p] - base) / scale) * 50 + 50, 0, 100);
+        avgIdx += idx;
+        if (idx > maxIdx) maxIdx = idx;
+
+        const t = idx / 100;
+        const [r,gc,b] = heatColor(t);
+
+        const i = p*4;
+        hd[i]   = r;
+        hd[i+1] = gc;
+        hd[i+2] = b;
+        hd[i+3] = Math.round(255 * OVERLAY_ALPHA);
+
+        const conf = Math.max(0, (curN[p] - bgRef[p]) / (contrast + eps));
+        heatConfEma[p] = heatConfEma[p]*(1-CONF_EMA) + conf*CONF_EMA;
+
+        const qualifies = (idx >= hotThr) && (heatConfEma[p] >= confThr) && !motionLocked;
+
+        if (qualifies){
+          heatPersist[p] = Math.min(255, heatPersist[p] + 1);
+        } else {
+          heatPersist[p] = heatPersist[p] > 0 ? (heatPersist[p] - 1) : 0;
+        }
+
+        if (heatPersist[p] >= persistNeed && heatConfEma[p] >= confThr){
+          mask[p] = 1;
+        }
+      }
+
+      avgIdx = avgIdx / (w*h);
+
+      const minArea = Math.max(44, Math.floor((w*h) * 0.005));
+      let boxes = findHotspots(mask, w, h, minArea);
+
+      // score boxes -> keep only strong hotspots
+      function scoreBox(b){
+        let sIdx=0, sConf=0, n=0;
+        for (let y=b.minY; y<=b.maxY; y++){
+          for (let x=b.minX; x<=b.maxX; x++){
+            const p = y*w + x;
+            if (!mask[p]) continue;
+            const idx = clamp(((curN[p] - base) / scale) * 50 + 50, 0, 100);
+            sIdx += idx;
+            sConf += heatConfEma[p];
+            n++;
+          }
+        }
+        if (n < Math.max(12, Math.floor(minArea*0.35))) return 0;
+        const meanIdx = sIdx / n;
+        const meanConf = sConf / n;
+        const areaNorm = Math.sqrt(b.area);
+        return (meanIdx * 0.75 + meanConf * 120) * (0.25 + areaNorm / 30);
+      }
+
+      boxes = boxes
+        .map(b => ({...b, score: scoreBox(b)}))
+        .filter(b => b.score >= 85)
+        .sort((a,b)=>b.score - a.score)
+        .slice(0, 6);
+
+      // draw
+      sheetCtx.clearRect(0,0,dw,dh);
+      drawRoiFrame(sheetCtx, roiX_disp, roiY_disp, roiW_disp, roiH_disp);
+
+      heatCtx.putImageData(heatImg, 0, 0);
+      sheetCtx.save();
+      sheetCtx.globalCompositeOperation = "source-over";
+      sheetCtx.drawImage(heatCanvas, roiX_disp, roiY_disp, roiW_disp, roiH_disp);
+      sheetCtx.restore();
+
+      // boxes
+      sheetCtx.save();
+      sheetCtx.lineWidth = 2;
+      sheetCtx.font = "bold 12px 'JetBrains Mono'";
+      sheetCtx.shadowColor = "rgba(0,0,0,0.55)";
+      sheetCtx.shadowBlur = 6;
+
+      const sx = roiW_disp / w;
+      const sy = roiH_disp / h;
+
+      for (let k=0; k<boxes.length; k++){
+        const b = boxes[k];
+        const x = roiX_disp + b.minX * sx;
+        const y = roiY_disp + b.minY * sy;
+        const ww = (b.maxX - b.minX + 1) * sx;
+        const hh = (b.maxY - b.minY + 1) * sy;
+
+        sheetCtx.strokeStyle = "rgba(239, 68, 68, 0.95)";
+        sheetCtx.fillStyle = "rgba(239, 68, 68, 0.14)";
+        sheetCtx.fillRect(x, y, ww, hh);
+        sheetCtx.strokeRect(x, y, ww, hh);
+
+        sheetCtx.fillStyle = "#fff";
+        sheetCtx.fillText(`HOT ${k+1}`, x + 6, y + 14);
+      }
+      sheetCtx.restore();
+
+      // UI
+      maxHeatEl.textContent = Math.round(maxIdx).toString();
+      avgHeatEl.textContent = Math.round(avgIdx).toString();
+      hsEl.textContent = boxes.length.toString();
+
+      document.getElementById("overlay-val").textContent = Math.round(OVERLAY_ALPHA*100) + "%";
+      updateStatus(maxIdx, boxes.length);
+
+      if (motionLocked){
+        statusEl.textContent = "HOLD";
+        dash.className = "result-dashboard status-warn";
+      }
+    }
+
+    // ====== Camera init ======
+    async function initCamera(){
+      try{
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } }
+        });
+        video.srcObject = stream;
+        videoTrack = stream.getVideoTracks?.()[0] || null;
+
+        // best-effort constraints
+        try{
+          const caps = videoTrack?.getCapabilities?.();
+          const cons = {};
+          if (caps?.exposureMode) cons.exposureMode = "manual";
+          if (caps?.whiteBalanceMode) cons.whiteBalanceMode = "manual";
+          if (caps?.focusMode) cons.focusMode = "continuous";
+          if (Object.keys(cons).length && videoTrack?.applyConstraints){
+            await videoTrack.applyConstraints({ advanced: [cons] });
+          }
+        } catch(e){}
+
+        try{
+          const caps = videoTrack?.getCapabilities?.();
+          torchSupported = !!caps?.torch;
+        } catch(e){ torchSupported = false; }
+
+        updateTorchUI();
+
+        video.onloadedmetadata = ()=>{
+          applyAutoFitLayout();
+          isProcessing = true;
+          requestAnimationFrame(loop);
+        };
+      }catch(err){
+        alert("Camera Error: " + err);
+      }
+    }
+
+    function loop(){
+      if (!isProcessing) return;
+      renderThermal();
+      requestAnimationFrame(loop);
+    }
+
+    // ====== Torch ======
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function updateTorchUI() {
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold(){
+      if (torchOpBusy) return;
+      torchOpBusy = true;
+      const next = !isTorchOn;
+      try{
+        if (torchSupported && videoTrack?.applyConstraints){
+          const ok = await setTorch(next);
+          if (!ok && next){
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+          isTorchOn = next;
+          if (!isTorchOn) document.body.classList.remove("screen-lamp");
+          updateTorchUI();
+          return;
+        }
+        // fallback
+        isTorchOn = next;
+        document.body.classList.toggle("screen-lamp", isTorchOn);
+        updateTorchUI();
+      } finally {
+        torchOpBusy = false;
+      }
+    }
+
+    // boot
+    applyAutoFitLayout();
+    initCamera();
+  </script>
+</body>
+</html>
