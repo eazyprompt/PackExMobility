@@ -41,7 +41,7 @@
       display: flex;
       justify-content: center;
       overflow: hidden;
-      background-image: 
+      background-image:
         linear-gradient(rgba(59, 130, 246, 0.1) 1px, transparent 1px),
         linear-gradient(90deg, rgba(59, 130, 246, 0.1) 1px, transparent 1px),
         radial-gradient(circle at 50% -20%, rgba(59, 130, 246, 0.4), transparent 70%);
@@ -78,8 +78,8 @@
       text-transform: uppercase;
     }
     .brand-title .text-packex { font-weight: 800; color: var(--text-white); }
-    .brand-title .text-mobility { 
-      font-weight: 600; 
+    .brand-title .text-mobility {
+      font-weight: 600;
       color: var(--neon-blue);
       text-shadow: 0 0 15px rgba(59, 130, 246, 0.6);
     }
@@ -215,9 +215,11 @@
       from { opacity: 0; clip-path: inset(0 100% 0 0); transform: translateX(-20px); }
       to { opacity: 1; clip-path: inset(0 0 0 0); transform: translateX(0); }
     }
+
     .tech-card { animation: scanReveal 0.6s cubic-bezier(0.2, 0.8, 0.2, 1) backwards; }
     .tech-card:nth-child(2) { animation-delay: 0.15s; }
-    .tech-card:nth-child(3) { animation-delay: 0.30s; } /* ✅ เพิ่มสำหรับการ์ดใบที่ 3 */
+    .tech-card:nth-child(3) { animation-delay: 0.30s; }
+    .tech-card:nth-child(4) { animation-delay: 0.45s; } /* ✅ เพิ่มสำหรับการ์ดใบที่ 4 */
   </style>
 </head>
 <body>
@@ -260,16 +262,26 @@
         </div>
       </div>
 
-      <!-- ✅ NEW: Warp Measurement -->
       <div class="tech-card" onclick="location.href='corr_warp.html'">
         <span class="tech-id">ID:WM-03</span>
         <div class="card-icon-hex">
-          <!-- ไอคอนเส้นโค้งงอ/คลื่น -->
           <i data-lucide="tangent" size="26" stroke-width="2"></i>
         </div>
         <div class="card-details">
           <h2>Warp Measurement</h2>
           <p>Corrugated warp profiling & standard reference line.</p>
+        </div>
+      </div>
+
+      <!-- ✅ NEW: Thermal Surface -->
+      <div class="tech-card" onclick="location.href='thermal_surface.html'">
+        <span class="tech-id">ID:TS-04</span>
+        <div class="card-icon-hex">
+          <i data-lucide="thermometer" size="26" stroke-width="2"></i>
+        </div>
+        <div class="card-details">
+          <h2>Thermal Surface</h2>
+          <p>Thermal & hotspot capture.</p>
         </div>
       </div>
 
