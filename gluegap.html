@@ -863,6 +863,17 @@
       box-shadow: 0 0 0 3px rgba(59,130,246,0.18);
     }
 
+    /* Order input validation (non-blocking) */
+    .gg-input.gg-order-error{
+      background: rgba(239,68,68,0.92);
+      border-color: rgba(239,68,68,0.85);
+      color: #ffffff;
+      box-shadow: 0 0 0 3px rgba(239,68,68,0.22);
+    }
+    .gg-input.gg-order-error::placeholder{
+      color: rgba(255,255,255,0.85);
+    }
+
     .gg-actions{
       display:flex;
       gap: 10px;
@@ -910,9 +921,9 @@
       max-width: min(92vw, 560px);
       padding: 10px 12px;
       border-radius: 12px;
-      background: rgba(2,6,23,0.92);
-      border: 1px solid rgba(148,163,184,0.35);
-      color: rgba(226,232,240,0.98);
+      background: rgba(239,68,68,0.96);
+      border:  2px solid rgba(255,255,255,0.28);
+      color: #ffffff;
       font-size: 0.86rem;
       line-height: 1.35;
       box-shadow: 0 14px 40px rgba(0,0,0,0.35);
@@ -922,8 +933,8 @@
       pointer-events: none;
     }
     .gg-toast.show{ display:block; }
-    .gg-toast.warn{ border-color: rgba(245,158,11,0.55); }
-    .gg-toast.error{ border-color: rgba(239,68,68,0.55); }
+    .gg-toast.warn{ border-color: rgba(255,255,255,0.28); }
+    .gg-toast.error{ border-color: rgba(255,255,255,0.28); }
 
 
 
@@ -944,7 +955,7 @@
       width:0; height:0;
       border-left:8px solid transparent;
       border-right:8px solid transparent;
-      border-top:8px solid rgba(255,255,255,0.12);
+      border-top:8px solid rgba(255,255,255,0.28);
       filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
       pointer-events:none;
     }
@@ -1192,7 +1203,7 @@
         </div>
 
         <div class="gg-form-row">
-          <input id="gg-order-input" class="gg-input" type="text" placeholder="Order Number (e.g., 2401-000123)" />
+          <input id="gg-order-input" class="gg-input" type="text" placeholder="Order Number (e.g., 389xxxxxxx)" />
           <div class="gg-actions">
             <button id="gg-btn-cancel" class="gg-btn">
               <i data-lucide="x" style="width:18px;"></i>
@@ -1205,7 +1216,7 @@
           </div>
         </div>
 
-     
+      
       </div>
     </div>
   </div>
@@ -2541,6 +2552,10 @@ sheetCtx.restore();
       const saveBtnEl = document.getElementById("gg-btn-save");
       if (saveBtnEl) saveBtnEl.style.display = "";
 
+      // ensure Order input is visible whenever modal opens
+      const orderInpEl = document.getElementById("gg-order-input");
+      if (orderInpEl) { orderInpEl.style.display = ""; orderInpEl.classList.remove("gg-order-error"); }
+
       const f = cloneGapResults(frontGapCapture);
       const t = cloneGapResults(tailGapCapture);
 
@@ -2580,7 +2595,8 @@ sheetCtx.restore();
 
       // Clear Order input every time we start a new capture process
       const orderInp = document.getElementById("gg-order-input");
-      if (orderInp) orderInp.value = "";
+
+      if (orderInp) { orderInp.value = ""; orderInp.classList.remove("gg-order-error"); orderInp.style.display = ""; }
 
       const btn = document.getElementById("btn-sheet-cap");
       if (btn) {
@@ -3105,6 +3121,12 @@ sheetCtx.restore();
       const saveBtn   = document.getElementById("gg-btn-save");
       const orderInp  = document.getElementById("gg-order-input");
 
+      if (orderInp) {
+        orderInp.addEventListener("input", () => {
+          orderInp.classList.remove("gg-order-error");
+        });
+      }
+
       if (cancelBtn) {
         cancelBtn.addEventListener("click", () => {
           // Cancel = close popup + reset whole capture flow back to Step 1
@@ -3112,7 +3134,7 @@ sheetCtx.restore();
           resetSheetUI();
           // restore Save visibility for next time
           if (saveBtn) saveBtn.style.display = "";
-          if (orderInp) orderInp.value = "";
+          if (orderInp) { orderInp.value = ""; orderInp.classList.remove("gg-order-error"); }
         });
       }
 
@@ -3121,22 +3143,24 @@ sheetCtx.restore();
           const ok = (frontGapCapture.length > 0) && (tailGapCapture.length > 0);
           if (!ok) return;
 
+                    // Requirement #2: Front/Tail item counts must match
+          if (frontGapCapture.length !== tailGapCapture.length) {
+            ggToast("Front และ Tail มีจำนวนรายการไม่เท่ากัน กรุณากด Cancel เพื่อถ่ายใหม่", "warn", 3800);
+            // hide Save to force retake via Cancel
+            saveBtn.style.display = "none";
+            if (orderInp) orderInp.style.display = "none";
+            return;
+          }
+
           const orderNo = (orderInp && orderInp.value) ? orderInp.value.trim() : "";
           if (!orderNo) {
+            try { orderInp && orderInp.classList.add("gg-order-error"); } catch (e) {}
             ggToast("กรุณาใส่เลข Order ก่อนกด Save", "warn");
             try { orderInp && orderInp.focus(); } catch (e) {}
             return;
           }
 
-          // Requirement #2: Front/Tail item counts must match
-          if (frontGapCapture.length !== tailGapCapture.length) {
-            ggToast("Front และ Tail มีจำนวนรายการไม่เท่ากัน กรุณากด Cancel เพื่อถ่ายใหม่", "warn", 3800);
-            // hide Save to force retake via Cancel
-            saveBtn.style.display = "none";
-            return;
-          }
-
-          const payload = {
+const payload = {
             orderNo,
             capturedAt: new Date().toISOString(),
             frontGap: cloneGapResults(frontGapCapture),
@@ -3151,7 +3175,7 @@ sheetCtx.restore();
           // (use resetSheetUI only to avoid double-reset issues on mobile)
           resetSheetUI();
           if (saveBtn) saveBtn.style.display = "";
-          if (orderInp) orderInp.value = "";
+          if (orderInp) { orderInp.value = ""; orderInp.classList.remove("gg-order-error"); orderInp.style.display = ""; }
 });
       }
     })();
