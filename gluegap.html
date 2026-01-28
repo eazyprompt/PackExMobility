@@ -898,6 +898,33 @@
       color: #f87171;
     }
 
+
+    /* ===================== Toast (Non-blocking, Mobile-safe) ===================== */
+    .gg-toast{
+      position: fixed;
+      left: 50%;
+      top: 12px;
+      transform: translateX(-50%);
+      z-index: 9999;
+      display:none;
+      max-width: min(92vw, 560px);
+      padding: 10px 12px;
+      border-radius: 12px;
+      background: rgba(2,6,23,0.92);
+      border: 1px solid rgba(148,163,184,0.35);
+      color: rgba(226,232,240,0.98);
+      font-size: 0.86rem;
+      line-height: 1.35;
+      box-shadow: 0 14px 40px rgba(0,0,0,0.35);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      user-select: none;
+      pointer-events: none;
+    }
+    .gg-toast.show{ display:block; }
+    .gg-toast.warn{ border-color: rgba(245,158,11,0.55); }
+    .gg-toast.error{ border-color: rgba(239,68,68,0.55); }
+
 </style>
 </head>
 
@@ -1165,8 +1192,27 @@
 
   <canvas id="proc-canvas" width="100" height="100"></canvas>
 
-  <script>
+  
+  <div id="gg-toast" class="gg-toast" role="status" aria-live="polite"></div>
+<script>
     lucide.createIcons();
+
+    // Non-blocking toast (avoid window.alert on mobile which can freeze camera/webview)
+    let __ggToastT = null;
+    function ggToast(msg, type = "warn", ms = 2600){
+      try{
+        const el = document.getElementById("gg-toast");
+        if(!el) return;
+        el.className = "gg-toast show " + (type || "warn");
+        el.textContent = String(msg || "");
+        clearTimeout(__ggToastT);
+        __ggToastT = setTimeout(() => {
+          el.className = "gg-toast";
+          el.textContent = "";
+        }, ms);
+      }catch(e){ /* no-op */ }
+    }
+
 
     function goHome() {
       window.location.href = "index.html";
@@ -1665,7 +1711,7 @@ function resetLightBias() {
           syncLightUI();
         };
       } catch (err) {
-        alert("Camera Error: " + err);
+        ggToast("Camera Error: " + err, "error");
       }
     }
 
@@ -3013,14 +3059,14 @@ sheetCtx.restore();
 
           const orderNo = (orderInp && orderInp.value) ? orderInp.value.trim() : "";
           if (!orderNo) {
-            alert("กรุณาใส่เลข Order ก่อนกด Save");
+            ggToast("กรุณาใส่เลข Order ก่อนกด Save", "warn");
             try { orderInp && orderInp.focus(); } catch (e) {}
             return;
           }
 
           // Requirement #2: Front/Tail item counts must match
           if (frontGapCapture.length !== tailGapCapture.length) {
-            alert("Front และ Tail มีจำนวนรายการไม่เท่ากัน กรุณาทำการถ่ายใหม่โดยกดปุ่ม Cancel");
+            ggToast("Front และ Tail มีจำนวนรายการไม่เท่ากัน กรุณากด Cancel เพื่อถ่ายใหม่", "warn", 3800);
             // hide Save to force retake via Cancel
             saveBtn.style.display = "none";
             return;
