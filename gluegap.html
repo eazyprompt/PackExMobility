@@ -1155,9 +1155,7 @@
           </div>
         </div>
 
-        <div style="font-size:0.72rem; color: var(--text-muted); line-height:1.35;">
-          * Save จะเป็นสีเขียวเมื่อมีข้อมูลทั้ง Front Gap และ Tail Gap ครบ / ถ้าไม่ครบจะเป็นสีแดงและกดไม่ได้
-        </div>
+      
       </div>
     </div>
   </div>
@@ -1209,7 +1207,6 @@
     let sheetCapStep = 1;
     let frontGapCapture = [];
     let tailGapCapture = [];
-
     // ==============================
     // ✅ SHEET CAPTURE STEP INDICATOR
     // ==============================
@@ -2428,6 +2425,9 @@ sheetCtx.restore();
 
       // freeze live view while reviewing summary
       sheetFrozen = true;
+// ensure Save button is visible whenever modal opens
+      const saveBtnEl = document.getElementById("gg-btn-save");
+      if (saveBtnEl) saveBtnEl.style.display = "";
 
       const f = cloneGapResults(frontGapCapture);
       const t = cloneGapResults(tailGapCapture);
@@ -2465,6 +2465,10 @@ sheetCtx.restore();
       frontGapCapture = [];
       tailGapCapture = [];
       closeGapSummaryModal();
+
+      // Clear Order input every time we start a new capture process
+      const orderInp = document.getElementById("gg-order-input");
+      if (orderInp) orderInp.value = "";
 
       const btn = document.getElementById("btn-sheet-cap");
       if (btn) {
@@ -2994,6 +2998,8 @@ sheetCtx.restore();
           // Cancel = close popup + reset whole capture flow back to Step 1
           resetSheetUI();
           resetGapCaptureFlow();
+          // restore Save visibility for next time
+          if (saveBtn) saveBtn.style.display = "";
           if (orderInp) orderInp.value = "";
         });
       }
@@ -3004,6 +3010,20 @@ sheetCtx.restore();
           if (!ok) return;
 
           const orderNo = (orderInp && orderInp.value) ? orderInp.value.trim() : "";
+          if (!orderNo) {
+            alert("กรุณาใส่เลข Order ก่อนกด Save");
+            try { orderInp && orderInp.focus(); } catch (e) {}
+            return;
+          }
+
+          // Requirement #2: Front/Tail item counts must match
+          if (frontGapCapture.length !== tailGapCapture.length) {
+            alert("Front และ Tail มีจำนวนรายการไม่เท่ากัน กรุณาทำการถ่ายใหม่โดยกดปุ่ม Cancel");
+            // hide Save to force retake via Cancel
+            saveBtn.style.display = "none";
+            return;
+          }
+
           const payload = {
             orderNo,
             capturedAt: new Date().toISOString(),
@@ -3017,7 +3037,7 @@ sheetCtx.restore();
 
           // After Save: close modal + reset capture flow for the next measurement
           resetGapCaptureFlow();
-          if (orderInp) orderInp.value = "";
+          if (orderInp) orderInp.value = reuse ? orderNo : "";
         });
       }
     })();
