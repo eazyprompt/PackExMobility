@@ -1155,7 +1155,9 @@
           </div>
         </div>
 
-       
+        <div style="font-size:0.72rem; color: var(--text-muted); line-height:1.35;">
+          * Save จะเป็นสีเขียวเมื่อมีข้อมูลทั้ง Front Gap และ Tail Gap ครบ / ถ้าไม่ครบจะเป็นสีแดงและกดไม่ได้
+        </div>
       </div>
     </div>
   </div>
@@ -1207,10 +1209,6 @@
     let sheetCapStep = 1;
     let frontGapCapture = [];
     let tailGapCapture = [];
-    // Remember last Order No (optional)
-    let lastOrderNo = "";
-    try { lastOrderNo = localStorage.getItem("gluegap_last_orderNo") || ""; } catch(e) { lastOrderNo = ""; }
-
     // ==============================
     // ✅ SHEET CAPTURE STEP INDICATOR
     // ==============================
@@ -2429,13 +2427,7 @@ sheetCtx.restore();
 
       // freeze live view while reviewing summary
       sheetFrozen = true;
-
-      // restore order number if user chose to reuse last time
-      const orderInp = document.getElementById("gg-order-input");
-      if (orderInp && (!orderInp.value || !orderInp.value.trim()) && lastOrderNo) {
-        orderInp.value = lastOrderNo;
-      }
-      // ensure Save button is visible whenever modal opens
+// ensure Save button is visible whenever modal opens
       const saveBtnEl = document.getElementById("gg-btn-save");
       if (saveBtnEl) saveBtnEl.style.display = "";
 
@@ -2475,6 +2467,10 @@ sheetCtx.restore();
       frontGapCapture = [];
       tailGapCapture = [];
       closeGapSummaryModal();
+
+      // Clear Order input every time we start a new capture process
+      const orderInp = document.getElementById("gg-order-input");
+      if (orderInp) orderInp.value = "";
 
       const btn = document.getElementById("btn-sheet-cap");
       if (btn) {
@@ -3002,8 +2998,8 @@ sheetCtx.restore();
       if (cancelBtn) {
         cancelBtn.addEventListener("click", () => {
           // Cancel = close popup + reset whole capture flow back to Step 1
+          // (use resetSheetUI only to avoid double-reset issues on mobile)
           resetSheetUI();
-          resetGapCaptureFlow();
           // restore Save visibility for next time
           if (saveBtn) saveBtn.style.display = "";
           if (orderInp) orderInp.value = "";
@@ -3030,16 +3026,6 @@ sheetCtx.restore();
             return;
           }
 
-          // Requirement #3: Ask to reuse Order number for next inspection
-          const reuse = confirm(`ต้องการใช้เลข Order เดิม (${orderNo}) สำหรับการตรวจสอบครั้งถัดไปหรือไม่?`);
-          if (reuse) {
-            lastOrderNo = orderNo;
-            try { localStorage.setItem("gluegap_last_orderNo", orderNo); } catch (e) {}
-          } else {
-            lastOrderNo = "";
-            try { localStorage.removeItem("gluegap_last_orderNo"); } catch (e) {}
-          }
-
           const payload = {
             orderNo,
             capturedAt: new Date().toISOString(),
@@ -3051,10 +3037,12 @@ sheetCtx.restore();
             localStorage.setItem("gluegap_last_capture", JSON.stringify(payload));
           } catch (e) {}
 
-          // After Save: close modal + reset capture flow for the next measurement
-          resetGapCaptureFlow();
-          if (orderInp) orderInp.value = reuse ? orderNo : "";
-        });
+          // After Save: close modal + reset back to Step 1 for the next measurement
+          // (use resetSheetUI only to avoid double-reset issues on mobile)
+          resetSheetUI();
+          if (saveBtn) saveBtn.style.display = "";
+          if (orderInp) orderInp.value = "";
+});
       }
     })();
 
