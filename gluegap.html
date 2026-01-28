@@ -281,7 +281,15 @@
       transition: 0.2s;
     }
     .btn-header-cap:active { transform: scale(0.92); }
-    .btn-header-cap.frozen {
+        .btn-header-cap.btn-disabled,
+    .btn-header-cap:disabled{
+      opacity: 0.45;
+      cursor: not-allowed;
+      box-shadow: none;
+      filter: grayscale(0.1);
+      pointer-events: none;
+    }
+.btn-header-cap.frozen {
       background: #ef4444;
       box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
     }
@@ -1361,6 +1369,14 @@
       // set label + icon
       el.innerHTML = `<i data-lucide="${m.icon}"></i> ${m.text}`;
 
+      // Sync capture button icon: camera for FRONT/TAIL, document for PREVIEW
+      const btn = document.getElementById("btn-sheet-cap");
+      if (btn) {
+        btn.innerHTML = (m.key === "preview")
+          ? `<i data-lucide="file-text"></i>`
+          : `<i data-lucide="camera"></i>`;
+      }
+
       // set color class
       el.classList.remove("sheetcap-front", "sheetcap-tail", "sheetcap-preview");
       el.classList.add(`sheetcap-${m.key}`);
@@ -1389,6 +1405,15 @@
     const EMA_W = 0.20;
     const EMA_AREA = 0.25;
     const EMA_CONF = 0.20;
+    function setSheetCapButtonEnabled(enabled) {
+      const btn = document.getElementById("btn-sheet-cap");
+      if (!btn) return;
+      btn.disabled = !enabled;
+      if (!enabled) btn.classList.add("btn-disabled");
+      else btn.classList.remove("btn-disabled");
+    }
+
+
 
     function clampStep(prev, next, ratioStep = 0.25) {
       if (!prev || prev <= 0) return next;
@@ -2272,6 +2297,11 @@ sheetCtx.restore();
         header.className = "glue-compact-header";
       }
 
+      // ✅ When header shows SCANNING, do not allow user to capture (prevent shaky / unstable frame)
+      const __isScanning = (redCount === 0 && !(expected >= 7 && expected <= 8));
+      setSheetCapButtonEnabled((sheetCapStep === 3 || sheetCapStep === 4) || !__isScanning);
+
+
       document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-red').innerText = redCount;
@@ -2603,13 +2633,18 @@ sheetCtx.restore();
         // keep original visual language: camera icon
         btn.innerHTML = '<i data-lucide="camera"></i>';
         btn.classList.remove("frozen");
+       setSheetCapButtonEnabled(true);
       }
       lucide.createIcons();
       updateSheetCapStepIndicator();
     }
 
     function toggleSheetCapture() {
-      const btn = document.getElementById("btn-sheet-cap");
+      const btn = document.getElementById("btn-sheet-cap"); 
+
+      // If system is SCANNING (button disabled), ignore taps
+      if (btn && btn.disabled) { return; }
+
 
       // STEP 1: capture Front Gap
       if (sheetCapStep === 1) {
@@ -2636,7 +2671,7 @@ sheetCtx.restore();
         // keep live scanning until summary step
         sheetFrozen = false;
         if (btn) {
-          btn.innerHTML = '<i data-lucide="camera"></i>';
+          btn.innerHTML = '<i data-lucide="file-text"></i>';
           btn.classList.remove("frozen");
         }
         lucide.createIcons();
@@ -2697,6 +2732,7 @@ sheetCtx.restore();
       const btn = document.getElementById("btn-sheet-cap");
       btn.innerHTML = '<i data-lucide="camera"></i>';
       btn.classList.remove("frozen");
+      setSheetCapButtonEnabled(true);
 
       lucide.createIcons();
     }
