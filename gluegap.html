@@ -925,6 +925,29 @@
     .gg-toast.warn{ border-color: rgba(245,158,11,0.55); }
     .gg-toast.error{ border-color: rgba(239,68,68,0.55); }
 
+
+
+    .gg-toast.near{
+      padding: 12px 14px;
+      font-weight: 800;
+      font-size: 15px;
+      border-width: 2px;
+      box-shadow: 0 18px 55px rgba(0,0,0,0.55);
+      max-width: min(92vw, 520px);
+    }
+    .gg-toast.near::after{
+      content:"";
+      position:absolute;
+      left:50%;
+      bottom:-8px;
+      transform: translateX(-50%);
+      width:0; height:0;
+      border-left:8px solid transparent;
+      border-right:8px solid transparent;
+      border-top:8px solid rgba(255,255,255,0.12);
+      filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
+      pointer-events:none;
+    }
 </style>
 </head>
 
@@ -1203,12 +1226,55 @@
       try{
         const el = document.getElementById("gg-toast");
         if(!el) return;
+
+        // show
         el.className = "gg-toast show " + (type || "warn");
         el.textContent = String(msg || "");
+
+        // place near Save button when modal is open (mobile-safe, non-blocking)
+        const backdrop = document.getElementById("gg-modal-backdrop");
+        const saveBtn = document.getElementById("gg-btn-save");
+        const modalOpen = !!(backdrop && window.getComputedStyle(backdrop).display !== "none");
+
+        if(modalOpen && saveBtn){
+          el.classList.add("near");
+
+          // Measure after showing (needs to be in DOM and visible)
+          el.style.top = "0px";
+          el.style.left = "0px";
+          el.style.transform = "none";
+          const toastH = el.offsetHeight || 52;
+          const toastW = el.offsetWidth || 320;
+
+          const r = saveBtn.getBoundingClientRect();
+          let top = r.top - 10 - toastH;          // prefer above Save
+          if(top < 8) top = r.bottom + 10;        // fallback below Save
+
+          let left = r.left + (r.width / 2);
+
+          const vw = Math.max(document.documentElement.clientWidth, window.innerWidth || 0);
+          const margin = 10;
+          const halfW = toastW / 2;
+
+          if(left - halfW < margin) left = margin + halfW;
+          if(left + halfW > vw - margin) left = (vw - margin) - halfW;
+
+          el.style.top = Math.round(top) + "px";
+          el.style.left = Math.round(left) + "px";
+          el.style.transform = "translateX(-50%)";
+        }else{
+          // default placement (top center)
+          el.classList.remove("near");
+          el.style.top = "12px";
+          el.style.left = "50%";
+          el.style.transform = "translateX(-50%)";
+        }
+
         clearTimeout(__ggToastT);
         __ggToastT = setTimeout(() => {
           el.className = "gg-toast";
           el.textContent = "";
+          el.removeAttribute("style");
         }, ms);
       }catch(e){ /* no-op */ }
     }
