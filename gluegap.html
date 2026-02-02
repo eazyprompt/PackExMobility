@@ -1190,7 +1190,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:110px;">Pink (%)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-front-tbody"></tbody>
             </table>
@@ -1203,7 +1203,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:110px;">Pink (%)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-tail-tbody"></tbody>
             </table>
@@ -2193,11 +2193,14 @@ function resetLightBias() {
     }
 
 
+const GG_SHOW_PINK_OVERLAY = false; // UI: hide pink overlay
+
 // =========================================================
 // ✅ VISUAL: paint largest detected BLOB inside each bounding "box"
 // (Neon reflective pink overlay)
 // =========================================================
 function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, roiX_disp, roiY_disp, sx, sy) {
+  if (!GG_SHOW_PINK_OVERLAY) return;
   x0 = Math.max(0, Math.min(w - 1, x0));
   x1 = Math.max(0, Math.min(w, x1));
   y0 = Math.max(0, Math.min(h - 1, y0));
@@ -2562,7 +2565,7 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
         const __pctDisp = (clamp(__fillRatioRaw,0,1)*100).toFixed(1);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${__pctDisp}%)`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm`;
 
 
 
@@ -2576,7 +2579,7 @@ try {
   const by0 = clamp(localY_v - bandHalf, 0, roiH_v - 1);
   const by1 = clamp(localY_v + bandHalf, 0, roiH_v);
 
-  paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, sx, sy);
+  if (GG_SHOW_PINK_OVERLAY) paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, sx, sy);
 } catch (e) { /* no-op */ }sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
@@ -2856,7 +2859,7 @@ try {
       if (!tbodyEl) return;
       const rows = [];
       if (!items || items.length === 0) {
-        rows.push(`<tr><td style="color:#94a3b8;" colspan="4">—</td></tr>`);
+        rows.push(`<tr><td style="color:#94a3b8;" colspan="3">—</td></tr>`);
         tbodyEl.innerHTML = rows.join("");
         return;
       }
@@ -2868,7 +2871,6 @@ try {
           `<tr>
             <td>#${r.layer}</td>
             <td>${jitterGapMm_(Number(r.gapMM || 0), "tbl_" + r.layer).toFixed(2)}</td>
-            <td>${(clamp(Number(r.fillRatio ?? 0),0,1)*100).toFixed(1)}%</td>
             <td>${status}</td>
           </tr>`
         );
