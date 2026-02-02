@@ -2547,15 +2547,16 @@ sheetCtx.restore();
         const gapMM_raw = pxToMm_15cm(gapPx);
         let gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
-        // ✅ Rule: Use PINK area INSIDE the Bounding Box only
-        // If pink area inside bbox is < 20% of bbox area -> display 0 mm
+        // ✅ Rule: Use PINK area INSIDE the Bounding Box only (backend-only)
+        // If pink area inside bbox is < 9% of bbox area -> display 0 mm
         // (use raw ratio for strictness; fall back to EMA if raw missing)
         const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
-        if (__fillRatioRaw < 0.09) gapMM = 0;
-// ✅ Rule: if blob pink looks like a LINE (thin/elongated) -> display 0 mm
-        // (use raw score for strictness; fall back to EMA if raw missing)
-        const __lineScoreRaw = (t.lineScoreRaw ?? t.lineScoreEma ?? 0);
-        if (__lineScoreRaw > 0.55) gapMM = 0;
+        if (__fillRatioRaw < 0.09) {
+          gapMM = 0;
+        }
+
+        // Note: Line-like detection is still computed in backend (t.lineScoreRaw/Ema),
+        // but it no longer overrides the 9% rule for displayed mm.
 const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
         const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
