@@ -1190,7 +1190,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:92px;">Pink (%)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-front-tbody"></tbody>
             </table>
@@ -1203,7 +1203,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:92px;">Pink (%)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-tail-tbody"></tbody>
             </table>
@@ -2548,14 +2548,18 @@ sheetCtx.restore();
         let gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
         // ✅ Rule: Use PINK area INSIDE the Bounding Box only (backend-only)
-        // If pink area inside bbox is < 9% of bbox area -> display 0 mm
-        // (use raw ratio for strictness; fall back to EMA if raw missing)
-        const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
-        if (__fillRatioRaw < 0.09) {
-          gapMM = 0;
-        }
+// If pink area inside bbox is >= 9% of bbox area -> display NORMAL mm
+// If pink area inside bbox is < 9% -> display a value in [0..5] based on % (higher % => higher value)
+// (use raw ratio for strictness; fall back to EMA if raw missing)
+const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
 
-        // Note: Line-like detection is still computed in backend (t.lineScoreRaw/Ema),
+if (__fillRatioRaw < 0.09) {
+  // Map fill ratio [0..0.09) -> proxy mm [0..5] (discrete levels 0,1,2,3,4,5)
+  const __pct01 = clamp(__fillRatioRaw / 0.09, 0, 0.999999); // 0..(<1)
+  const __mmProxy = Math.min(5, Math.floor(__pct01 * 6));     // 6 bins -> 0..5
+  gapMM = __mmProxy;
+}
+// Note: Line-like detection is still computed in backend (t.lineScoreRaw/Ema),
         // but it no longer overrides the 9% rule for displayed mm.
 const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
@@ -2566,7 +2570,7 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
         const __pctDisp = (clamp(__fillRatioRaw,0,1)*100).toFixed(1);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm  (${__pctDisp}%)`;
 
 
 
@@ -2860,7 +2864,7 @@ try {
       if (!tbodyEl) return;
       const rows = [];
       if (!items || items.length === 0) {
-        rows.push(`<tr><td style="color:#94a3b8;" colspan="3">—</td></tr>`);
+        rows.push(`<tr><td style="color:#94a3b8;" colspan="4">—</td></tr>`);
         tbodyEl.innerHTML = rows.join("");
         return;
       }
@@ -2872,6 +2876,7 @@ try {
           `<tr>
             <td>#${r.layer}</td>
             <td>${jitterGapMm_(Number(r.gapMM || 0), "tbl_" + r.layer).toFixed(2)}</td>
+            <td>${(clamp(Number(r.fillRatio || 0),0,1)*100).toFixed(1)}</td>
             <td>${status}</td>
           </tr>`
         );
