@@ -1532,6 +1532,44 @@ function pxToMm_15cm(pxVal){
       const t = (x - p0.px) / (p1.px - p0.px);
       return p0.mm + t * (p1.mm - p0.mm);
     }
+    // =========================================================
+    // DISPLAY JITTER (mm) — เพื่อให้ค่าที่แสดงไม่เท่ากันเกินไป
+    // Requirement: สุ่มเพิ่ม/ลด (±) ไม่เกิน ~0.5 ถึง 0.8 mm
+    // NOTE: ใช้สำหรับ "แสดงผล" เท่านั้น (ไม่กระทบ logic ตรวจช่วง/สถานะ)
+    // =========================================================
+    function _hashStr_(s){
+      s = String(s || "");
+      let h = 2166136261; // FNV-1a
+      for (let i=0;i<s.length;i++){
+        h ^= s.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
+      return (h >>> 0);
+    }
+
+    function jitterGapMm_(mmVal, key){
+      const mm = Number(mmVal || 0);
+      if (!Number.isFinite(mm) || mm === 0) return mm;
+
+      const k = String(key || "");
+      const base = k + "|" + mm.toFixed(3);
+
+      const h1 = _hashStr_(base);
+      const h2 = _hashStr_(base + "#2");
+      const h3 = _hashStr_(base + "#3");
+
+      // max jitter in [0.5..0.8]
+      const maxJ = 0.5 + ((h1 & 0xFFFF) / 0xFFFF) * 0.3;
+
+      // amount in [0..maxJ]
+      const amt  = ((h2 & 0xFFFF) / 0xFFFF) * maxJ;
+
+      // sign ±
+      const sign = (h3 & 1) ? 1 : -1;
+
+      return mm + sign * amt;
+    }
+
     // ✅ mm range rule: out of 2..10 => RED
     const MM_MIN_OK = 2.0;
     const MM_MAX_OK = 10.0;
@@ -2249,7 +2287,8 @@ sheetCtx.restore();
 
         const prefix = `#${layerNo}`;
         const xOffset = 58;
-        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm (${gapPx}px)`;
+        const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
 
 
 sheetCtx.fillStyle = bgColor;
@@ -2542,7 +2581,7 @@ sheetCtx.fillStyle = bgColor;
         rows.push(
           `<tr>
             <td>#${r.layer}</td>
-            <td>${Number(r.gapMM || 0).toFixed(2)}</td>
+            <td>${jitterGapMm_(Number(r.gapMM || 0), "tbl_" + r.layer).toFixed(2)}</td>
             <td>${status}</td>
           </tr>`
         );
