@@ -2253,7 +2253,9 @@ sheetCtx.restore();
 
         const prefix = `#${layerNo}`;
         const xOffset = 58;
-        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm`;
+        const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
+    const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
+    const labelText = `${prefix}  ${gapMM.toFixed(2)} mm (${gapPx}px)`;
 
         sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
