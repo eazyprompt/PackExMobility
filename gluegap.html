@@ -1548,26 +1548,19 @@ function pxToMm_15cm(pxVal){
     }
 
     function jitterGapMm_(mmVal, key){
+      // TRUE RANDOM display jitter:
+      // - magnitude: 0.5..0.8 mm
+      // - sign: ±
+      // NOTE: ใช้สำหรับ "แสดงผล" เท่านั้น (ไม่กระทบ logic ตรวจช่วง/สถานะ)
       const mm = Number(mmVal || 0);
       if (!Number.isFinite(mm) || mm === 0) return mm;
 
-      const k = String(key || "");
-      const base = k + "|" + mm.toFixed(3);
+      const amt  = 0.5 + Math.random() * 0.3;   // [0.5..0.8]
+      const sign = (Math.random() < 0.5) ? -1 : 1;
 
-      const h1 = _hashStr_(base);
-      const h2 = _hashStr_(base + "#2");
-      const h3 = _hashStr_(base + "#3");
-
-      // max jitter in [0.5..0.8]
-      const maxJ = 0.5 + ((h1 & 0xFFFF) / 0xFFFF) * 0.3;
-
-      // amount in [0..maxJ]
-      const amt  = ((h2 & 0xFFFF) / 0xFFFF) * maxJ;
-
-      // sign ±
-      const sign = (h3 & 1) ? 1 : -1;
-
-      return mm + sign * amt;
+      // Prevent negative display values (just in case)
+      const out = mm + sign * amt;
+      return (out < 0) ? 0 : out;
     }
 
     // ✅ mm range rule: out of 2..10 => RED
