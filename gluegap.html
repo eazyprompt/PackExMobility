@@ -1638,7 +1638,7 @@ function resetLightBias() {
     // ✅ MM CALIBRATION (blob area px^2 -> mm) using user's samples
     // Model: mm ≈ K * sqrt(areaPx2)
     // K is the median of (mm / sqrt(px2)) across the provided calibration points
-    const AREA_TO_MM_K = 0.328975847479885;
+    const AREA_TO_MM_K = 0.244844452828227;
 
     function areaPx2ToMm_(areaPx2) {
       const a = Number(areaPx2 || 0);
