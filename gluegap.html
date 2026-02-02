@@ -1470,7 +1470,11 @@
 
           best.areaEma = lerp(best.areaEma ?? m.areaPx2, m.areaPx2, EMA_AREA);
           best.fillRatioEma = lerp(best.fillRatioEma ?? m.fillRatio, m.fillRatio, EMA_AREA);
+          best.fillRatioRaw = m.fillRatio;
+
           best.lineScoreEma = lerp(best.lineScoreEma ?? (m.lineScore || 0), (m.lineScore || 0), EMA_AREA);
+          best.lineScoreRaw = (m.lineScore || 0);
+
           best.confEma = lerp(best.confEma ?? m.conf, m.conf, EMA_CONF);
 
           best.drawYEma = deadband(best.drawYEma, best.drawYEma, 0.6);
@@ -2500,6 +2504,7 @@ sheetCtx.restore();
           dispW,
           areaPx2,
           fillRatio,
+          lineScore,
           peakValue,
           conf
         });
@@ -2539,15 +2544,16 @@ sheetCtx.restore();
         const gapMM_raw = pxToMm_15cm(gapPx);
         let gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
-        // ✅ Rule: if blob pink coverage < 20% of its bounding box -> display 0 mm
-        const __fillRatio = (t.fillRatioEma ?? 0);
-        if (__fillRatio < 0.20) gapMM = 0;
-
-        // ✅ Rule: if blob pink looks like a LINE (thin/elongated) -> display 0 mm
-        const __lineScore = (t.lineScoreEma ?? 0);
-        if (__lineScore > 0.55) gapMM = 0;
-
-        const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
+        // ✅ Rule: Use PINK area INSIDE the Bounding Box only
+        // If pink area inside bbox is < 20% of bbox area -> display 0 mm
+        // (use raw ratio for strictness; fall back to EMA if raw missing)
+        const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
+        if (__fillRatioRaw < 0.20) gapMM = 0;
+// ✅ Rule: if blob pink looks like a LINE (thin/elongated) -> display 0 mm
+        // (use raw score for strictness; fall back to EMA if raw missing)
+        const __lineScoreRaw = (t.lineScoreRaw ?? t.lineScoreEma ?? 0);
+        if (__lineScoreRaw > 0.55) gapMM = 0;
+const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
         const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
         const bgColor  = outOfRangeMM ? "rgba(239, 68, 68, 0.18)" : "rgba(52, 211, 153, 0.20)";
