@@ -2172,12 +2172,12 @@ function resetLightBias() {
 
       // Line-like heuristic:
       // - very thin + elongated OR sparse inside its own bbox
-      const THIN_PX = 12;        // ~4 grid cells at ds=3
-      const ASPECT_STRONG = 4.0;
-      const ASPECT_MED = 2.5;
-      const EXTENT_SPARSE = 0.35;
+      const THIN_PX = 18;        // stricter catch: treat slightly thicker strokes as lines
+      const ASPECT_STRONG = 3.2;
+      const ASPECT_MED = 2.0;
+      const EXTENT_SPARSE = 0.45;
 
-      const isLineLike = (minDim <= THIN_PX && aspect >= ASPECT_MED) || (extent <= EXTENT_SPARSE && aspect >= ASPECT_MED) || (minDim <= (THIN_PX * 0.75) && aspect >= ASPECT_STRONG);
+      const isLineLike = (minDim <= THIN_PX && aspect >= ASPECT_MED) || (minDim <= (THIN_PX * 1.25) && aspect >= ASPECT_STRONG) || (extent <= EXTENT_SPARSE && aspect >= (ASPECT_MED + 0.3));
 
       return {
         areaPx2,
