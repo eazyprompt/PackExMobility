@@ -1505,46 +1505,12 @@
     // ✅ MM CALIBRATION (px² -> mm) @ distance 15 cm
     // =========================================================
     const CAL_PTS_15CM = [
-      { a: 750,  mm: 7.00 },
-      { a: 1050,  mm: 9.00 },
-      { a: 890,  mm: 8.50 },
-      { a: 950,  mm: 9.00 },
-      { a: 1138,  mm: 8.50 },
-      { a: 503,  mm: 9.00 },
-      { a: 425,  mm: 7.00 },
-      { a: 447,  mm: 8.50 },
-      { a: 455,  mm: 7.00 },
-      { a: 495,  mm: 6.50 },
-      { a: 201,  mm: 7.50 },
-      { a: 329,  mm: 9.00 },
-      { a: 448,  mm: 10.00 },
-      { a: 604,  mm: 9.00 },
-      { a: 669,  mm: 9.00 },
-      { a: 924,  mm: 10.00 },
-      { a: 962,  mm: 10.00 },
-      { a: 914,  mm: 9.00 },
-      { a: 819,  mm: 10.50 },
-      { a: 198,  mm: 9.00 },
-      { a: 425,  mm: 7.50 },
-      { a: 577,  mm: 8.00 },
-      { a: 692,  mm: 7.50 },
-      { a: 922,  mm: 8.00 },
-      { a: 988,  mm: 7.00 },
-      { a: 1039,  mm: 8.00 },
-      { a: 1136,  mm: 8.00 },
-      { a: 813,  mm: 4.00 },
-      { a: 394,  mm: 1.00 },
-      { a: 634,  mm: 6.00 },
-      { a: 170,  mm: 7.50 },
-      { a: 449,  mm: 8.00 },
-      { a: 689,  mm: 9.00 },
-      { a: 818,  mm: 8.50 },
-      { a: 1046,  mm: 8.00 },
-      { a: 1099,  mm: 10.00 },
-      { a: 1022,  mm: 9.00 },
-      { a: 831,  mm: 5.00 },
-      { a: 633,  mm: 1.50 },
-      { a: 703,  mm: 6.50 },
+      { a: 742,  mm: 1.00 },
+      { a: 1910, mm: 7.00 },
+      { a: 2590, mm: 8.00 },
+      { a: 2768, mm: 8.25 },
+      { a: 3390, mm: 8.50 },
+      { a: 3575, mm: 9.00 },
     ].sort((p,q)=>p.a-q.a);
 
     function areaPx2ToMm_15cm(areaPx2){
@@ -2287,11 +2253,9 @@ sheetCtx.restore();
 
         const prefix = `#${layerNo}`;
         const xOffset = 58;
-        const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
-    const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
-    const areaMm = areaPx2ToMm_15cm(stableArea);
-    const labelText = `area:${Math.round(stableArea)}px² (${areaMm.toFixed(2)} mm)`;
-sheetCtx.fillStyle = bgColor;
+        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm`;
+
+        sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
         sheetCtx.strokeStyle = boxColor;
@@ -2335,7 +2299,7 @@ sheetCtx.fillStyle = bgColor;
 
       // ✅ When header shows SCANNING, do not allow user to capture (prevent shaky / unstable frame)
       const __isScanning = (redCount === 0 && !(expected >= 7 && expected <= 8));
-      setSheetCapButtonEnabled(true); // allow capture anytime (ignore Scanning)
+      setSheetCapButtonEnabled((sheetCapStep === 3 || sheetCapStep === 4) || !__isScanning);
 
 
       document.getElementById('sum-total').innerText = expected;
