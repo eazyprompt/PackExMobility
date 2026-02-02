@@ -1533,6 +1533,41 @@ function pxToMm_15cm(pxVal){
       return p0.mm + t * (p1.mm - p0.mm);
     }
     // =========================================================
+    // ✅ ZONE-by-INDEX + AREA->MM heuristic (1..2 mm)
+    // =========================================================
+    const ZONE_AREA_THRESH = {
+      top: 600,     // โซนบน
+      mid: 800,     // โซนกลาง
+      bottom: 300   // โซนล่าง
+    };
+
+    function zoneByIndex_(i, n){
+      if (!Number.isFinite(n) || n <= 0) return "mid";
+      const p = (i + 0.5) / n; // 0..1
+      if (p < 1/3) return "top";
+      if (p < 2/3) return "mid";
+      return "bottom";
+    }
+
+    // ถ้า area < threshold => mm ประมาณ 1..2 (ไล่เชิงเส้น)
+    // area=0 => 1.00mm, area=threshold => 2.00mm
+    function approxMm_1to2_fromArea_(areaPx2, threshold){
+      const a = Number(areaPx2 || 0);
+      const t = Number(threshold || 0);
+      if (!(a > 0) || !(t > 0)) return null;
+      if (a >= t) return null;
+      const ratio = Math.max(0, Math.min(1, a / t));
+      return 1 + ratio; // 1..2
+    }
+
+    function applyZoneAreaRule_(gapMM_base, areaPx2, zone){
+      const thr = ZONE_AREA_THRESH[zone] ?? null;
+      const mmFromArea = approxMm_1to2_fromArea_(areaPx2, thr);
+      if (mmFromArea == null) return { gapMM: gapMM_base, used: false };
+      return { gapMM: mmFromArea, used: true };
+    }
+
+    // =========================================================
     // DISPLAY JITTER (mm) — เพื่อให้ค่าที่แสดงไม่เท่ากันเกินไป
     // Requirement: สุ่มเพิ่ม/ลด (±) ไม่เกิน ~0.5 ถึง 0.8 mm
     // NOTE: ใช้สำหรับ "แสดงผล" เท่านั้น (ไม่กระทบ logic ตรวจช่วง/สถานะ)
@@ -2270,8 +2305,15 @@ sheetCtx.restore();
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
         const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
 
+        const areaPx2 = Number(t.areaEma ?? 0);                  // ใช้ area ที่ถูก EMA แล้ว
+        const zone = zoneByIndex_(i, drawableTracks.length);     // top/mid/bottom
+
         const gapMM_raw = pxToMm_15cm(gapPx);
-        const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
+        const gapMM_base = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
+
+        // ✅ apply zone rule: ถ้า area ต่ำกว่า threshold => mm ~ 1..2
+        const z = applyZoneAreaRule_(gapMM_base, areaPx2, zone);
+        const gapMM = z.gapMM;
 
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
@@ -2296,7 +2338,7 @@ sheetCtx.fillStyle = bgColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: layerNo, gapMM, outOfRangeMM });
+        results.push({ layer: layerNo, gapMM, outOfRangeMM, areaPx2, zone, usedAreaRule: z.used });
       });
 
       sheetResults = results;
