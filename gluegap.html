@@ -1465,6 +1465,11 @@
           const nextW = clampStep(best.dispWEma ?? m.dispW, m.dispW, 0.25);
           best.dispWEma = lerp(best.dispWEma ?? nextW, nextW, EMA_W);
 
+
+          // keep raw detected blob width (ROI px) for display/measurement
+          best.gapWpx = (typeof m.gapWpx === 'number' && isFinite(m.gapWpx)) ? m.gapWpx : (best.gapWpx ?? 0);
+          best.gapWpxEma = lerp(best.gapWpxEma ?? best.gapWpx, best.gapWpx, EMA_W);
+
           const nextX = clampStep(best.dispXEma ?? m.dispX, m.dispX, 0.35);
           best.dispXEma = lerp(best.dispXEma ?? nextX, nextX, EMA_X);
 
@@ -1484,6 +1489,8 @@
             drawYEma: m.drawY,
             dispXEma: m.dispX,
             dispWEma: m.dispW,
+            gapWpx: m.gapWpx,
+            gapWpxEma: m.gapWpx,
             areaEma: m.areaPx2,
             confEma: m.conf,
             _matched: true
@@ -2233,6 +2240,7 @@ sheetCtx.restore();
           drawY,
           dispX,
           dispW,
+          gapWpx: gapGeo.width,
           areaPx2,
           peakValue,
           conf
@@ -2268,7 +2276,9 @@ sheetCtx.restore();
         const dispW = t.dispWEma ?? 40;
 
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
-        const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
+        const gapPx = (typeof t.gapWpxEma === "number" && isFinite(t.gapWpxEma) && t.gapWpxEma > 0)
+          ? Math.round(t.gapWpxEma)
+          : Math.round(dispW / __sx); // ใช้ความกว้าง blob จริง (ROI px) ถ้ามี
 
         const gapMM_raw = pxToMm_15cm(gapPx);
         const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
@@ -2281,7 +2291,7 @@ sheetCtx.restore();
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (blob ${gapPx}px)`;
 
 
 sheetCtx.fillStyle = bgColor;
