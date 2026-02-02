@@ -2424,7 +2424,8 @@ sheetCtx.restore();
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
+        const fillPct = Math.round(__fillRatio * 100);
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${fillPct}%)`;
 
 
 
