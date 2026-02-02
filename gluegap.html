@@ -1536,9 +1536,9 @@ function pxToMm_15cm(pxVal){
     // ✅ ZONE-by-INDEX + AREA->MM heuristic (1..2 mm)
     // =========================================================
     const ZONE_AREA_THRESH = {
-      top: 600,     // โซนบน
+      top: 1000,     // โซนบน
       mid: 800,     // โซนกลาง
-      bottom: 300   // โซนล่าง
+      bottom: 100   // โซนล่าง
     };
 
     function zoneByIndex_(i, n){
