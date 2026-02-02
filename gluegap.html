@@ -2323,7 +2323,7 @@ sheetCtx.restore();
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)  A:${Math.round(areaPx2)} px^2`;
 
 
 sheetCtx.fillStyle = bgColor;
