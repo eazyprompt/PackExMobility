@@ -1190,7 +1190,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:110px;">Pink (%)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-front-tbody"></tbody>
             </table>
@@ -1203,7 +1203,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:110px;">Pink (%)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-tail-tbody"></tbody>
             </table>
@@ -2561,7 +2561,8 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
+        const __pctDisp = (clamp(__fillRatioRaw,0,1)*100).toFixed(1);
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${__pctDisp}%) (${gapPx}px)`;
 
 
 
@@ -2588,7 +2589,7 @@ try {
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: layerNo, gapMM, outOfRangeMM });
+        results.push({ layer: layerNo, gapMM, fillRatio: __fillRatioRaw, outOfRangeMM });
       });
 
       sheetResults = results;
@@ -2847,7 +2848,7 @@ try {
       if (!Array.isArray(arr)) return [];
       return arr
         .filter(x => x && typeof x.layer === "number")
-        .map(x => ({ layer: x.layer, gapMM: Number(x.gapMM || 0), outOfRangeMM: !!x.outOfRangeMM }))
+        .map(x => ({ layer: x.layer, gapMM: Number(x.gapMM || 0), fillRatio: Number(x.fillRatio ?? 0), outOfRangeMM: !!x.outOfRangeMM }))
         .sort((a, b) => a.layer - b.layer);
     }
 
@@ -2855,7 +2856,7 @@ try {
       if (!tbodyEl) return;
       const rows = [];
       if (!items || items.length === 0) {
-        rows.push(`<tr><td style="color:#94a3b8;" colspan="3">—</td></tr>`);
+        rows.push(`<tr><td style="color:#94a3b8;" colspan="4">—</td></tr>`);
         tbodyEl.innerHTML = rows.join("");
         return;
       }
@@ -2867,6 +2868,7 @@ try {
           `<tr>
             <td>#${r.layer}</td>
             <td>${jitterGapMm_(Number(r.gapMM || 0), "tbl_" + r.layer).toFixed(2)}</td>
+            <td>${(clamp(Number(r.fillRatio ?? 0),0,1)*100).toFixed(1)}%</td>
             <td>${status}</td>
           </tr>`
         );
