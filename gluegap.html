@@ -2355,7 +2355,7 @@ sheetCtx.restore();
         );
 
         // ✅ Blob coverage ratio vs bounding box area (px^2)
-        // If blob fills < 50% of the bounding box, we will display 0 mm (rule applied at render stage)
+        // If blob fills < 20% of the bounding box, we will display 0 mm (rule applied at render stage)
         const boxAreaPx2 = Math.max(1, (x1 - x0) * (y1 - y0));
         const fillRatio = clamp(areaPx2 / boxAreaPx2, 0, 1);
 
@@ -2412,9 +2412,9 @@ sheetCtx.restore();
         const gapMM_raw = pxToMm_15cm(gapPx);
         let gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
-        // ✅ Rule: if blob pink coverage < 50% of its bounding box -> display 0 mm
+        // ✅ Rule: if blob pink coverage < 20% of its bounding box -> display 0 mm
         const __fillRatio = (t.fillRatioEma ?? 0);
-        if (__fillRatio < 0.50) gapMM = 0;
+        if (__fillRatio < 0.20) gapMM = 0;
 
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
