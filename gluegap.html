@@ -2486,7 +2486,7 @@ sheetCtx.restore();
         const lineScore = __blob.lineScore;
 
         // ✅ Blob coverage ratio vs bounding box area (px^2)
-        // If blob fills < 20% of the bounding box, we will display 0 mm (rule applied at render stage)
+        // If blob fills < 9% of the bounding box, we will display 0 mm (rule applied at render stage)
         const boxAreaPx2 = Math.max(1, (x1 - x0) * (y1 - y0));
         const fillRatio = clamp(areaPx2 / boxAreaPx2, 0, 1);
 
@@ -2548,7 +2548,7 @@ sheetCtx.restore();
         // If pink area inside bbox is < 20% of bbox area -> display 0 mm
         // (use raw ratio for strictness; fall back to EMA if raw missing)
         const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
-        if (__fillRatioRaw < 0.20) gapMM = 0;
+        if (__fillRatioRaw < 0.09) gapMM = 0;
 // ✅ Rule: if blob pink looks like a LINE (thin/elongated) -> display 0 mm
         // (use raw score for strictness; fall back to EMA if raw missing)
         const __lineScoreRaw = (t.lineScoreRaw ?? t.lineScoreEma ?? 0);
@@ -2562,7 +2562,7 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
         const __pctDisp = (clamp(__fillRatioRaw,0,1)*100).toFixed(1);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${__pctDisp}%) (${gapPx}px)`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${__pctDisp}%)`;
 
 
 
