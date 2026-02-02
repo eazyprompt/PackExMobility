@@ -2071,12 +2071,12 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
   x1 = Math.max(0, Math.min(w, x1));
   y0 = Math.max(0, Math.min(h - 1, y0));
   y1 = Math.max(0, Math.min(h, y1));
-  if (x1 <= x0 + 2 || y1 <= y0 + 2) return;
+  if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
 
   const ds = 3; // MUST match computeLargestBlobAreaPx2()
   const gw = Math.floor((x1 - x0) / ds);
   const gh = Math.floor((y1 - y0) / ds);
-  if (gw < 6 || gh < 6) return;
+  if (gw < 6 || gh < 6) return 0;
 
   const mask = new Uint8Array(gw * gh);
 
@@ -2151,7 +2151,7 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
     }
   }
 
-  if (bestArea <= 0 || bestTail <= 0) return;
+  if (bestArea <= 0 || bestTail <= 0) return 0;
 
   // --- paint overlay (neon reflective pink) on SHEET overlay canvas ---
   const cellW = Math.max(1, ds * sx);
@@ -2190,7 +2190,10 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
   }
 
   ctx.restore();
+
+  return bestArea * (ds * ds);
 }
+
 
     // =========================================================
     // GLUE GAP DETECTION (stabilized)
@@ -2412,7 +2415,8 @@ sheetCtx.restore();
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
+        let gapText = `${gapMM_disp.toFixed(2)} mm`;
+        let blobCoverage = null;
 
 
 
@@ -2426,8 +2430,19 @@ try {
   const by0 = clamp(localY_v - bandHalf, 0, roiH_v - 1);
   const by1 = clamp(localY_v + bandHalf, 0, roiH_v);
 
-  paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, sx, sy);
-} catch (e) { /* no-op */ }sheetCtx.fillStyle = bgColor;
+  const boxAreaPx2 = Math.max(1, (bx1 - bx0) * (by1 - by0));
+  const blobAreaPx2 = paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, sx, sy);
+  blobCoverage = blobAreaPx2 / boxAreaPx2;
+} catch (e) { /* no-op */ }
+
+// ✅ override display by blob coverage (pink area vs bounding box)
+if (typeof blobCoverage === "number" && isFinite(blobCoverage)) {
+  if (blobCoverage < 0.20) gapText = "0-2 mm";
+  else if (blobCoverage < 0.60) gapText = "0-1 mm";
+}
+const labelText = `${prefix}  ${gapText} (${gapPx}px)`;
+
+sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
         sheetCtx.strokeStyle = boxColor;
