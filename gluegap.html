@@ -1465,11 +1465,6 @@
           const nextW = clampStep(best.dispWEma ?? m.dispW, m.dispW, 0.25);
           best.dispWEma = lerp(best.dispWEma ?? nextW, nextW, EMA_W);
 
-
-          // keep raw detected blob width (ROI px²) for display/measurement
-          best.gapWpx = (typeof m.gapWpx === 'number' && isFinite(m.gapWpx)) ? m.gapWpx : (best.gapWpx ?? 0);
-          best.gapWpxEma = lerp(best.gapWpxEma ?? best.gapWpx, best.gapWpx, EMA_W);
-
           const nextX = clampStep(best.dispXEma ?? m.dispX, m.dispX, 0.35);
           best.dispXEma = lerp(best.dispXEma ?? nextX, nextX, EMA_X);
 
@@ -1489,8 +1484,6 @@
             drawYEma: m.drawY,
             dispXEma: m.dispX,
             dispWEma: m.dispW,
-            gapWpx: m.gapWpx,
-            gapWpxEma: m.gapWpx,
             areaEma: m.areaPx2,
             confEma: m.conf,
             _matched: true
@@ -1634,18 +1627,6 @@ function resetLightBias() {
 
   syncLightUI();
 }
-
-    // ✅ MM CALIBRATION (blob area px^2 -> mm) using user's samples
-    // Model: mm ≈ K * sqrt(areaPx2)
-    // K is the median of (mm / sqrt(px2)) across the provided calibration points
-    const AREA_TO_MM_K = 0.244844452828227;
-
-    function areaPx2ToMm_(areaPx2) {
-      const a = Number(areaPx2 || 0);
-      if (!Number.isFinite(a) || a <= 0) return 0;
-      return Math.sqrt(a) * AREA_TO_MM_K;
-    }
-
 
 
     document.addEventListener("input", (e) => {
@@ -2252,7 +2233,6 @@ sheetCtx.restore();
           drawY,
           dispX,
           dispW,
-          gapWpx: gapGeo.width,
           areaPx2,
           peakValue,
           conf
@@ -2288,8 +2268,10 @@ sheetCtx.restore();
         const dispW = t.dispWEma ?? 40;
 
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
-        const blobAreaPx2 = Math.round((typeof t.areaEma === "number" && isFinite(t.areaEma) && t.areaEma > 0) ? t.areaEma : 0); // blob area (ROI px^2)
-        const gapMM_raw = areaPx2ToMm_(blobAreaPx2);const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
+        const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
+
+        const gapMM_raw = pxToMm_15cm(gapPx);
+        const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
@@ -2298,8 +2280,8 @@ sheetCtx.restore();
 
         const prefix = `#${layerNo}`;
         const xOffset = 58;
-        const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${blobAreaPx2}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (blob area ${blobAreaPx2} px²)`;
+        const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)`;
 
 
 sheetCtx.fillStyle = bgColor;
