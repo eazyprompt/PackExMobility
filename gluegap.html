@@ -1505,12 +1505,46 @@
     // ✅ MM CALIBRATION (px² -> mm) @ distance 15 cm
     // =========================================================
     const CAL_PTS_15CM = [
-      { a: 742,  mm: 1.00 },
-      { a: 1910, mm: 7.00 },
-      { a: 2590, mm: 8.00 },
-      { a: 2768, mm: 8.25 },
-      { a: 3390, mm: 8.50 },
-      { a: 3575, mm: 9.00 },
+      { a: 472,  mm: 9.00 },
+      { a: 668,  mm: 10.50 },
+      { a: 718,  mm: 9.00 },
+      { a: 758,  mm: 10.00 },
+      { a: 842,  mm: 10.00 },
+      { a: 928,  mm: 9.00 },
+      { a: 780,  mm: 9.00 },
+      { a: 103,  mm: 10.00 },
+      { a: 656,  mm: 9.00 },
+      { a: 255,  mm: 7.50 },
+      { a: 609,  mm: 7.00 },
+      { a: 500,  mm: 9.00 },
+      { a: 577,  mm: 8.50 },
+      { a: 774,  mm: 9.00 },
+      { a: 817,  mm: 9.50 },
+      { a: 777,  mm: 9.00 },
+      { a: 848,  mm: 7.00 },
+      { a: 895,  mm: 8.50 },
+      { a: 611,  mm: 7.00 },
+      { a: 255,  mm: 6.50 },
+      { a: 1239,  mm: 6.50 },
+      { a: 676,  mm: 1.50 },
+      { a: 689,  mm: 5.00 },
+      { a: 939,  mm: 9.00 },
+      { a: 889,  mm: 10.00 },
+      { a: 460,  mm: 8.00 },
+      { a: 244,  mm: 8.50 },
+      { a: 196,  mm: 9.00 },
+      { a: 227,  mm: 8.00 },
+      { a: 309,  mm: 7.50 },
+      { a: 835,  mm: 7.50 },
+      { a: 584,  mm: 8.00 },
+      { a: 626,  mm: 7.50 },
+      { a: 719,  mm: 8.00 },
+      { a: 801,  mm: 7.00 },
+      { a: 808,  mm: 8.00 },
+      { a: 766,  mm: 8.00 },
+      { a: 436,  mm: 1.00 },
+      { a: 262,  mm: 8.00 },
+      { a: 305,  mm: 6.00 },
     ].sort((p,q)=>p.a-q.a);
 
     function areaPx2ToMm_15cm(areaPx2){
@@ -2255,9 +2289,9 @@ sheetCtx.restore();
         const xOffset = 58;
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
     const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
-    const labelText = `area:${Math.round(stableArea)}px²`;
-
-        sheetCtx.fillStyle = bgColor;
+    const areaMm = areaPx2ToMm_15cm(stableArea);
+    const labelText = `area:${Math.round(stableArea)}px² (${areaMm.toFixed(2)} mm)`;
+sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
         sheetCtx.strokeStyle = boxColor;
