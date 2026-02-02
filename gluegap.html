@@ -1190,7 +1190,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:92px;">Pink (%)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-front-tbody"></tbody>
             </table>
@@ -1203,7 +1203,7 @@
             </div>
             <table class="gg-table">
               <thead>
-                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th style="width:92px;">Pink (%)</th><th>Status</th></tr>
+                <tr><th style="width:80px;">No.</th><th>Gap (mm)</th><th>Status</th></tr>
               </thead>
               <tbody id="gg-tail-tbody"></tbody>
             </table>
@@ -2570,7 +2570,7 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
         const __pctDisp = (clamp(__fillRatioRaw,0,1)*100).toFixed(1);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm  (${__pctDisp}%)`;
+        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm`;
 
 
 
@@ -2627,12 +2627,10 @@ try {
         header.className = "glue-compact-header";
       }
 
-      // ✅ When header shows SCANNING, do not allow user to capture (prevent shaky / unstable frame)
-      const __isScanning = (redCount === 0 && !(expected >= 7 && expected <= 8));
-      setSheetCapButtonEnabled((sheetCapStep === 3 || sheetCapStep === 4) || !__isScanning);
+      // ✅ Capture button: always enabled (no need to wait for SCANNING)
+      setSheetCapButtonEnabled(true);
 
-
-      document.getElementById('sum-total').innerText = expected;
+document.getElementById('sum-total').innerText = expected;
       document.getElementById('sum-gap').innerText = okCount;
       document.getElementById('sum-red').innerText = redCount;
 
@@ -2864,7 +2862,7 @@ try {
       if (!tbodyEl) return;
       const rows = [];
       if (!items || items.length === 0) {
-        rows.push(`<tr><td style="color:#94a3b8;" colspan="4">—</td></tr>`);
+        rows.push(`<tr><td style="color:#94a3b8;" colspan="3">—</td></tr>`);
         tbodyEl.innerHTML = rows.join("");
         return;
       }
@@ -2876,7 +2874,6 @@ try {
           `<tr>
             <td>#${r.layer}</td>
             <td>${jitterGapMm_(Number(r.gapMM || 0), "tbl_" + r.layer).toFixed(2)}</td>
-            <td>${(clamp(Number(r.fillRatio || 0),0,1)*100).toFixed(1)}</td>
             <td>${status}</td>
           </tr>`
         );
