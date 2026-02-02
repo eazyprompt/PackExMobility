@@ -1469,6 +1469,7 @@
           best.dispXEma = lerp(best.dispXEma ?? nextX, nextX, EMA_X);
 
           best.areaEma = lerp(best.areaEma ?? m.areaPx2, m.areaPx2, EMA_AREA);
+best.blobWEma = lerp(best.blobWEma ?? (m.blobWpx || 0), (m.blobWpx || 0), EMA_AREA);
           best.confEma = lerp(best.confEma ?? m.conf, m.conf, EMA_CONF);
 
           best.drawYEma = deadband(best.drawYEma, best.drawYEma, 0.6);
@@ -1532,41 +1533,6 @@ function pxToMm_15cm(pxVal){
       const t = (x - p0.px) / (p1.px - p0.px);
       return p0.mm + t * (p1.mm - p0.mm);
     }
-    // =========================================================
-    // ✅ ZONE-by-INDEX + AREA->MM heuristic (1..2 mm)
-    // =========================================================
-    const ZONE_AREA_THRESH = {
-      top: 1000,     // โซนบน
-      mid: 800,     // โซนกลาง
-      bottom: 100   // โซนล่าง
-    };
-
-    function zoneByIndex_(i, n){
-      if (!Number.isFinite(n) || n <= 0) return "mid";
-      const p = (i + 0.5) / n; // 0..1
-      if (p < 1/3) return "top";
-      if (p < 2/3) return "mid";
-      return "bottom";
-    }
-
-    // ถ้า area < threshold => mm ประมาณ 1..2 (ไล่เชิงเส้น)
-    // area=0 => 1.00mm, area=threshold => 2.00mm
-    function approxMm_1to2_fromArea_(areaPx2, threshold){
-      const a = Number(areaPx2 || 0);
-      const t = Number(threshold || 0);
-      if (!(a > 0) || !(t > 0)) return null;
-      if (a >= t) return null;
-      const ratio = Math.max(0, Math.min(1, a / t));
-      return 1 + ratio; // 1..2
-    }
-
-    function applyZoneAreaRule_(gapMM_base, areaPx2, zone){
-      const thr = ZONE_AREA_THRESH[zone] ?? null;
-      const mmFromArea = approxMm_1to2_fromArea_(areaPx2, thr);
-      if (mmFromArea == null) return { gapMM: gapMM_base, used: false };
-      return { gapMM: mmFromArea, used: true };
-    }
-
     // =========================================================
     // DISPLAY JITTER (mm) — เพื่อให้ค่าที่แสดงไม่เท่ากันเกินไป
     // Requirement: สุ่มเพิ่ม/ลด (±) ไม่เกิน ~0.5 ถึง 0.8 mm
@@ -2015,86 +1981,118 @@ function resetLightBias() {
     // =========================================================
     // Largest contour AREA (px^2) inside each detected "box"
     // =========================================================
-    function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1, lightBias) {
-      x0 = Math.max(0, Math.min(w - 1, x0));
-      x1 = Math.max(0, Math.min(w, x1));
-      y0 = Math.max(0, Math.min(h - 1, y0));
-      y1 = Math.max(0, Math.min(h, y1));
-      if (x1 <= x0 + 2 || y1 <= y0 + 2) return 0;
+    // =========================================================
+// Largest contour METRICS inside each detected "box"
+// - areaPx2: px^2 (เหมือนเดิม)
+// - widthPx: ความกว้างจริงของ blob (px) จาก bounding box ของ component ที่ใหญ่สุด
+// =========================================================
+function computeLargestBlobMetricsPx(data, w, h, x0, y0, x1, y1, lightBias) {
+  x0 = Math.max(0, Math.min(w - 1, x0));
+  x1 = Math.max(0, Math.min(w, x1));
+  y0 = Math.max(0, Math.min(h - 1, y0));
+  y1 = Math.max(0, Math.min(h, y1));
+  if (x1 <= x0 + 2 || y1 <= y0 + 2) return { areaPx2: 0, widthPx: 0, heightPx: 0 };
 
-      const ds = 3;
-      const gw = Math.floor((x1 - x0) / ds);
-      const gh = Math.floor((y1 - y0) / ds);
-      if (gw < 6 || gh < 6) return 0;
+  const ds = 3;
+  const gw = Math.floor((x1 - x0) / ds);
+  const gh = Math.floor((y1 - y0) / ds);
+  if (gw < 6 || gh < 6) return { areaPx2: 0, widthPx: 0, heightPx: 0 };
 
-      const mask = new Uint8Array(gw * gh);
+  const mask = new Uint8Array(gw * gh);
 
-      let sum = 0, cnt = 0, minL = 255;
-      for (let gy = 0; gy < gh; gy++) {
-        const py = y0 + gy * ds;
-        const row = py * w * 4;
-        for (let gx = 0; gx < gw; gx++) {
-          const px = x0 + gx * ds;
-          const i = row + px * 4;
-          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          sum += luma; cnt++;
-          if (luma < minL) minL = luma;
-        }
-      }
-      const mean = cnt ? sum / cnt : 180;
-
-      let thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
-      thr = clamp(thr + (lightBias || 0), 5, 250);
-
-      for (let gy = 0; gy < gh; gy++) {
-        const py = y0 + gy * ds;
-        const row = py * w * 4;
-        for (let gx = 0; gx < gw; gx++) {
-          const px = x0 + gx * ds;
-          const i = row + px * 4;
-          const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
-          if (luma <= thr) mask[gy * gw + gx] = 1;
-        }
-      }
-
-      const visited = new Uint8Array(gw * gh);
-      const qx = new Int16Array(gw * gh);
-      const qy = new Int16Array(gw * gh);
-
-      let bestArea = 0;
-
-      for (let gy = 0; gy < gh; gy++) {
-        for (let gx = 0; gx < gw; gx++) {
-          const idx = gy * gw + gx;
-          if (!mask[idx] || visited[idx]) continue;
-
-          let head = 0, tail = 0;
-          visited[idx] = 1;
-          qx[tail] = gx; qy[tail] = gy; tail++;
-
-          let area = 0;
-
-          while (head < tail) {
-            const x = qx[head], y = qy[head]; head++;
-            area++;
-
-            const n1 = (y - 1) * gw + x;
-            const n2 = (y + 1) * gw + x;
-            const n3 = y * gw + (x - 1);
-            const n4 = y * gw + (x + 1);
-
-            if (y > 0 && mask[n1] && !visited[n1]) { visited[n1] = 1; qx[tail] = x; qy[tail] = y - 1; tail++; }
-            if (y < gh - 1 && mask[n2] && !visited[n2]) { visited[n2] = 1; qx[tail] = x; qy[tail] = y + 1; tail++; }
-            if (x > 0 && mask[n3] && !visited[n3]) { visited[n3] = 1; qx[tail] = x - 1; qy[tail] = y; tail++; }
-            if (x < gw - 1 && mask[n4] && !visited[n4]) { visited[n4] = 1; qx[tail] = x + 1; qy[tail] = y; tail++; }
-          }
-
-          if (area > bestArea) bestArea = area;
-        }
-      }
-
-      return bestArea * (ds * ds);
+  let sum = 0, cnt = 0, minL = 255;
+  for (let gy = 0; gy < gh; gy++) {
+    const py = y0 + gy * ds;
+    const row = py * w * 4;
+    for (let gx = 0; gx < gw; gx++) {
+      const px = x0 + gx * ds;
+      const i = row + px * 4;
+      const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      sum += luma; cnt++;
+      if (luma < minL) minL = luma;
     }
+  }
+  const mean = cnt ? sum / cnt : 180;
+
+  let thr = Math.min(245, Math.max(10, minL + Math.max(14, (mean - minL) * 0.55)));
+  thr = clamp(thr + (lightBias || 0), 5, 250);
+
+  for (let gy = 0; gy < gh; gy++) {
+    const py = y0 + gy * ds;
+    const row = py * w * 4;
+    for (let gx = 0; gx < gw; gx++) {
+      const px = x0 + gx * ds;
+      const i = row + px * 4;
+      const luma = data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114;
+      if (luma <= thr) mask[gy * gw + gx] = 1;
+    }
+  }
+
+  const visited = new Uint8Array(gw * gh);
+  const qx = new Int16Array(gw * gh);
+  const qy = new Int16Array(gw * gh);
+
+  let bestArea = 0;
+  let bestMinX = 0, bestMaxX = -1, bestMinY = 0, bestMaxY = -1;
+
+  for (let gy = 0; gy < gh; gy++) {
+    for (let gx = 0; gx < gw; gx++) {
+      const idx = gy * gw + gx;
+      if (!mask[idx] || visited[idx]) continue;
+
+      let head = 0, tail = 0;
+      visited[idx] = 1;
+      qx[tail] = gx; qy[tail] = gy; tail++;
+
+      let area = 0;
+      let minX = gx, maxX = gx, minY = gy, maxY = gy;
+
+      while (head < tail) {
+        const x = qx[head], y = qy[head]; head++;
+        area++;
+
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+
+        const n1 = (y - 1) * gw + x;
+        const n2 = (y + 1) * gw + x;
+        const n3 = y * gw + (x - 1);
+        const n4 = y * gw + (x + 1);
+
+        if (y > 0 && mask[n1] && !visited[n1]) { visited[n1] = 1; qx[tail] = x; qy[tail] = y - 1; tail++; }
+        if (y < gh - 1 && mask[n2] && !visited[n2]) { visited[n2] = 1; qx[tail] = x; qy[tail] = y + 1; tail++; }
+        if (x > 0 && mask[n3] && !visited[n3]) { visited[n3] = 1; qx[tail] = x - 1; qy[tail] = y; tail++; }
+        if (x < gw - 1 && mask[n4] && !visited[n4]) { visited[n4] = 1; qx[tail] = x + 1; qy[tail] = y; tail++; }
+      }
+
+      if (area > bestArea) {
+        bestArea = area;
+        bestMinX = minX; bestMaxX = maxX;
+        bestMinY = minY; bestMaxY = maxY;
+      }
+    }
+  }
+
+  if (bestArea <= 0 || bestMaxX < bestMinX || bestMaxY < bestMinY) {
+    return { areaPx2: 0, widthPx: 0, heightPx: 0 };
+  }
+
+  const widthPx  = (bestMaxX - bestMinX + 1) * ds;
+  const heightPx = (bestMaxY - bestMinY + 1) * ds;
+
+  return {
+    areaPx2: bestArea * (ds * ds),
+    widthPx,
+    heightPx
+  };
+}
+
+// ✅ Backward-compatible: return area only (เหมือนเดิม)
+function computeLargestBlobAreaPx2(data, w, h, x0, y0, x1, y1, lightBias) {
+  return computeLargestBlobMetricsPx(data, w, h, x0, y0, x1, y1, lightBias).areaPx2;
+}
 
     // =========================================================
     // GLUE GAP DETECTION (stabilized)
@@ -2252,11 +2250,13 @@ sheetCtx.restore();
         const y0 = clamp(b.y0, 0, roiH_v - 1);
         const y1 = clamp(b.y1, 0, roiH_v);
 
-        const areaPx2 = computeLargestBlobAreaPx2(
-          data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias
-        );
+        const blob = computeLargestBlobMetricsPx(
+  data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias
+);
 
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
+const areaPx2 = blob.areaPx2;
+const blobWpx = blob.widthPx;
+const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
         const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
@@ -2269,6 +2269,7 @@ sheetCtx.restore();
           dispX,
           dispW,
           areaPx2,
+  blobWpx,
           peakValue,
           conf
         });
@@ -2305,15 +2306,8 @@ sheetCtx.restore();
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
         const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
 
-        const areaPx2 = Number(t.areaEma ?? 0);                  // ใช้ area ที่ถูก EMA แล้ว
-        const zone = zoneByIndex_(i, drawableTracks.length);     // top/mid/bottom
-
         const gapMM_raw = pxToMm_15cm(gapPx);
-        const gapMM_base = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
-
-        // ✅ apply zone rule: ถ้า area ต่ำกว่า threshold => mm ~ 1..2
-        const z = applyZoneAreaRule_(gapMM_base, areaPx2, zone);
-        const gapMM = z.gapMM;
+        const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
@@ -2323,9 +2317,8 @@ sheetCtx.restore();
         const prefix = `#${layerNo}`;
         const xOffset = 58;
         const gapMM_disp = jitterGapMm_(gapMM, `hud_${layerNo}_${gapPx}`);
-        const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)  A:${Math.round(areaPx2)} px^2`;
-
-
+        const blobWpx = Math.round(t.blobWEma ?? 0);
+const labelText = `${prefix}  ${gapMM_disp.toFixed(2)} mm (${gapPx}px)  | blobW ${blobWpx}px`;
 sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
@@ -2338,7 +2331,7 @@ sheetCtx.fillStyle = bgColor;
         sheetCtx.font = "bold 12px 'JetBrains Mono'";
         sheetCtx.fillText(labelText, roiX_disp - xOffset, drawY + 4);
 
-        results.push({ layer: layerNo, gapMM, outOfRangeMM, areaPx2, zone, usedAreaRule: z.used });
+        results.push({ layer: layerNo, gapMM, outOfRangeMM });
       });
 
       sheetResults = results;
