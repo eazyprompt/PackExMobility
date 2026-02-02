@@ -1502,38 +1502,36 @@
     }
 
     // =========================================================
-    // ✅ MM CALIBRATION (px² -> mm) @ distance 15 cm
+    // ✅ MM CALIBRATION (px -> mm) @ distance 15 cm
     // =========================================================
     const CAL_PTS_15CM = [
-      { a: 30, mm: 1.25 },
-      { a: 50, mm: 4.00 },
-      { a: 75, mm: 8.25676 },
-    ].sort((p,q)=>p.a-q.a);
-
-    function areaPx2ToMm_15cm(areaPx2){
-      const x = Math.max(0, areaPx2 || 0);
+      { px: 30, mm: 1.25 },
+      { px: 50, mm: 4.00 },
+      { px: 75, mm: 8.25676 },
+    ].sort((p,q)=>p.px-q.px);
+function pxToMm_15cm(pxVal){
+      const x = Math.max(0, pxVal || 0);
       if (x <= 0) return 0;
 
       const pts = CAL_PTS_15CM;
       if (pts.length < 2) return 0;
 
-      if (x <= pts[0].a){
+      if (x <= pts[0].px){
         const p0 = pts[0], p1 = pts[1];
-        const t = (x - p0.a) / (p1.a - p0.a);
+        const t = (x - p0.px) / (p1.px - p0.px);
         return p0.mm + t * (p1.mm - p0.mm);
       }
       for (let i=0;i<pts.length-1;i++){
         const p0 = pts[i], p1 = pts[i+1];
-        if (x >= p0.a && x <= p1.a){
-          const t = (x - p0.a) / (p1.a - p0.a);
+        if (x >= p0.px && x <= p1.px){
+          const t = (x - p0.px) / (p1.px - p0.px);
           return p0.mm + t * (p1.mm - p0.mm);
         }
       }
       const p0 = pts[pts.length-2], p1 = pts[pts.length-1];
-      const t = (x - p0.a) / (p1.a - p0.a);
+      const t = (x - p0.px) / (p1.px - p0.px);
       return p0.mm + t * (p1.mm - p0.mm);
     }
-
     // ✅ mm range rule: out of 2..10 => RED
     const MM_MIN_OK = 2.0;
     const MM_MAX_OK = 10.0;
@@ -2234,9 +2232,14 @@ sheetCtx.restore();
       drawableTracks.forEach((t, i) => {
         const layerNo = i + 1;
 
-        const stableArea = Math.max(0, t.areaEma || 0);
+        const drawY = t.drawYEma ?? 0;
+        const dispX = t.dispXEma ?? 0;
+        const dispW = t.dispWEma ?? 40;
 
-        const gapMM_raw = areaPx2ToMm_15cm(stableArea);
+        const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
+        const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
+
+        const gapMM_raw = pxToMm_15cm(gapPx);
         const gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
         const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
@@ -2244,17 +2247,12 @@ sheetCtx.restore();
         const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
         const bgColor  = outOfRangeMM ? "rgba(239, 68, 68, 0.18)" : "rgba(52, 211, 153, 0.20)";
 
-        const drawY = t.drawYEma ?? 0;
-        const dispX = t.dispXEma ?? 0;
-        const dispW = t.dispWEma ?? 40;
-
         const prefix = `#${layerNo}`;
         const xOffset = 58;
-        const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
-    const gapPx = Math.round(dispW / __sx); // แปลงกลับจาก display width -> px (ใน ROI)
-    const labelText = `${prefix}  ${gapMM.toFixed(2)} mm (${gapPx}px)`;
+        const labelText = `${prefix}  ${gapMM.toFixed(2)} mm (${gapPx}px)`;
 
-        sheetCtx.fillStyle = bgColor;
+
+sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
         sheetCtx.strokeStyle = boxColor;
