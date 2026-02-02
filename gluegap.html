@@ -2335,7 +2335,7 @@ sheetCtx.fillStyle = bgColor;
 
       // ✅ When header shows SCANNING, do not allow user to capture (prevent shaky / unstable frame)
       const __isScanning = (redCount === 0 && !(expected >= 7 && expected <= 8));
-      setSheetCapButtonEnabled((sheetCapStep === 3 || sheetCapStep === 4) || !__isScanning);
+      setSheetCapButtonEnabled(true); // allow capture anytime (ignore Scanning)
 
 
       document.getElementById('sum-total').innerText = expected;
