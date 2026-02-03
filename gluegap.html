@@ -967,87 +967,6 @@
       filter: drop-shadow(0 6px 10px rgba(0,0,0,0.35));
       pointer-events:none;
     }
-
-/* =========================================================
-   MOBILE UX: Level guide + steady indicator (GlueGap)
-   ========================================================= */
-#gg-stability-hud{
-  position: absolute;
-  left: 14px;
-  bottom: 14px;
-  z-index: 70;
-    display: flex;
-  flex-direction: column;
-  gap: 6px;
-pointer-events: none;
-  font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
-}
-
-#gg-stability-hud .gg-level-wrap{
-  display:flex;
-  flex-direction: column;
-  align-items:center;
-  gap: 6px;
-}
-#gg-stability-hud .gg-level-wrap .gg-pill{
-  margin-top: 0;
-}
-#gg-stability-hud .gg-pill{
-  display:flex; align-items:center; gap:8px;
-  padding:4px 8px;
-  border-radius: 999px;
-  background: rgba(2,6,23,0.55);
-  border: 1px solid rgba(59,130,246,0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  color: rgba(226,232,240,0.95);
-  font-size: 11px;
-  line-height: 1;
-  margin-top: 8px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.25);
-}
-#gg-stability-hud .gg-dot{
-  width:8px; height:8px; border-radius:999px;
-  background: rgba(148,163,184,0.9);
-  box-shadow: 0 0 0 2px rgba(148,163,184,0.15), 0 0 14px rgba(148,163,184,0.25);
-}
-#gg-stability-hud .gg-dot.ok{
-  background: rgba(52,211,153,0.95);
-  box-shadow: 0 0 0 2px rgba(52,211,153,0.15), 0 0 14px rgba(52,211,153,0.35);
-}
-#gg-stability-hud .gg-dot.warn{
-  background: rgba(245,158,11,0.95);
-  box-shadow: 0 0 0 2px rgba(245,158,11,0.15), 0 0 14px rgba(245,158,11,0.35);
-}
-#gg-stability-hud .gg-bubble{
-  width: 38px; height: 38px;
-  border-radius: 999px;
-  background: rgba(2,6,23,0.55);
-  border: 1px solid rgba(59,130,246,0.25);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  display:flex; align-items:center; justify-content:center;
-  box-shadow: 0 12px 28px rgba(0,0,0,0.28);
-  margin-left: auto;
-}
-#gg-stability-hud .gg-bubble-inner{
-  width: 38px; height: 38px; border-radius: 999px;
-  border: 1px solid rgba(148,163,184,0.22);
-  position: relative;
-}
-#gg-stability-hud .gg-bubble-dot{
-  position:absolute;
-  left:50%; top:50%;
-  width: 10px; height: 10px; border-radius:999px;
-  transform: translate(-50%,-50%);
-  background: rgba(148,163,184,0.95);
-  box-shadow: 0 0 16px rgba(148,163,184,0.35);
-}
-#gg-stability-hud .gg-bubble-dot.ok{
-  background: rgba(52,211,153,0.95);
-  box-shadow: 0 0 16px rgba(52,211,153,0.45);
-}
-
 </style>
 </head>
 
@@ -1074,26 +993,6 @@ pointer-events: none;
         <video id="webcam" autoplay playsinline muted></video>
         <img id="ghost-overlay" class="ghost-overlay" src="" alt="Ghost Reference" />
         <canvas id="sheet-canvas"></canvas>
-
-        <!-- Mobile stability HUD (Level + Steady) -->
-        <div id="gg-stability-hud" aria-hidden="true">
-          <div class="gg-level-wrap">
-            <div class="gg-bubble">
-              <div class="gg-bubble-inner">
-                <div id="gg-bubble-dot" class="gg-bubble-dot"></div>
-              </div>
-            </div>
-            <div class="gg-pill">
-              <span id="gg-level-dot" class="gg-dot"></span>
-              <span id="gg-level-text">LEVEL: --</span>
-            </div>
-          </div>
-          <div class="gg-pill">
-            <span id="gg-steady-dot" class="gg-dot"></span>
-            <span id="gg-steady-text">STEADY: --</span>
-          </div>
-        </div>
-
 
         <div class="lightctl show" id="lightctl">
           <div class="lightctl-head">
@@ -1566,11 +1465,16 @@ pointer-events: none;
           const nextW = clampStep(best.dispWEma ?? m.dispW, m.dispW, 0.25);
           best.dispWEma = lerp(best.dispWEma ?? nextW, nextW, EMA_W);
 
+          // ✅ keep blob bbox width (ROI px) for mm (matches pink rectangle)
+          const nextBlobW = clampStep(best.blobWEma ?? m.blobWPx, m.blobWPx, 0.25);
+          best.blobWEma = lerp(best.blobWEma ?? nextBlobW, nextBlobW, EMA_W);
+          best.blobWRaw = m.blobWPx;
+          best.blobHRaw = m.blobHPx;
+
           const nextX = clampStep(best.dispXEma ?? m.dispX, m.dispX, 0.35);
           best.dispXEma = lerp(best.dispXEma ?? nextX, nextX, EMA_X);
 
           best.areaEma = lerp(best.areaEma ?? m.areaPx2, m.areaPx2, EMA_AREA);
-          best.boxAreaEma = lerp(best.boxAreaEma ?? m.boxAreaPx2, m.boxAreaPx2, EMA_AREA);
           best.fillRatioEma = lerp(best.fillRatioEma ?? m.fillRatio, m.fillRatio, EMA_AREA);
           best.fillRatioRaw = m.fillRatio;
 
@@ -1592,8 +1496,10 @@ pointer-events: none;
             drawYEma: m.drawY,
             dispXEma: m.dispX,
             dispWEma: m.dispW,
+            blobWEma: m.blobWPx,
+            blobWRaw: m.blobWPx,
+            blobHRaw: m.blobHPx,
             areaEma: m.areaPx2,
-            boxAreaEma: m.boxAreaPx2,
             fillRatioEma: m.fillRatio,
             lineScoreEma: (m.lineScore || 0),
             confEma: m.conf,
@@ -2286,124 +2192,29 @@ function resetLightBias() {
 
       const isLineLike = (minDim <= THIN_PX && aspect >= ASPECT_MED) || (minDim <= (THIN_PX * 1.25) && aspect >= ASPECT_STRONG) || (extent <= EXTENT_SPARSE && aspect >= (ASPECT_MED + 0.3));
 
+      const bboxX0Px = x0 + bestMinX * ds;
+      const bboxY0Px = y0 + bestMinY * ds;
+      const bboxX1Px = x0 + (bestMaxX + 1) * ds;
+      const bboxY1Px = y0 + (bestMaxY + 1) * ds;
+
       return {
         areaPx2,
         extent,
         aspect,
         minDimPx: minDim,
-        lineScore: isLineLike ? 1 : 0
+        lineScore: isLineLike ? 1 : 0,
+        // bbox metrics (ROI px)
+        bboxWPx,
+        bboxHPx,
+        bboxX0Px,
+        bboxY0Px,
+        bboxX1Px,
+        bboxY1Px
       };
     }
 
 
-
-// =========================================================
-// MOBILE UX (#3): Level guide + steady indicator (mobile)
-// - Uses DeviceOrientation when available
-// - Computes simple frame-to-frame motion on downscaled ROI
-// =========================================================
-const GG_LEVEL_DEG_THRESHOLD = 6;      // degrees (smaller => stricter)
-const GG_STEADY_MOTION_THRESH = 4.0;   // lower => stricter steady
-const GG_STEADY_HOLD_FRAMES = 12;      // frames of steady needed to show OK
-const GG_AUTO_CAPTURE_ENABLED = false; // set true if you want auto-capture when Level+Steady OK
-const GG_AUTO_CAPTURE_COOLDOWN_MS = 2500;
-
-let ggTiltBeta = 0, ggTiltGamma = 0;
-let ggLevelOk = false;
-
-let ggPrevSmall = null;     // Uint8Array
-let ggMotionEma = 999;
-let ggSteadyFrames = 0;
-let ggLastAutoCapture = 0;
-
-// =========================================================
-// LOCAL SCALE (#2): normalize measurement by per-band box area
-// - If physical box is same, pixel box area changes with perspective.
-// - Use median boxArea as reference -> scale widths by sqrt(ref/boxArea).
-// =========================================================
-let ggBoxAreaRefEma = null;
-const GG_SCALE_EMA = 0.15;
-
-function ggMedian_(arr){
-  if (!arr || arr.length === 0) return 0;
-  const a = arr.slice().sort((x,y)=>x-y);
-  const n = a.length;
-  const mid = Math.floor(n/2);
-  return (n % 2) ? a[mid] : (a[mid-1] + a[mid]) / 2;
-}
-
-function ggUpdateLevelFromOrientation_(beta, gamma){
-  ggTiltBeta = Number.isFinite(beta) ? beta : 0;
-  ggTiltGamma = Number.isFinite(gamma) ? gamma : 0;
-  const tilt = Math.max(Math.abs(ggTiltBeta), Math.abs(ggTiltGamma));
-  ggLevelOk = tilt <= GG_LEVEL_DEG_THRESHOLD;
-
-  // move bubble dot (clamped)
-  const dot = document.getElementById("gg-bubble-dot");
-  if (dot){
-    const maxPx = 12;
-    const dx = clamp(ggTiltGamma / 20, -1, 1) * maxPx;
-    const dy = clamp(ggTiltBeta  / 20, -1, 1) * maxPx;
-    dot.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
-    dot.classList.toggle("ok", ggLevelOk);
-  }
-}
-
-function ggComputeMotion_(data, w, h){
-  // Downscale ROI to ~64x48 grayscale and compute mean abs diff
-  const sw = 64, sh = 48;
-  const small = new Uint8Array(sw * sh);
-  const stepX = Math.max(1, Math.floor(w / sw));
-  const stepY = Math.max(1, Math.floor(h / sh));
-
-  let k = 0;
-  for (let y = 0; y < sh; y++){
-    const py = Math.min(h-1, y * stepY);
-    const row = py * w * 4;
-    for (let x = 0; x < sw; x++){
-      const px = Math.min(w-1, x * stepX);
-      const i = row + px * 4;
-      // luma
-      small[k++] = (data[i] * 0.299 + data[i+1] * 0.587 + data[i+2] * 0.114) | 0;
-    }
-  }
-
-  if (!ggPrevSmall){
-    ggPrevSmall = small;
-    return 999;
-  }
-
-  let sum = 0;
-  for (let i = 0; i < small.length; i++){
-    sum += Math.abs(small[i] - ggPrevSmall[i]);
-  }
-  ggPrevSmall = small;
-  return sum / small.length; // ~0..255
-}
-
-function ggUpdateStabilityHud_(){
-  const lvlDot = document.getElementById("gg-level-dot");
-  const lvlTxt = document.getElementById("gg-level-text");
-  const stDot  = document.getElementById("gg-steady-dot");
-  const stTxt  = document.getElementById("gg-steady-text");
-
-  if (lvlDot && lvlTxt){
-    lvlDot.classList.toggle("ok", ggLevelOk);
-    lvlDot.classList.toggle("warn", !ggLevelOk);
-    const tilt = Math.max(Math.abs(ggTiltBeta), Math.abs(ggTiltGamma));
-    lvlTxt.textContent = `LEVEL: ${tilt.toFixed(1)}°`;
-  }
-
-  const steadyOk = ggSteadyFrames >= GG_STEADY_HOLD_FRAMES;
-  if (stDot && stTxt){
-    stDot.classList.toggle("ok", steadyOk);
-    stDot.classList.toggle("warn", !steadyOk);
-    stTxt.textContent = `STEADY: ${steadyOk ? "OK" : "MOVE"}`;
-  }
-}
-
-
-const GG_SHOW_PINK_OVERLAY = false; // UI: hide pink overlay
+const GG_SHOW_PINK_OVERLAY = true; // UI: hide pink overlay
 
 // =========================================================
 // ✅ VISUAL: paint largest detected BLOB inside each bounding "box"
@@ -2497,10 +2308,12 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
 
   if (bestArea <= 0 || bestTail <= 0) return;
 
-  // --- paint overlay (FORCED RECT: neon reflective pink) on SHEET overlay canvas ---
+    // --- paint overlay as SOLID rectangle (pink) over detected blob ---
+  // Instead of painting pixel-cells, we draw a single pink rectangle that covers the detected blob.
+  // This makes the overlay appear as a clear "pink square/rectangle" for operators.
   ctx.save();
 
-  // 1) Compute blob bounding rect (grid -> pixel)
+  // Compute blob bounding box in the downsample grid
   let minGX = 1e9, minGY = 1e9, maxGX = -1, maxGY = -1;
   for (let k = 0; k < bestTail; k++) {
     const gx = bestX[k], gy = bestY[k];
@@ -2509,7 +2322,6 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
     if (gx > maxGX) maxGX = gx;
     if (gy > maxGY) maxGY = gy;
   }
-  // Safety
   if (maxGX < 0 || maxGY < 0) { ctx.restore(); return; }
 
   const blobX0 = x0 + minGX * ds;
@@ -2517,52 +2329,33 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
   const blobX1 = x0 + (maxGX + 1) * ds;
   const blobY1 = y0 + (maxGY + 1) * ds;
 
-  // 2) Display-space rect
-  const rbx = roiX_disp + blobX0 * sx;
-  const rby = roiY_disp + blobY0 * sy;
-  const rbw = Math.max(1, (blobX1 - blobX0) * sx);
-  const rbh = Math.max(1, (blobY1 - blobY0) * sy);
+  const bx = roiX_disp + blobX0 * sx;
+  const by = roiY_disp + blobY0 * sy;
+  const bw = Math.max(1, (blobX1 - blobX0) * sx);
+  const bh = Math.max(1, (blobY1 - blobY0) * sy);
 
-  // 3) Clip to detected box to avoid spill (display-space)
-  const bx = roiX_disp + x0 * sx;
-  const by = roiY_disp + y0 * sy;
-  const bw = (x1 - x0) * sx;
-  const bh = (y1 - y0) * sy;
-  ctx.beginPath();
-  ctx.rect(bx, by, bw, bh);
-  ctx.clip();
-
-  // 4) Neon reflective pink rectangle
+  // Glow + reflective look
   ctx.globalCompositeOperation = "screen";
   ctx.shadowColor = "rgba(255, 0, 255, 0.95)";
-  ctx.shadowBlur = 18;
+  ctx.shadowBlur = 14;
 
   // Base fill
-  ctx.fillStyle = "rgba(255, 0, 255, 0.26)";
-  ctx.fillRect(rbx, rby, rbw, rbh);
+  ctx.fillStyle = "rgba(255, 105, 180, 0.28)";
+  ctx.fillRect(bx, by, bw, bh);
 
-  // Reflective gradient
-  const g = ctx.createLinearGradient(rbx, rby, rbx + rbw, rby + rbh);
-  g.addColorStop(0.0, "rgba(255, 255, 255, 0.22)");
-  g.addColorStop(0.35, "rgba(255, 0, 255, 0.18)");
-  g.addColorStop(0.70, "rgba(255, 0, 255, 0.06)");
-  g.addColorStop(1.0, "rgba(0, 0, 0, 0.0)");
-  ctx.fillStyle = g;
-  ctx.fillRect(rbx, rby, rbw, rbh);
+  // Border (crisp)
+  ctx.shadowBlur = 0;
+  ctx.strokeStyle = "rgba(255, 105, 180, 0.92)";
+  ctx.lineWidth = Math.max(1, 2 * Math.min(sx, sy));
+  ctx.strokeRect(bx, by, bw, bh);
 
-  // Border glow
-  ctx.shadowBlur = 22;
-  let lw = Math.max(2, Math.min(6, 2.5 * Math.max(sx, sy)));
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = "rgba(255, 90, 255, 0.95)";
-  ctx.strokeRect(rbx, rby, rbw, rbh);
-
-  // Inner border
-  ctx.shadowBlur = 10;
-  lw = Math.max(1, lw * 0.6);
-  ctx.lineWidth = lw;
-  ctx.strokeStyle = "rgba(255, 200, 255, 0.55)";
-  ctx.strokeRect(rbx + lw, rby + lw, Math.max(1, rbw - 2 * lw), Math.max(1, rbh - 2 * lw));
+  // Inner softer pass (optional highlight)
+  const inset = Math.max(1, Math.floor(Math.min(bw, bh) * 0.06));
+  if (bw > inset * 2 && bh > inset * 2) {
+    ctx.shadowBlur = 18;
+    ctx.fillStyle = "rgba(255, 105, 180, 0.14)";
+    ctx.fillRect(bx + inset, by + inset, bw - inset * 2, bh - inset * 2);
+  }
 
   ctx.restore();
 }
@@ -2638,17 +2431,6 @@ sheetCtx.restore();
       procCtx.drawImage(video, roiX_v, roiY_v, roiW_v, roiH_v, 0, 0, roiW_v, roiH_v);
       const imgData = procCtx.getImageData(0, 0, roiW_v, roiH_v);
       const data = imgData.data;
-
-      // --- UX (#3): motion/steady estimation (mobile) ---
-      try {
-        const mot = ggComputeMotion_(data, roiW_v, roiH_v);
-        if (Number.isFinite(mot) && mot < 900) {
-          ggMotionEma = (ggMotionEma === 999) ? mot : lerp(ggMotionEma, mot, 0.22);
-          if (ggMotionEma <= GG_STEADY_MOTION_THRESH) ggSteadyFrames++;
-          else ggSteadyFrames = 0;
-        }
-      } catch (e) {}
-
 
       // AUTO light bias
       if (lightAuto) {
@@ -2726,13 +2508,27 @@ sheetCtx.restore();
       bounds.forEach((b) => {
         if (b.y > roiH_v * 0.96) return;
 
-        const localY_v = b.y;
+                const localY_v = b.y;
         const drawY = roiY_disp + localY_v * sy;
 
-        const x0 = Math.floor(roiW_v * 0.25);
-        const x1 = Math.floor(roiW_v * 0.75);
-        const y0 = clamp(b.y0, 0, roiH_v - 1);
-        const y1 = clamp(b.y1, 0, roiH_v);
+        // ✅ GREEN BOX (the same box we draw) is the ONLY area used for %Blob (pink) -> mm scaling.
+        // If there are blobs in this layer but none fall inside the green box, we do NOT count them.
+        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
+
+        // Convert the drawn green box (dispW min 40px, height 16px) back to ROI-pixel coordinates
+        const __sx = (typeof sx === "number" && isFinite(sx) && sx > 0) ? sx : 1;
+        const __sy = (typeof sy === "number" && isFinite(sy) && sy > 0) ? sy : 1;
+
+        const minDispW = 40; // must match render min width
+        const minBoxW_v = Math.max(4, Math.ceil(minDispW / __sx));
+        const boxW_v = Math.max(minBoxW_v, Math.round(gapGeo.width));
+
+        const x0 = clamp(Math.floor((roiW_v - boxW_v) / 2), 0, roiW_v - 1);
+        const x1 = clamp(x0 + boxW_v, x0 + 1, roiW_v);
+
+        const boxHalfH_v = Math.max(3, Math.ceil(8 / __sy)); // 16px height / 2
+        const y0 = clamp(localY_v - boxHalfH_v, 0, roiH_v - 1);
+        const y1 = clamp(localY_v + boxHalfH_v, 0, roiH_v);
 
         const __blob = computeLargestBlobMetrics_(
           data, roiW_v, roiH_v, x0, y0, x1, y1, lightBias
@@ -2740,13 +2536,14 @@ sheetCtx.restore();
         const areaPx2 = __blob.areaPx2;
         const lineScore = __blob.lineScore;
 
-        // ✅ Blob coverage ratio vs bounding box area (px^2)
-        // If blob fills < 9% of the bounding box, we will display 0 mm (rule applied at render stage)
+        const blobWPx = (__blob.bboxWPx || 0);
+        const blobHPx = (__blob.bboxHPx || 0);
+
+        // ✅ Blob coverage ratio ONLY inside the green box area (px^2)
         const boxAreaPx2 = Math.max(1, (x1 - x0) * (y1 - y0));
         const fillRatio = clamp(areaPx2 / boxAreaPx2, 0, 1);
 
-        const gapGeo = analyzeGapWidthRow(data, roiW_v, roiH_v, localY_v, lightBias);
-        const dispW = Math.max(40, gapGeo.width * sx);
+const dispW = Math.max(40, gapGeo.width * sx);
         const dispX = roiX_disp + (roiW_disp - dispW) / 2;
 
         const peakValue = smoothed[localY_v];
@@ -2757,9 +2554,8 @@ sheetCtx.restore();
           drawY,
           dispX,
           dispW,
-          boxAreaPx2,
-          boxWPx: (x1 - x0),
-          boxHPx: (y1 - y0),
+          blobWPx,
+          blobHPx,
           areaPx2,
           fillRatio,
           lineScore,
@@ -2789,16 +2585,6 @@ sheetCtx.restore();
         (t.confEma || 0) >= TRACK_MIN_CONF_DRAW
       );
 
-      // --- LOCAL SCALE (#2): update reference box area (EMA of median) ---
-      try {
-        const __areas = drawableTracks.map(t => (t.boxAreaEma || 0)).filter(a => a > 0);
-        if (__areas.length >= 3) {
-          const __med = ggMedian_(__areas);
-          ggBoxAreaRefEma = (ggBoxAreaRefEma == null) ? __med : lerp(ggBoxAreaRefEma, __med, GG_SCALE_EMA);
-        }
-      } catch (e) {}
-
-
       drawableTracks.forEach((t, i) => {
         const layerNo = i + 1;
 
@@ -2807,33 +2593,31 @@ sheetCtx.restore();
         const dispW = t.dispWEma ?? 40;
 
         const __sx = (typeof sx === "number" && isFinite(sx) && sx !== 0) ? sx : 1; // safe, ไม่กระทบ logic เดิม
-        const gapPx_raw = Math.round(dispW / __sx); // raw px width in ROI
-        let gapPx = gapPx_raw;
-        try {
-          const __boxA = (t.boxAreaEma || 0);
-          if (ggBoxAreaRefEma && __boxA > 0) {
-            const __scaleLin = Math.sqrt(ggBoxAreaRefEma / __boxA);
-            gapPx = Math.max(1, Math.round(gapPx_raw * __scaleLin));
-          }
-        } catch (e) {}
+        let gapPx = Math.round((t.blobWEma ?? t.blobWRaw ?? 0));
+        if (!(gapPx > 0)) {
+          gapPx = Math.round(dispW / __sx); // fallback (legacy)
+        } // แปลงกลับจาก display width -> px (ใน ROI)
 
         const gapMM_raw = pxToMm_15cm(gapPx);
         let gapMM = Number.isFinite(gapMM_raw) ? gapMM_raw : 0;
 
-        // ✅ Rule: Use PINK area INSIDE the Bounding Box only (backend-only)
-// If pink area inside bbox is >= 9% of bbox area -> display NORMAL mm
-// If pink area inside bbox is < 9% -> display a value in [0..5] based on % (higher % => higher value)
-// (use raw ratio for strictness; fall back to EMA if raw missing)
+        // ✅ Rule: Display 0 mm when no pink (or tiny blob), else scale mm by pink ratio
+// - Uses backend-only pink ratio: fillRatioRaw (preferred) or fillRatioEma (fallback)
+// - If pink ratio < PINK_ZERO_RATIO or blob area < PINK_MIN_AREA_PX2 => 0 mm
+// - If pink ratio >= PINK_FULL_RATIO => full mm
+// - Between => linear scale
 const __fillRatioRaw = (t.fillRatioRaw ?? t.fillRatioEma ?? 0);
-
-if (__fillRatioRaw < 0.09) {
-  // Map fill ratio [0..0.09) -> proxy mm [0..5] (discrete levels 0,1,2,3,4,5)
-  const __pct01 = clamp(__fillRatioRaw / 0.09, 0, 0.999999); // 0..(<1)
-  const __mmProxy = Math.min(5, Math.floor(__pct01 * 6));     // 6 bins -> 0..5
-  gapMM = __mmProxy;
+const __areaPx2 = (t.areaRaw ?? t.areaEma ?? 0);
+const PINK_FULL_RATIO = 0.09; // 9%
+const PINK_ZERO_RATIO = 0.01; // 1% (<= this => 0 mm)
+const PINK_MIN_AREA_PX2 = 60; // safety: ignore tiny noise blobs
+if (__fillRatioRaw <= 0 || __fillRatioRaw < PINK_ZERO_RATIO || __areaPx2 < PINK_MIN_AREA_PX2) {
+  gapMM = 0;
+} else {
+  const __scale = clamp(__fillRatioRaw / PINK_FULL_RATIO, 0, 1);
+  gapMM = gapMM * __scale;
 }
-// Note: Line-like detection is still computed in backend (t.lineScoreRaw/Ema),
-        // but it no longer overrides the 9% rule for displayed mm.
+// Note: line-like detection remains computed in backend, but displayed mm is driven by pink ratio scaling.
 const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
         const boxColor = outOfRangeMM ? "#ef4444" : "#34d399";
@@ -2848,16 +2632,21 @@ const outOfRangeMM = (gapMM < MM_MIN_OK || gapMM > MM_MAX_OK);
 
 
 
-// ✅ Paint detected blob inside current bounding band (neon pink)
+// ✅ Paint detected blob ONLY inside the drawn green box (neon pink rectangle)
 try {
-  const localY_v = clamp(Math.round(t.yEma ?? 0), 0, roiH_v - 1);
-  const bandHalf = Math.max(6, Math.floor(minDist / 2));
-  const bx0 = Math.floor(roiW_v * 0.25);
-  const bx1 = Math.floor(roiW_v * 0.75);
-  const by0 = clamp(localY_v - bandHalf, 0, roiH_v - 1);
-  const by1 = clamp(localY_v + bandHalf, 0, roiH_v);
+  const __sx = (typeof sx === "number" && isFinite(sx) && sx > 0) ? sx : 1;
+  const __sy = (typeof sy === "number" && isFinite(sy) && sy > 0) ? sy : 1;
 
-  if (GG_SHOW_PINK_OVERLAY) paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, sx, sy);
+  // Green box in ROI coordinates (same rectangle we draw on screen)
+  const bx0 = clamp(Math.round((dispX - roiX_disp) / __sx), 0, roiW_v - 1);
+  const bx1 = clamp(Math.round((dispX + dispW - roiX_disp) / __sx), bx0 + 1, roiW_v);
+
+  const by0 = clamp(Math.round((drawY - 8 - roiY_disp) / __sy), 0, roiH_v - 1);
+  const by1 = clamp(Math.round((drawY + 8 - roiY_disp) / __sy), by0 + 1, roiH_v);
+
+  if (GG_SHOW_PINK_OVERLAY) {
+    paintLargestBlobOverlay_(sheetCtx, data, roiW_v, roiH_v, bx0, by0, bx1, by1, lightBias, roiX_disp, roiY_disp, __sx, __sy);
+  }
 } catch (e) { /* no-op */ }sheetCtx.fillStyle = bgColor;
         sheetCtx.fillRect(dispX, drawY - 8, dispW, 16);
 
@@ -3424,24 +3213,7 @@ document.getElementById('sum-total').innerText = expected;
       } finally {
         captureBusy = false;
       }
-    
-      // --- UX (#3): update level/steady HUD ---
-      try { ggUpdateStabilityHud_(); } catch(e) {}
-
-      // --- Optional: auto-capture when Level+Steady OK ---
-      try {
-        if (GG_AUTO_CAPTURE_ENABLED && ggLevelOk && ggSteadyFrames >= GG_STEADY_HOLD_FRAMES) {
-          const now = Date.now();
-          if (now - ggLastAutoCapture > GG_AUTO_CAPTURE_COOLDOWN_MS) {
-            const btn = document.getElementById('btn-lock-ref');
-            if (btn && !btn.disabled && typeof lockRef === 'function') {
-              ggLastAutoCapture = now;
-              lockRef();
-            }
-          }
-        }
-      } catch(e) {}
-}
+    }
 
     async function lockRef() {
       const btn = document.getElementById("btn-lock-ref");
@@ -3840,41 +3612,7 @@ const payload = {
     // init step indicator on load
     document.addEventListener("DOMContentLoaded", () => {
       try { updateSheetCapStepIndicator(); } catch (e) {}
-
-      // --- UX (#3): Device orientation (bubble level) ---
-      try {
-        const attach = () => {
-          window.addEventListener("deviceorientation", (ev) => {
-            // beta: front-back tilt, gamma: left-right tilt
-            ggUpdateLevelFromOrientation_(ev.beta, ev.gamma);
-          }, { passive: true });
-        };
-
-        // iOS 13+ requires permission gesture; try non-blocking
-        const maybeReq = (DeviceOrientationEvent && typeof DeviceOrientationEvent.requestPermission === "function")
-          ? DeviceOrientationEvent.requestPermission
-          : null;
-
-        if (maybeReq) {
-          // Try to request on first user gesture
-          const onFirst = async () => {
-            try {
-              const res = await DeviceOrientationEvent.requestPermission();
-              if (res === "granted") attach();
-            } catch (e) {}
-            window.removeEventListener("click", onFirst);
-            window.removeEventListener("touchstart", onFirst);
-          };
-          window.addEventListener("click", onFirst, { once: true, passive: true });
-          window.addEventListener("touchstart", onFirst, { once: true, passive: true });
-        } else {
-          attach();
-        }
-      } catch (e) {}
     });
 </script>
-
-  
-
 </body>
 </html>
