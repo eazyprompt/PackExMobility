@@ -1,0 +1,2129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+  />
+  <title>EdgeGauge - Width Measurement Control</title>
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/PackExMobility/favicon-32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/PackExMobility/favicon-16.png">
+
+  <!-- iPhone Add to Home Screen -->
+  <link rel="apple-touch-icon" sizes="180x180" href="/PackExMobility/icon-180.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="/PackExMobility/icon-167.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="/PackExMobility/icon-152.png">
+  <link rel="apple-touch-icon" sizes="120x120" href="/PackExMobility/icon-120.png">
+
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="theme-color" content="#020617">
+  <meta name="theme-color" content="#020617" />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&family=JetBrains+Mono:wght@500;700;800&display=swap"
+    rel="stylesheet"
+  />
+  <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+
+  <style>
+    :root {
+      --bg-body: #0f172a;
+      --bg-card: #1e293b;
+      --bg-sidebar: #172554;
+      --border-subtle: rgba(255, 255, 255, 0.12);
+      --text-main: #ffffff;
+      --text-muted: #94a3b8;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.5);
+      --success: #34d399;
+      --warn: #fbbf24;
+      --danger: #22c55e;
+      --radius-lg: 18px;
+      --font-ui: "Inter", sans-serif;
+      --font-num: "JetBrains Mono", monospace;
+
+      --frame-gap: clamp(14px, 5.5vw, 60px);
+      --gap-layout: 16px;
+
+      /* JS-calculated */
+      --viewport-h: 240px;
+      --app-h: 100dvh;
+      --tab-h: 66px;
+    }
+
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+
+    body {
+      background: #020617;
+      color: var(--text-main);
+      font-family: var(--font-ui);
+      margin: 0;
+      width: 100vw;
+      height: var(--app-h);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    body::after{
+      content:""; position: fixed; inset: 0; background: rgba(255,255,255,0.85);
+      opacity: 0; pointer-events: none; transition: opacity 120ms ease; z-index: 9999;
+    }
+    body.screen-flash::after{ opacity: 1; }
+    body.screen-lamp::after{ opacity: 1; }
+
+    .app-frame {
+      width: calc(100vw - (var(--frame-gap) * 2));
+      height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      max-width: 520px;
+      max-height: calc(var(--app-h) - (var(--frame-gap) * 2));
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+      border-radius: 24px;
+      box-shadow: 0 0 50px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border-subtle);
+      padding-top: env(safe-area-inset-top);
+      padding-bottom: 0;
+    }
+
+    header {
+      min-height: 64px;
+      padding: 0 20px;
+      padding-top: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--bg-body);
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      z-index: 50;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .brand {
+      font-weight: 800; font-size: 1.15rem; display: flex; align-items: center; gap: 10px; color: #fff;
+      min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .brand i { color: var(--primary); }
+    .brand span { color: var(--primary); font-weight: 400; opacity: 0.9; font-size: 0.85em; }
+
+    .header-controls { display: flex; align-items: center; gap: 10px; min-width: 0; }
+    .btn-icon-header {
+      background: rgba(255, 255, 255, 0.05); border: 1px solid var(--border-subtle); color: #fff;
+      width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+      cursor: pointer; transition: 0.2s; flex-shrink: 0;
+    }
+    .btn-icon-header:active{ transform: scale(0.96); }
+
+    .viewport {
+      height: var(--viewport-h);
+      min-height: 0;
+      display: flex;
+      background: #020617;
+      border-bottom: 1px solid var(--border-subtle);
+      flex-shrink: 0;
+      position: relative;
+      transition: height 0.25s ease;
+    }
+    .vp-camera {
+      flex: 1; position: relative; overflow: hidden; display: flex;
+      align-items: center; justify-content: center;
+      background: #020617; min-width: 0;
+    }
+
+    video { width: 100%; height: 100%; object-fit: cover; opacity: 1.0; position: relative; z-index: 1; }
+
+    #sheet-canvas {
+      position: absolute; inset:0; width:100%; height:100%;
+      pointer-events:none; z-index: 20;
+    }
+
+    .panel {
+      flex: 1;
+      background: var(--bg-body);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      padding: 0;
+      min-height: 0;
+    }
+
+    .panel-content {
+      display: flex;
+      flex-direction: column;
+      gap: var(--gap-layout);
+      margin: 0 auto;
+      width: 100%;
+      height: 100%;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      padding: 14px 16px;
+      padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
+    }
+
+    .warp-header {
+      display:flex; justify-content:space-between; align-items:center;
+      background: rgba(15, 23, 42, 0.98);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 16px;
+      padding: 12px 14px;
+      gap: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.22);
+    }
+    .wh-left { display:flex; flex-direction:column; gap: 2px; min-width: 0; }
+    .wh-title {
+      font-size: 0.7rem; font-weight: 900; letter-spacing: 0.6px; text-transform: uppercase;
+      color: #60a5fa; display:flex; align-items:center; gap: 8px;
+    }
+    .wh-sub {
+      font-size: 0.75rem; color: var(--text-muted);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .wh-right { display:flex; align-items:center; gap: 10px; flex-shrink: 0; }
+
+    .gc-status-badge{
+      padding: 8px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 900;
+      display:flex; align-items:center; gap:6px; letter-spacing:0.4px;
+      background:#1e293b; border:1px solid rgba(255,255,255,0.10); color:#94a3b8;
+      white-space: nowrap;
+    }
+    .status-pass { background: rgba(16,185,129,0.12); color: #34d399; border-color: rgba(52,211,153,0.22); }
+    .status-warn { background: rgba(251,191,36,0.12); color: #fbbf24; border-color: rgba(251,191,36,0.25); }
+    .status-fail { background: rgba(239,68,68,0.12); color: #f87171; border-color: rgba(248,113,113,0.22); }
+
+    .btn-header-cap {
+      width: 44px; height: 44px;
+      border-radius: 12px;
+      background: #3b82f6;
+      color: #fff;
+      border: none;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+      transition: 0.2s;
+    }
+    .btn-header-cap:active { transform: scale(0.92); }
+    .btn-header-cap.frozen {
+      background: #22c55e;
+      box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4);
+    }
+
+    .grid-two {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .sum-item {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 14px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 6px;
+      min-height: 86px;
+      justify-content: center;
+    }
+
+.sum-item-input {
+  justify-content: flex-start;
+  gap: 8px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+
+.sum-input {
+  width: 100%;
+  max-width: 180px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  border: 1px solid rgba(255,255,255,0.18);
+  background: rgba(0,0,0,0.18);
+  color: #fff;
+  font-family: var(--font-num);
+  font-size: 0.92rem;
+  text-align: center;
+}
+.sum-input::placeholder { color: rgba(148,163,184,0.85); }
+
+.limit-alert{
+  margin-top: 12px;
+  padding: 10px 12px;
+  border-radius: 14px;
+  border: 1px solid rgba(239,68,68,0.60);
+  background: rgba(239,68,68,0.22);
+  color: #fff;
+  font-weight: 800;
+  letter-spacing: 0.2px;
+  text-align: center;
+}
+
+    
+    .sum-lbl { font-size: 0.6rem; color: #94a3b8; font-weight: 800; text-transform: uppercase; letter-spacing: 0.6px; }
+    .sum-val { font-family: var(--font-num); font-size: 1.55rem; font-weight: 900; color: #fff; line-height: 1; }
+    .sum-sub { font-size: 0.7rem; color: #64748b; font-weight: 700; margin-top: 2px; }
+
+    /* CHART */
+    .chart-card {
+      background: #020617;
+      border: 1px solid var(--border-subtle);
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      position: relative;
+      min-height: 170px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* NOTE: class="invert" จะ “invert เฉพาะการ plot กราฟ” (JS) แต่ไม่สลับตำแหน่ง chart-top แล้ว */
+    .chart-top {
+      display:flex; justify-content:space-between; align-items:center;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, 0.75);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      gap: 10px;
+    }
+    .chart-title{
+      font-size: 0.65rem;
+      font-weight: 900;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      color: #93c5fd;
+      display:flex; align-items:center; gap: 8px;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .chart-meta{
+      font-family: var(--font-num);
+      font-size: 0.65rem;
+      color: rgba(255,255,255,0.65);
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    #warp-profile { width: 100%; height: 100%; display: block; flex: 1; }
+
+    .hint-card{
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 14px;
+      padding: 12px;
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+    }
+    .hint-ico{
+      width: 34px; height: 34px;
+      border-radius: 12px;
+      background: rgba(59,130,246,0.18);
+      border: 1px solid rgba(59,130,246,0.35);
+      display:flex; align-items:center; justify-content:center;
+      flex-shrink: 0;
+      box-shadow: 0 0 18px rgba(59,130,246,0.15);
+    }
+    .hint-ttl{
+      font-weight: 900;
+      font-size: 0.75rem;
+      color: #fff;
+      display:flex; align-items:center; gap: 8px;
+    }
+    .hint-txt{
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      margin-top: 3px;
+      line-height: 1.35;
+    }
+
+    /* TAB BAR (HOME only) */
+    .tab-bar {
+      position: absolute; bottom: 0; left: 0; right: 0; height: var(--tab-h);
+      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(10px);
+      border-top: 1px solid var(--border-subtle); display: flex;
+      justify-content: space-around; align-items: center; z-index: 100;
+      padding-bottom: env(safe-area-inset-bottom);
+      padding-top: 6px;
+    }
+    .tab-item {
+      flex: 1; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      color: var(--text-muted); gap: 4px; cursor: pointer; transition: 0.2s;
+    }
+    .tab-item.active { color: var(--primary); }
+    .tab-lbl { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.2px; }
+    .tab-bar .tab-item svg{
+      width: 26px; height: 26px; stroke-width: 2.4; transition: transform 0.2s;
+    }
+    .tab-bar .tab-item.active svg{ transform: translateY(-3px) scale(1.05); }
+
+    :root{
+      --lightctl-h: 54px;
+      --lightctl-gap: 10px;
+      --lightctl-slider-len: clamp(180px, 52vw, 340px);
+    }
+
+    .lightctl{
+      position: absolute;
+      left: 12px;
+      right: 12px;
+      bottom: calc(12px + env(safe-area-inset-bottom));
+      z-index: 40;
+      height: var(--lightctl-h);
+      padding: 10px 12px;
+      border-radius: 18px;
+
+      background: rgba(2, 6, 23, 0.55);
+      border: 1px solid rgba(255,255,255,0.14);
+      backdrop-filter: blur(10px);
+
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--lightctl-gap);
+
+      pointer-events: auto;
+      -webkit-user-select: none;
+      user-select: none;
+
+      opacity: 1;
+      transition: opacity .18s ease, transform .18s ease;
+    }
+
+    .lightctl-head{ display:flex; flex-direction: row; align-items:center; gap: 8px; flex-shrink: 0; }
+    .lightctl-ico{ width: 18px; height: 18px; opacity: .95; color: rgba(255,255,255,0.9); }
+    .lightctl-title{
+      font-family: var(--font-num);
+      font-size: 10px;
+      font-weight: 900;
+      letter-spacing: .8px;
+      color: rgba(255,255,255,0.75);
+    }
+
+    .lightctl-rail{
+      position: relative;
+      height: 100%;
+      flex: 1;
+      min-width: 0;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+
+    .lightctl-slider{
+      -webkit-appearance: none;
+      appearance: none;
+      width: var(--lightctl-slider-len);
+      max-width: 100%;
+      height: 26px;
+      background: transparent;
+      outline: none;
+      padding: 0;
+      touch-action: none;
+    }
+
+    .lightctl-slider::-webkit-slider-runnable-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-webkit-slider-thumb{
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+      margin-top: -7px;
+    }
+
+    .lightctl-slider::-moz-range-track{
+      height: 6px;
+      border-radius: 999px;
+      background: linear-gradient(90deg,
+        rgba(255,255,255,0.18),
+        rgba(59,130,246,0.55)
+      );
+      border: 1px solid rgba(255,255,255,0.10);
+    }
+    .lightctl-slider::-moz-range-thumb{
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      background: #ffffff;
+      border: 3px solid rgba(59,130,246,0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.35);
+    }
+
+    .lightctl-value{
+      position:absolute;
+      top: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: var(--font-num);
+      font-size: 11px;
+      font-weight: 900;
+      color: rgba(255,255,255,0.92);
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .lightctl-auto,
+    .lightctl-reset{
+      width: 44px;
+      height: 38px;
+      padding: 0;
+      border-radius: 12px;
+
+      border: 1px solid rgba(255,255,255,0.12);
+      background: rgba(255,255,255,0.06);
+      color: rgba(255,255,255,0.88);
+
+      font-family: var(--font-num);
+      font-size: 9px;
+      font-weight: 900;
+      letter-spacing: 0.4px;
+      line-height: 1;
+      text-transform: uppercase;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      cursor: pointer;
+      transition: .15s;
+      flex-shrink: 0;
+    }
+    .lightctl-auto:active,
+    .lightctl-reset:active{ transform: scale(0.96); }
+
+    .lightctl.auto-on .lightctl-auto{
+      background: rgba(59,130,246,0.18);
+      border-color: rgba(59,130,246,0.35);
+      color: #93c5fd;
+    }
+    .lightctl.auto-on .lightctl-slider{
+      opacity: .55;
+      pointer-events:none;
+    }
+
+    @media (max-height: 760px) {
+      header { min-height: 58px; padding-top: 10px; }
+      .panel-content{ padding: 12px 14px; }
+      .sum-item{ min-height: 80px; }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="app-frame">
+    <header>
+      <div class="brand"><i data-lucide="scan-face"></i> EdgeGauge <span>Mobility</span></div>
+      <div class="header-controls">
+        <button class="btn-icon-header" id="btn-torch" onclick="toggleTorchHold()" title="Torch">
+          <i data-lucide="flashlight" style="width: 18px;"></i>
+        </button>
+      </div>
+    </header>
+
+    <div class="viewport">
+      <div class="vp-camera" id="vp-camera">
+        <video id="webcam" autoplay playsinline muted></video>
+        <canvas id="sheet-canvas"></canvas>
+
+        <div class="lightctl" id="lightctl">
+          <div class="lightctl-head">
+            <i data-lucide="sun-medium" class="lightctl-ico"></i>
+            <span class="lightctl-title">LIGHT</span>
+          </div>
+
+          <div class="lightctl-rail">
+            <input id="light-slider" class="lightctl-slider" type="range" min="-30" max="30" step="1" value="0">
+            <div class="lightctl-value" id="light-val">0</div>
+          </div>
+
+          <button class="lightctl-auto" id="light-auto" type="button" onclick="toggleLightAuto()">AUTO</button>
+          <button class="lightctl-reset" id="light-reset" type="button" onclick="resetAll()" title="Reset">
+            <i data-lucide="rotate-ccw" style="width:16px; height:16px;"></i>
+          </button>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="panel-content">
+
+        <div class="warp-header">
+          <div class="wh-left">
+            <div class="wh-title"><i data-lucide="scan-line" style="width:14px;"></i> WIDTH MEASUREMENT</div>
+            <div class="wh-sub" id="warp-hint"></div>
+          </div>
+          <div class="wh-right">
+            <div id="status-badge" class="gc-status-badge">
+              <i data-lucide="minus"></i> READY
+            </div>
+            <button id="btn-freeze" class="btn-header-cap" onclick="toggleFreeze()" title="Freeze">
+              <i data-lucide="camera"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- ✅ chart-top อยู่ “ด้านบน” แล้ว / invert ใช้แค่ invert กราฟ (JS) -->
+        <div class="chart-card invert" id="warp-chart">
+          <div class="chart-top">
+            <div class="chart-title"><i data-lucide="activity" style="width:14px;"></i> Width Measurement Profile dy(x)</div>
+            <div class="chart-meta" id="chart-meta">--</div>
+          </div>
+          <canvas id="warp-profile"></canvas>
+        </div>
+
+        <div class="grid-two">
+          <div class="sum-item">
+            <div class="sum-val" id="max-warp">--</div>
+            <div class="sum-lbl">Actual Width Measurement</div>
+            <div class="sum-sub" id="max-warp-sub">mm</div>
+          </div>
+<div class="sum-item">
+  <div class="sum-val" id="direction">--</div>
+  <div class="sum-lbl">Direction</div>
+  <div class="sum-sub">° vs Standard (Blue)</div>
+</div>
+
+<div class="sum-item sum-item-input">
+  <div class="sum-lbl">Min Limit (mm)</div>
+  <input class="sum-input" id="limit-min" type="number" inputmode="decimal" placeholder="e.g. 0" step="0.01" />
+  <div class="sum-sub">User input</div>
+</div>
+
+<div class="sum-item sum-item-input">
+  <div class="sum-lbl">Max Limit (mm)</div>
+  <input class="sum-input" id="limit-max" type="number" inputmode="decimal" placeholder="e.g. 10" step="0.01" />
+  <div class="sum-sub">User input</div>
+</div>
+        </div>
+
+        <div id="limit-alert" class="limit-alert" style="display:none;"></div>
+
+   
+
+      </div>
+    </div>
+
+    <div class="tab-bar">
+      <div class="tab-item active" id="tab-home" onclick="goHome()">
+        <i data-lucide="home"></i>
+        <span class="tab-lbl">HOME</span>
+      </div>
+    </div>
+
+  </div>
+
+  <canvas id="proc-canvas" width="100" height="100" style="display:none;"></canvas>
+
+  <script>
+    lucide.createIcons();
+
+    function goHome() { window.location.href = "index.html"; }
+
+    // =========================
+    // GLOBALS
+    // =========================
+    const video = document.getElementById("webcam");
+
+    const sheetCanvas = document.getElementById("sheet-canvas");
+    const sheetCtx = sheetCanvas.getContext("2d");
+
+    const procCanvas = document.getElementById("proc-canvas");
+    const procCtx = procCanvas.getContext("2d", { willReadFrequently: true });
+
+    const profileCanvas = document.getElementById("warp-profile");
+    const profileCtx = profileCanvas.getContext("2d");
+
+    let videoTrack = null;
+    let torchSupported = false;
+    let isTorchOn = false;
+    let torchOpBusy = false;
+
+    let isRunning = false;
+    let frozen = false;
+
+    // =========================
+    // WARP CONFIG (No Touch)
+    // =========================
+    const ROI_W_RATIO = 0.78;
+    const ROI_H_RATIO = 0.68;
+    const ROI_Y_SHIFT = -0.05;
+    const STANDARD_Y_RATIO = 0.52;
+    const EDGE_BAND_PX = 26;
+    const SAMPLE_COUNT = 64;
+    const GRAD_STEP = 2;
+    const MIN_EDGE_CONTRAST = 18;
+
+    const PX_TO_MM = 0.08;
+
+    const PASS_MAX_MM = 4.0;
+    const WARN_MAX_MM = 6.0;
+
+    const EMA_PROFILE = 0.18;
+    const EMA_METRIC = 0.20;
+
+    let dyEma = null;
+    let maxMmEma = 0;
+    let avgMmEma = 0;
+    let actualMmEma = 0;
+    let confEma = 0;
+
+    // =========================
+    // LINE (LEFT/RIGHT) DETECTION HELPERS (NO EXTERNAL LIBS)
+    // =========================
+    const LINE_SAMPLE_STEP = 2;          // downsample for speed
+    const EDGE_MAG_TH = 55;              // gradient magnitude threshold (0-1020)
+    const MAX_EDGE_POINTS = 4500;        // cap points for stability
+    const RANSAC_ITERS = 160;
+    const RANSAC_TOL_PX = 4.0;
+    const MIN_INLIERS = 80;
+    const MAX_CANDIDATE_LINES = 18;
+
+    function toGrayLuma(imgData) {
+      const d = imgData.data;
+      const n = (d.length / 4) | 0;
+      const g = new Uint8Array(n);
+      for (let i = 0, p = 0; i < n; i++, p += 4) {
+        // ITU-R BT.709 luma approx
+        g[i] = (0.2126 * d[p] + 0.7152 * d[p + 1] + 0.0722 * d[p + 2]) | 0;
+      }
+      return g;
+    }
+
+    function sobelMag(gray, w, h) {
+      const mag = new Uint16Array(w * h);
+      for (let y = 1; y < h - 1; y++) {
+        const y0 = (y - 1) * w, y1 = y * w, y2 = (y + 1) * w;
+        for (let x = 1; x < w - 1; x++) {
+          const i = y1 + x;
+
+          const a00 = gray[y0 + (x - 1)], a01 = gray[y0 + x], a02 = gray[y0 + (x + 1)];
+          const a10 = gray[y1 + (x - 1)],                     a12 = gray[y1 + (x + 1)];
+          const a20 = gray[y2 + (x - 1)], a21 = gray[y2 + x], a22 = gray[y2 + (x + 1)];
+
+          const gx = (-a00 + a02) + (-2 * a10 + 2 * a12) + (-a20 + a22);
+          const gy = (-a00 - 2 * a01 - a02) + (a20 + 2 * a21 + a22);
+
+          mag[i] = (Math.abs(gx) + Math.abs(gy)) >>> 0;
+        }
+      }
+      return mag;
+    }
+
+    function pointInTrapezoid(x, y, w, h) {
+      // Trapezoid mask inside ROI: wide at bottom, narrower at top.
+      // Looser than before so edges still pass in varied scenes.
+      const yTop = Math.floor(h * 0.12);
+      const yBot = h - 1;
+      if (y < yTop || y > yBot) return false;
+
+      const t = (y - yTop) / Math.max(1, (yBot - yTop));
+      const halfTop = w * 0.28;
+      const halfBot = w * 0.49;
+      const cx = w * 0.5;
+      const half = halfTop + (halfBot - halfTop) * t;
+      return (x >= cx - half && x <= cx + half);
+    }
+
+    function collectEdgePoints(mag, w, h) {
+      const pts = [];
+      const step = LINE_SAMPLE_STEP;
+      // bias towards lower part (stronger edges)
+      for (let y = Math.floor(h * 0.18); y < h - 1; y += step) {
+        const row = y * w;
+        for (let x = 1; x < w - 1; x += step) {
+          if (!pointInTrapezoid(x, y, w, h)) continue;
+          const v = mag[row + x];
+          if (v < EDGE_MAG_TH) continue;
+          pts.push({ x, y, w: v });
+        }
+      }
+
+      // Keep strongest points only
+      if (pts.length > MAX_EDGE_POINTS) {
+        pts.sort((a, b) => b.w - a.w);
+        pts.length = MAX_EDGE_POINTS;
+      }
+      return pts;
+    }
+
+    function xAtY(line, y) {
+      // line: a*x + b*y + c = 0
+      if (!line) return null;
+      const a = line.a;
+      if (Math.abs(a) < 1e-6) return null; // near-horizontal -> no stable x(y)
+      return -(line.b * y + line.c) / a;
+    }
+
+    function yAtX(line, x) {
+      // line: a*x + b*y + c = 0
+      if (!line) return null;
+      const b = line.b;
+      if (Math.abs(b) < 1e-6) return null; // near-vertical -> no stable y(x)
+      return -(line.a * x + line.c) / b;
+    }
+
+    // Check whether a line is (approximately) parallel to the standard line (horizontal in UI)
+    // Standard direction is horizontal => line direction vector (dx,dy) should have small |dy/dx|
+    const MAX_DEG_FROM_STANDARD = 10; // tighten/loosen as needed
+    const TAN_MAX_FROM_STANDARD = Math.tan((MAX_DEG_FROM_STANDARD * Math.PI) / 180);
+    function isParallelToStandard(line) {
+      if (!line) return false;
+      // direction vector for ax+by+c=0 is (dx,dy) = (b, -a)
+      const dx = line.b;
+      const dy = -line.a;
+      if (!isFinite(dx) || !isFinite(dy)) return false;
+      if (Math.abs(dx) < 1e-6) return false; // can't be parallel to horizontal if dx ~ 0
+      return Math.abs(dy / dx) <= TAN_MAX_FROM_STANDARD;
+    }
+
+
+    function lineFrom2Pts(p1, p2) {
+      // General line through two points in normalized form: a*x + b*y + c = 0
+      const a = (p1.y - p2.y);
+      const b = (p2.x - p1.x);
+      const c = (p1.x * p2.y - p2.x * p1.y);
+      const norm = Math.hypot(a, b);
+      if (norm < 1e-6) return null;
+      return { a: a / norm, b: b / norm, c: c / norm };
+    }
+
+    function pointLineDist(p, line) {
+      // distance from point to normalized line a*x + b*y + c = 0
+      return Math.abs(line.a * p.x + line.b * p.y + line.c);
+    }
+
+    function refineLineTLS(inliers) {
+      // Total least squares via PCA on inlier points
+      if (!inliers || inliers.length < 2) return null;
+
+      let Sw = 0, mx = 0, my = 0;
+      for (const p of inliers) {
+        const w = 1 + (p.w || 0) * 0.001;
+        Sw += w;
+        mx += w * p.x;
+        my += w * p.y;
+      }
+      if (Sw <= 0) return null;
+      mx /= Sw; my /= Sw;
+
+      let Sxx = 0, Syy = 0, Sxy = 0;
+      for (const p of inliers) {
+        const w = 1 + (p.w || 0) * 0.001;
+        const dx = p.x - mx;
+        const dy = p.y - my;
+        Sxx += w * dx * dx;
+        Syy += w * dy * dy;
+        Sxy += w * dx * dy;
+      }
+
+      const theta = 0.5 * Math.atan2(2 * Sxy, (Sxx - Syy));
+      const vx = Math.cos(theta);
+      const vy = Math.sin(theta);
+
+      // normal is perpendicular
+      let a = -vy;
+      let b = vx;
+      const norm = Math.hypot(a, b);
+      if (norm < 1e-6) return null;
+      a /= norm; b /= norm;
+      const c = -(a * mx + b * my);
+      return { a, b, c };
+    }
+
+    
+    function ransacBestLine(points) {
+      // Return best line {a,b,c, score} using simple RANSAC + TLS refinement
+      if (!points || points.length < 2) return null;
+
+      const N = points.length;
+      let best = null;
+      let bestInliers = null;
+      let bestCount = 0;
+      let bestErr = Infinity;
+
+      // helper: build normalized line through 2 points
+      function lineFrom2(p1, p2) {
+        const dx = p2.x - p1.x;
+        const dy = p2.y - p1.y;
+        const len = Math.hypot(dx, dy);
+        if (len < 1e-6) return null;
+        // line normal (a,b) perpendicular to direction (dx,dy)
+        let a = dy / len;
+        let b = -dx / len;
+        const c = -(a * p1.x + b * p1.y);
+        return { a, b, c };
+      }
+
+      for (let it = 0; it < RANSAC_ITERS; it++) {
+        // pick 2 random distinct points
+        const i1 = (Math.random() * N) | 0;
+        let i2 = (Math.random() * N) | 0;
+        if (i2 === i1) i2 = (i2 + 1) % N;
+
+        const L0 = lineFrom2(points[i1], points[i2]);
+        if (!L0) continue;
+
+        const inliers = [];
+        let errSum = 0;
+        for (const p of points) {
+          const d = pointLineDist(p, L0);
+          if (d <= RANSAC_TOL_PX) {
+            inliers.push(p);
+            errSum += d;
+          }
+        }
+
+        if (inliers.length < MIN_INLIERS) continue;
+
+        const avgErr = errSum / Math.max(1, inliers.length);
+
+        // prefer more inliers; tie-breaker by lower error
+        if (inliers.length > bestCount || (inliers.length === bestCount && avgErr < bestErr)) {
+          bestCount = inliers.length;
+          bestErr = avgErr;
+          bestInliers = inliers;
+          best = L0;
+        }
+      }
+
+      if (!best || !bestInliers) return null;
+
+      // refine using TLS (PCA) on inliers for a stable line
+      const refined = refineLineTLS(bestInliers);
+      if (!refined) return null;
+
+      // score: prioritize inlier count then compactness
+      const score = bestCount - bestErr * 5;
+      return { a: refined.a, b: refined.b, c: refined.c, score };
+    }
+
+    function buildCandidateLines(points) {
+      // Repeatedly fit and peel off inliers (RANSAC) to get multiple candidates
+      const pts = points.slice();
+      const cands = [];
+
+      for (let k = 0; k < MAX_CANDIDATE_LINES; k++) {
+        if (pts.length < 350) break;
+        const any = ransacBestLine(pts);
+        if (!any) break;
+
+        cands.push({ a: any.a, b: any.b, c: any.c, score: any.score });
+
+        // remove inliers
+        const L = { a: any.a, b: any.b, c: any.c };
+        const kept = [];
+        for (const p of pts) {
+          const d = pointLineDist(p, L);
+          if (d > RANSAC_TOL_PX) kept.push(p);
+        }
+        pts.length = 0;
+        pts.push(...kept);
+      }
+
+      return cands;
+    }
+
+    // Backward-compatible alias (some parts of the pipeline call this name)
+    function extractCandidateLines(points) {
+      return buildCandidateLines(points);
+    }
+
+    // Convert an infinite line (ax+by+c=0) into a long segment inside the ROI.
+    // We match the app's existing convention: segment spans from yTop to yBottom.
+    function extendLineInRect(line, w, h) {
+      return lineToSegment(line, w, h);
+    }
+
+    // Pick the best left/right pair from candidate lines.
+    // Heuristic: left has negative slope and smaller x at bottom; right has positive slope and larger x at bottom.
+    function pickBestLeftRightFromCandidates(cands, w, h, stdY) {
+      // NEW: choose only candidates that are parallel to the Standard line (horizontal)
+      // We return two lines: one above standard (left) and one below standard (right),
+      // keeping the rest of the pipeline unchanged (left=upper, right=lower).
+      if (!Array.isArray(cands) || !cands.length) return { left: null, right: null, leftScore: null, rightScore: null, kept: 0 };
+
+      const xMid = (w - 1) * 0.5;
+      const yStd = (stdY == null || !isFinite(stdY)) ? (h * 0.52) : stdY;
+
+      const pool = [];
+      for (const L of cands) {
+        if (!L || !isFinite(L.a) || !isFinite(L.b) || !isFinite(L.c)) continue;
+
+        // keep only lines parallel to standard
+        if (!isParallelToStandard(L)) continue;
+
+        const yMid = yAtX(L, xMid);
+        if (yMid == null || !isFinite(yMid)) continue;
+
+        // score: use existing RANSAC score + bonus for closeness to standard band
+        const base = (L.score ?? 0);
+        const dist = Math.abs(yMid - yStd);
+        const bonus = Math.max(0, 40 - dist) * 0.25; // closer to standard => slightly higher
+        pool.push({ line: L, score: base + bonus, yMid });
+      }
+
+      // sort by score desc
+      pool.sort((p, q) => (q.score - p.score));
+
+      if (!pool.length) return { left: null, right: null, leftScore: null, rightScore: null, kept: 0 };
+
+      // pick best above and below standard
+      let upper = null, lower = null;
+      for (const p of pool) {
+        if (!upper && p.yMid < yStd) upper = p;
+        if (!lower && p.yMid > yStd) lower = p;
+        if (upper && lower) break;
+      }
+
+      // If only one side exists, pick the top-2 by score with maximum vertical separation
+      if (!upper || !lower) {
+        const topK = pool.slice(0, Math.min(pool.length, 8));
+        if (topK.length >= 2) {
+          let bestPair = null;
+          let bestSep = -1;
+          for (let i = 0; i < topK.length; i++) {
+            for (let j = i + 1; j < topK.length; j++) {
+              const sep = Math.abs(topK[i].yMid - topK[j].yMid);
+              const pairScore = topK[i].score + topK[j].score + sep * 0.2;
+              if (sep > bestSep) {
+                bestSep = sep;
+                bestPair = { a: topK[i], b: topK[j], pairScore };
+              }
+            }
+          }
+          if (bestPair) {
+            const A = bestPair.a;
+            const B = bestPair.b;
+            // assign upper/lower by y
+            if (A.yMid <= B.yMid) { upper = A; lower = B; }
+            else { upper = B; lower = A; }
+          }
+        }
+      }
+
+      const left = upper ? upper.line : null;
+      const right = lower ? lower.line : null;
+
+      return {
+        left,
+        right,
+        leftScore: upper ? Math.round(upper.score) : null,
+        rightScore: lower ? Math.round(lower.score) : null,
+        kept: pool.length
+      };
+    }
+
+    function lineToSegment(line, w, h) {
+      // Convert infinite line (ax+by+c=0) into a visible segment inside the ROI rectangle.
+      if (!line) return null;
+
+      const pts = [];
+
+      function addIfInside(x, y) {
+        if (x >= 0 && x <= (w - 1) && y >= 0 && y <= (h - 1) && isFinite(x) && isFinite(y)) {
+          pts.push({ x, y });
+        }
+      }
+
+      // Intersections with rectangle borders:
+      // x = 0, x = w-1 => solve for y
+      if (Math.abs(line.b) > 1e-6) {
+        addIfInside(0, yAtX(line, 0));
+        addIfInside(w - 1, yAtX(line, w - 1));
+      }
+
+      // y = 0, y = h-1 => solve for x
+      if (Math.abs(line.a) > 1e-6) {
+        addIfInside(xAtY(line, 0), 0);
+        addIfInside(xAtY(line, h - 1), h - 1);
+      }
+
+      if (pts.length < 2) return null;
+
+      // choose the farthest pair
+      let p1 = pts[0], p2 = pts[1];
+      let bestD = -1;
+      for (let i = 0; i < pts.length; i++) {
+        for (let j = i + 1; j < pts.length; j++) {
+          const dx = pts[i].x - pts[j].x;
+          const dy = pts[i].y - pts[j].y;
+          const d = dx * dx + dy * dy;
+          if (d > bestD) {
+            bestD = d;
+            p1 = pts[i]; p2 = pts[j];
+          }
+        }
+      }
+
+      return {
+        x1: p1.x, y1: p1.y,
+        x2: p2.x, y2: p2.y,
+        a: line.a, b: line.b, c: line.c
+      };
+    }
+
+
+    function buildWidthProfile(leftLine, rightLine, w, h) {
+      // For horizontal-parallel lines: build distance profile along X, distance = |y2(x)-y1(x)|
+      if (!leftLine || !rightLine) return null;
+
+      const n = SAMPLE_COUNT;
+      const prof = new Float32Array(n);
+
+      const x0 = 0;
+      const x1 = w - 1;
+
+      for (let i = 0; i < n; i++) {
+        const t = i / (n - 1);
+        const x = x0 + t * (x1 - x0);
+        const yA = yAtX(leftLine, x);
+        const yB = yAtX(rightLine, x);
+        if (yA == null || yB == null || !isFinite(yA) || !isFinite(yB)) { prof[i] = NaN; continue; }
+        prof[i] = Math.abs(yB - yA);
+      }
+      return prof;
+    }
+
+
+
+    function computeWidthDirection(widthProfPx) {
+      if (!widthProfPx || widthProfPx.length < 8) return "--";
+      const a = widthProfPx[0];
+      const b = widthProfPx[widthProfPx.length - 1];
+      const d = b - a;
+      if (Math.abs(d) < 4) return "PARALLEL";
+      return d > 0 ? "WIDENING" : "NARROWING";
+    }
+
+
+    function angleToStandardDeg(seg) {
+      // seg has {x1,y1,x2,y2}; standard (blue) is horizontal => 0 deg
+      if (!seg || !isFinite(seg.x1) || !isFinite(seg.y1) || !isFinite(seg.x2) || !isFinite(seg.y2)) return null;
+      const dx = (seg.x2 - seg.x1);
+      const dy = (seg.y2 - seg.y1);
+      if (!isFinite(dx) || !isFinite(dy) || (Math.abs(dx) < 1e-6 && Math.abs(dy) < 1e-6)) return null;
+      let ang = Math.atan2(dy, dx) * 180 / Math.PI; // -180..180
+      // normalize to [0,180)
+      ang = ((ang % 180) + 180) % 180;
+      // smallest angle to horizontal => [0,90]
+      if (ang > 90) ang = 180 - ang;
+      return ang;
+    }
+
+
+    // =========================
+    // SHOW DETECTIONS IN VIEWPORT
+    // =========================
+    const SHOW_DETECTIONS = true;     // toggle
+    const DET_LINE_W = 3.0;           // line width for detections (red)
+
+    // =========================
+    // LIGHT CONTROL
+    // =========================
+    let lightAuto = false;
+    let lightBiasManual = 0;
+    let lightBiasEma = 0;
+    const LIGHT_BIAS_MIN = -30;
+    const LIGHT_BIAS_MAX = 30;
+    const LIGHT_AUTO_EMA = 0.15;
+
+    function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+    function lerp(a, b, t) { return (1 - t) * a + t * b; }
+
+    function getLightBias() {
+      return clamp(lightAuto ? lightBiasEma : lightBiasManual, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+    }
+
+    function syncLightUI() {
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      const box = document.getElementById("lightctl");
+      if (!slider || !val || !box) return;
+
+      val.textContent = String(slider.value);
+      lightBiasManual = parseInt(slider.value || "0", 10);
+
+      box.classList.toggle("auto-on", !!lightAuto);
+      lucide.createIcons();
+    }
+
+    function toggleLightAuto() {
+      lightAuto = !lightAuto;
+      syncLightUI();
+    }
+
+    document.addEventListener("input", (e) => {
+      if (e.target && e.target.id === "light-slider") {
+        lightAuto = false;
+        syncLightUI();
+      }
+    });
+
+    function resetAll() {
+      frozen = false;
+      const btn = document.getElementById("btn-freeze");
+      btn.innerHTML = '<i data-lucide="camera"></i>';
+      btn.classList.remove("frozen");
+
+      lightAuto = false;
+      lightBiasManual = 0;
+      lightBiasEma = 0;
+      const slider = document.getElementById("light-slider");
+      const val = document.getElementById("light-val");
+      if (slider) slider.value = "0";
+      if (val) val.textContent = "0";
+      syncLightUI();
+
+      dyEma = null;
+      maxMmEma = 0;
+      avgMmEma = 0;
+      actualMmEma = 0;
+      confEma = 0;
+
+      setStatus("READY", "neutral");
+      setSummary("--","--","--","--");
+      profileCtx.clearRect(0,0,profileCanvas.width, profileCanvas.height);
+      document.getElementById("chart-meta").textContent = "--";
+      lucide.createIcons();
+    }
+
+    // =========================
+    // Layout helpers (cover mapping)
+    // =========================
+    function getCoverMetrics() {
+      const vw = video.videoWidth || 0;
+      const vh = video.videoHeight || 0;
+      if (!vw || !vh) return null;
+
+      const r = video.getBoundingClientRect();
+      const dw = r.width || 0;
+      const dh = r.height || 0;
+      if (!dw || !dh) return null;
+
+      const scale = Math.max(dw / vw, dh / vh);
+      const scaledW = vw * scale;
+      const scaledH = vh * scale;
+      const offX = (dw - scaledW) / 2;
+      const offY = (dh - scaledH) / 2;
+
+      return { vw, vh, dw, dh, scale, offX, offY, rect: r };
+    }
+
+    function dispToVideoXY(mx, my, m) {
+      const x = (mx - m.offX) / m.scale;
+      const y = (my - m.offY) / m.scale;
+      return { x, y };
+    }
+
+    function dispRectToVideoRect(rx, ry, rw, rh, m) {
+      const p0 = dispToVideoXY(rx, ry, m);
+      const p1 = dispToVideoXY(rx + rw, ry + rh, m);
+
+      let x = Math.min(p0.x, p1.x);
+      let y = Math.min(p0.y, p1.y);
+      let w = Math.abs(p1.x - p0.x);
+      let h = Math.abs(p1.y - p0.y);
+
+      x = clamp(x, 0, m.vw - 1);
+      y = clamp(y, 0, m.vh - 1);
+      w = clamp(w, 1, m.vw - x);
+      h = clamp(h, 1, m.vh - y);
+
+      return { x, y, w, h };
+    }
+
+    function syncSheetCanvasToDisplay() {
+      const m = getCoverMetrics();
+      if (!m) return;
+      const nw = Math.max(1, Math.round(m.dw));
+      const nh = Math.max(1, Math.round(m.dh));
+      if (sheetCanvas.width !== nw || sheetCanvas.height !== nh) {
+        sheetCanvas.width = nw;
+        sheetCanvas.height = nh;
+        sheetCtx.clearRect(0, 0, nw, nh);
+      }
+    }
+
+    function applyAutoFitLayout() {
+      const frame = document.querySelector(".app-frame");
+      if (!frame) return;
+
+      const vvH = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      document.documentElement.style.setProperty("--app-h", `${Math.round(vvH)}px`);
+
+      const frameH = frame.offsetHeight;
+      const camH = Math.round(frameH * 0.45);
+      document.documentElement.style.setProperty("--viewport-h", `${camH}px`);
+
+      const card = document.querySelector(".chart-card");
+      if (card) {
+        const rect = card.getBoundingClientRect();
+        const top = card.querySelector(".chart-top");
+        const topH = top ? top.getBoundingClientRect().height : 44;
+
+        const w = Math.max(1, Math.floor(rect.width));
+        const h = Math.max(1, Math.floor(rect.height - topH));
+        if (profileCanvas.width !== w || profileCanvas.height !== h) {
+          profileCanvas.width = w;
+          profileCanvas.height = h;
+        }
+      }
+
+      syncSheetCanvasToDisplay();
+    }
+
+    window.addEventListener("resize", applyAutoFitLayout);
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", applyAutoFitLayout);
+
+    // =========================
+    // Torch helpers
+    // =========================
+    async function setTorch(on) {
+      if (!videoTrack || !torchSupported || !videoTrack.applyConstraints) return false;
+      try {
+        await videoTrack.applyConstraints({ advanced: [{ torch: !!on }] });
+        return true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function updateTorchUI() {
+      const btn = document.getElementById("btn-torch");
+      if (!btn) return;
+
+      if (isTorchOn) {
+        btn.innerHTML = '<i data-lucide="flashlight-off" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.35)";
+      } else {
+        btn.innerHTML = '<i data-lucide="flashlight" style="width:18px;"></i>';
+        btn.style.borderColor = "rgba(255,255,255,0.12)";
+      }
+      lucide.createIcons();
+    }
+
+    async function toggleTorchHold() {
+      if (torchOpBusy) return;
+      torchOpBusy = true;
+
+      const next = !isTorchOn;
+      try {
+        if (torchSupported && videoTrack?.applyConstraints) {
+          const ok = await setTorch(next);
+          if (!ok && next) {
+            document.body.classList.add("screen-lamp");
+            isTorchOn = true;
+            updateTorchUI();
+            return;
+          }
+          isTorchOn = next;
+          if (!isTorchOn) document.body.classList.remove("screen-lamp");
+          updateTorchUI();
+          return;
+        }
+
+        isTorchOn = next;
+        document.body.classList.toggle("screen-lamp", isTorchOn);
+        updateTorchUI();
+      } finally {
+        torchOpBusy = false;
+      }
+    }
+
+    // =========================
+    // Freeze button
+    // =========================
+    function toggleFreeze() {
+      const btn = document.getElementById("btn-freeze");
+      frozen = !frozen;
+
+      if (frozen) {
+        btn.innerHTML = '<i data-lucide="rotate-ccw"></i>';
+        btn.classList.add("frozen");
+      } else {
+        btn.innerHTML = '<i data-lucide="camera"></i>';
+        btn.classList.remove("frozen");
+      }
+      lucide.createIcons();
+    }
+
+    // =========================
+    // Status + Summary UI
+    // =========================
+    function setStatus(text, mode) {
+      const badge = document.getElementById("status-badge");
+      if (!badge) return;
+
+      const icon =
+        mode === "pass" ? "check-circle-2" :
+        mode === "warn" ? "alert-triangle" :
+        mode === "fail" ? "x-circle" : "minus";
+
+      badge.className = "gc-status-badge";
+      if (mode === "pass") badge.classList.add("status-pass");
+      else if (mode === "warn") badge.classList.add("status-warn");
+      else if (mode === "fail") badge.classList.add("status-fail");
+
+      badge.innerHTML = `<i data-lucide="${icon}"></i> ${text}`;
+      lucide.createIcons();
+    }
+
+    
+// =========================
+// Limit (Min/Max) UI
+// =========================
+let limitMinMm = null;
+let limitMaxMm = null;
+
+function readLimitInputs() {
+  const minEl = document.getElementById("limit-min");
+  const maxEl = document.getElementById("limit-max");
+  if (minEl) {
+    const v = parseFloat(minEl.value);
+    limitMinMm = Number.isFinite(v) ? v : null;
+  }
+  if (maxEl) {
+    const v = parseFloat(maxEl.value);
+    limitMaxMm = Number.isFinite(v) ? v : null;
+  }
+}
+
+function showLimitAlert(msg) {
+  const el = document.getElementById("limit-alert");
+  if (!el) return;
+  if (!msg) {
+    el.style.display = "none";
+    el.textContent = "";
+    return;
+  }
+  el.textContent = msg;
+  el.style.display = "block";
+}
+
+function checkLimits(actualMmNumber) {
+  if (!Number.isFinite(actualMmNumber)) {
+    showLimitAlert("");
+    return;
+  }
+  // If user didn't set any limit, do nothing
+  const hasMin = Number.isFinite(limitMinMm);
+  const hasMax = Number.isFinite(limitMaxMm);
+  if (!hasMin && !hasMax) {
+    showLimitAlert("");
+    return;
+  }
+
+  const belowMin = hasMin && actualMmNumber < limitMinMm;
+  const aboveMax = hasMax && actualMmNumber > limitMaxMm;
+
+  if (belowMin || aboveMax) {
+    const minTxt = hasMin ? limitMinMm.toFixed(2) : "--";
+    const maxTxt = hasMax ? limitMaxMm.toFixed(2) : "--";
+    showLimitAlert(`⚠ Out of spec: Actual ${actualMmNumber.toFixed(2)} mm (Min ${minTxt} / Max ${maxTxt})`);
+  } else {
+    showLimitAlert("");
+  }
+}
+
+function initLimitInputs() {
+  const minEl = document.getElementById("limit-min");
+  const maxEl = document.getElementById("limit-max");
+  if (minEl) minEl.addEventListener("input", () => { readLimitInputs(); checkLimits(parseFloat(document.getElementById("max-warp")?.textContent)); });
+  if (maxEl) maxEl.addEventListener("input", () => { readLimitInputs(); checkLimits(parseFloat(document.getElementById("max-warp")?.textContent)); });
+  readLimitInputs();
+  showLimitAlert("");
+}
+
+function setSummary(actualMm, maxMm, angleDeg, conf) {
+  // id="max-warp" ต้องแสดงค่า Actual ที่วัดได้จากกล้อง
+  const maxWarpEl = document.getElementById("max-warp");
+  if (maxWarpEl) maxWarpEl.textContent = actualMm;
+
+  // Direction card: แสดงเป็นองศาของเส้นเขียวเทียบเส้นน้ำเงิน (Standard line)
+  const dirEl = document.getElementById("direction");
+  if (dirEl) dirEl.textContent = angleDeg;
+
+  // ตรวจสอบเกิน Min/Max ที่ User กรอก
+  const v = parseFloat(actualMm);
+  checkLimits(v);
+}
+
+    // =========================
+    // Core warp measurement
+    // =========================
+    function lumaAt(data, idx) {
+      return data[idx] * 0.299 + data[idx + 1] * 0.587 + data[idx + 2] * 0.114;
+    }
+
+    function findEdgeYNearStandard(data, w, h, x, yCenter, band, lightBias) {
+      const y0 = Math.max(1, Math.round(yCenter - band));
+      const y1 = Math.min(h - 2, Math.round(yCenter + band));
+
+      let bestY = null;
+      let bestG = 0;
+      let bestContrast = 0;
+
+      const minContrast = MIN_EDGE_CONTRAST + Math.abs(lightBias) * 0.10;
+
+      for (let y = y0; y <= y1; y += 1) {
+        const yA = Math.max(0, y - GRAD_STEP);
+        const yB = Math.min(h - 1, y + GRAD_STEP);
+
+        const iA = (yA * w + x) * 4;
+        const iB = (yB * w + x) * 4;
+
+        const a = lumaAt(data, iA);
+        const b = lumaAt(data, iB);
+        const g = Math.abs(b - a);
+
+        const yC = Math.max(0, Math.min(h - 1, y));
+        const iC = (yC * w + x) * 4;
+        const c = lumaAt(data, iC);
+        const contrast = Math.max(Math.abs(c - a), Math.abs(c - b));
+
+        if (g > bestG && contrast >= minContrast) {
+          bestG = g;
+          bestY = y;
+          bestContrast = contrast;
+        }
+      }
+
+      return { y: bestY, grad: bestG, contrast: bestContrast };
+    }
+
+    function medianFilter(arr, win = 5) {
+      const out = new Float32Array(arr.length);
+      const r = Math.max(1, (win / 2) | 0);
+      for (let i = 0; i < arr.length; i++) {
+        const tmp = [];
+        for (let k = -r; k <= r; k++) {
+          const j = i + k;
+          if (j >= 0 && j < arr.length) tmp.push(arr[j]);
+        }
+        tmp.sort((a,b)=>a-b);
+        out[i] = tmp[(tmp.length/2)|0] || arr[i];
+      }
+      return out;
+    }
+
+    function computeDirection(dyArr) {
+      if (!dyArr || dyArr.length < 8) return "--";
+
+      let sum = 0;
+      for (let i=0;i<dyArr.length;i++) sum += dyArr[i];
+      const mean = sum / dyArr.length;
+
+      const n = dyArr.length;
+      const q = (n/4)|0;
+      let left=0,right=0;
+      for (let i=0;i<q;i++) left += dyArr[i];
+      for (let i=n-q;i<n;i++) right += dyArr[i];
+      left /= Math.max(1,q);
+      right /= Math.max(1,q);
+
+      const twist = Math.abs(left - right);
+
+      if (twist > Math.max(3.5, Math.abs(mean) * 1.4)) return "TWIST";
+      if (mean < -1.5) return "UP";
+      if (mean > 1.5) return "DOWN";
+      return "FLAT";
+    }
+
+    function roundRect(ctx, x, y, w, h, r) {
+      const rr = Math.min(r, w/2, h/2);
+      ctx.moveTo(x+rr, y);
+      ctx.arcTo(x+w, y, x+w, y+h, rr);
+      ctx.arcTo(x+w, y+h, x, y+h, rr);
+      ctx.arcTo(x, y+h, x, y, rr);
+      ctx.arcTo(x, y, x+w, y, rr);
+      ctx.closePath();
+    }
+
+    // invert เฉพาะกราฟ ถ้า chart-card มี class "invert"
+    function isChartInverted() {
+      const card = document.querySelector(".chart-card");
+      return !!(card && card.classList.contains("invert"));
+    }
+
+    // ✅ แสดงสิ่งที่ detect เจอใน viewport เป็น "เส้นสีแดง"
+    
+function drawDetectionRedLine(edgePts, stats, roiX, roiY, roiW, roiH, stdY) {
+      if (!SHOW_DETECTIONS) return;
+      if (!edgePts) return;
+
+      const hasLines = !!(stats && stats.hasLines);
+
+      // Backward compatible: if edgePts is an Array => old polyline
+      if (Array.isArray(edgePts)) {
+        if (edgePts.length < 2) return;
+
+        sheetCtx.save();
+
+        const red = "rgba(34, 197, 94, 0.95)";
+        sheetCtx.lineWidth = DET_LINE_W;
+        sheetCtx.strokeStyle = red;
+        sheetCtx.shadowColor = "rgba(34, 197, 94, 0.55)";
+        sheetCtx.shadowBlur = 12;
+        sheetCtx.lineJoin = "round";
+        sheetCtx.lineCap = "round";
+
+        sheetCtx.beginPath();
+        sheetCtx.moveTo(edgePts[0].x, edgePts[0].y);
+        for (let i = 1; i < edgePts.length; i++) sheetCtx.lineTo(edgePts[i].x, edgePts[i].y);
+        sheetCtx.stroke();
+
+        sheetCtx.restore();
+        return;
+      }
+
+      // New: lane-like straight lines overlay
+      if (edgePts.type !== "lanes") return;
+
+      const srcW = edgePts.srcW || 1;
+      const srcH = edgePts.srcH || 1;
+      const sx = roiW / srcW;
+      const sy = roiH / srcH;
+
+      function drawLine(line, color, width, dashed) {
+        if (!line) return;
+        const x1 = roiX + line.x1 * sx;
+        const y1 = roiY + line.y1 * sy;
+        const x2 = roiX + line.x2 * sx;
+        const y2 = roiY + line.y2 * sy;
+
+        sheetCtx.save();
+        sheetCtx.strokeStyle = color;
+        sheetCtx.lineWidth = width;
+        sheetCtx.lineCap = "round";
+        sheetCtx.lineJoin = "round";
+        sheetCtx.shadowBlur = dashed ? 0 : 12;
+        sheetCtx.shadowColor = color;
+        if (dashed) sheetCtx.setLineDash([10, 10]);
+        sheetCtx.beginPath();
+        sheetCtx.moveTo(x1, y1);
+        sheetCtx.lineTo(x2, y2);
+        sheetCtx.stroke();
+        sheetCtx.restore();
+      }
+
+      // ✅ GREEN ONLY: show only ONE confident line (parallel to Standard)
+      const best = edgePts.best || edgePts.right || edgePts.left || null;
+      drawLine(best, "rgba(34, 197, 94, 0.95)", 6, false);
+
+      // Perpendicular distance from Standard line to the green line (only meaningful when parallel-ish)
+      if (best) {
+        // mid X in source space
+        const xMidSrc = srcW * 0.5;
+        const dx = (best.x2 - best.x1);
+        const t = (Math.abs(dx) < 1e-6) ? 0.5 : ((xMidSrc - best.x1) / dx);
+        const yGreenSrc = best.y1 + (best.y2 - best.y1) * t;
+
+        // standard Y in source space
+        const stdYSrc = (stdY - roiY) / sy;
+
+        const distPxSrc = Math.abs(yGreenSrc - stdYSrc);
+        const distMmRaw = distPxSrc * (typeof PX_TO_MM === "number" ? PX_TO_MM : 0);
+        const distMm = (edgePts && typeof edgePts.actualMmEma === "number" && Number.isFinite(edgePts.actualMmEma)) ? edgePts.actualMmEma : distMmRaw;
+
+        const xMid = roiX + xMidSrc * sx;
+        const yGreen = roiY + yGreenSrc * sy;
+
+        // draw perpendicular segment (vertical) from Standard to green
+        sheetCtx.save();
+        sheetCtx.strokeStyle = "rgba(34, 197, 94, 0.95)";
+        sheetCtx.lineWidth = 4;
+        sheetCtx.setLineDash([8, 8]);
+        sheetCtx.beginPath();
+        sheetCtx.moveTo(xMid, stdY);
+        sheetCtx.lineTo(xMid, yGreen);
+        sheetCtx.stroke();
+        sheetCtx.setLineDash([]);
+
+        // small caps at ends
+        const cap = 10;
+        sheetCtx.lineWidth = 3;
+        sheetCtx.beginPath();
+        sheetCtx.moveTo(xMid - cap, stdY);
+        sheetCtx.lineTo(xMid + cap, stdY);
+        sheetCtx.moveTo(xMid - cap, yGreen);
+        sheetCtx.lineTo(xMid + cap, yGreen);
+        sheetCtx.stroke();
+
+        // label
+        sheetCtx.font = "700 13px var(--font-num, 'JetBrains Mono', monospace)";
+        sheetCtx.fillStyle = "rgba(15, 23, 42, 0.78)";
+        sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
+        const label = (confEma < 35 || !hasLines ? "--" : (actualMmEma > 0 ? actualMmEma.toFixed(2) + " mm" : "--"));
+        const padX = 10, padY = 6;
+        const tw = sheetCtx.measureText(label).width;
+        const bx = Math.min(Math.max(roiX + 8, xMid + 12), roiX + roiW - (tw + padX*2 + 8));
+        const by = Math.min(Math.max(roiY + 10, (stdY + yGreen) * 0.5 - 14), roiY + roiH - 30);
+
+        sheetCtx.beginPath();
+        sheetCtx.roundRect(bx, by, tw + padX*2, 24, 10);
+        sheetCtx.fill();
+        sheetCtx.stroke();
+        sheetCtx.fillStyle = "rgba(34, 197, 94, 0.98)";
+        sheetCtx.fillText(label, bx + padX, by + 16);
+        sheetCtx.restore();
+      }
+
+
+      // stats pill (keep)
+      if (stats) {
+        const pad = 10;
+        const boxW = 190;
+        const boxH = 58;
+        const x = roiX + roiW - boxW - pad;
+        const y = roiY + pad;
+
+        sheetCtx.save();
+        sheetCtx.fillStyle = "rgba(15, 23, 42, 0.72)";
+        sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
+        sheetCtx.lineWidth = 1;
+        sheetCtx.beginPath();
+        roundRect(sheetCtx, x, y, boxW, boxH, 12);
+        sheetCtx.fill();
+        sheetCtx.stroke();
+
+        sheetCtx.fillStyle = "rgba(255,255,255,0.85)";
+        sheetCtx.font = "800 11px 'JetBrains Mono'";
+        const t1 = `edges=${stats.edges ?? "--"}  cands=${stats.cands ?? "--"}`;
+        const t2 = `best=${stats.bestScore ?? "--"}`;
+        sheetCtx.fillText(t1, x + 12, y + 22);
+        sheetCtx.fillText(t2, x + 12, y + 40);
+        sheetCtx.restore();
+      }
+    }
+
+    function drawOverlayROIandStandard(
+      roiX, roiY, roiW, roiH,
+      stdY, stdX0, stdX1,
+      hasEdge, modeColor,
+      edgePts,
+      detStats
+    ) {
+      const dw = sheetCanvas.width, dh = sheetCanvas.height;
+      sheetCtx.clearRect(0,0,dw,dh);
+
+      // dark mask
+      sheetCtx.save();
+      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.60)";
+      sheetCtx.fillRect(0,0,dw,dh);
+      sheetCtx.clearRect(roiX, roiY, roiW, roiH);
+
+      // ROI border
+      sheetCtx.strokeStyle = "rgba(52, 211, 153, 0.55)";
+      sheetCtx.lineWidth = 2;
+      sheetCtx.setLineDash([10,10]);
+      sheetCtx.strokeRect(roiX, roiY, roiW, roiH);
+      sheetCtx.setLineDash([]);
+
+      // standard line (horizontal) - คงสีตามสถานะเหมือนเดิม
+      sheetCtx.save();
+      const col = modeColor || "rgba(59, 130, 246, 0.95)";
+      sheetCtx.strokeStyle = col;
+      sheetCtx.lineWidth = 3;
+      sheetCtx.shadowColor = "rgba(59, 130, 246, 0.65)";
+      sheetCtx.shadowBlur = 10;
+      sheetCtx.setLineDash([12, 8]);
+      sheetCtx.beginPath();
+      sheetCtx.moveTo(stdX0, stdY);
+      sheetCtx.lineTo(stdX1, stdY);
+      sheetCtx.stroke();
+      sheetCtx.restore();
+
+      // label
+      sheetCtx.fillStyle = "rgba(15, 23, 42, 0.70)";
+      sheetCtx.strokeStyle = "rgba(255,255,255,0.12)";
+      sheetCtx.lineWidth = 1;
+      const labelW = 138, labelH = 24;
+      const lx = roiX + 10;
+      const ly = Math.max(roiY + 10, stdY - 34);
+      sheetCtx.beginPath();
+   
+
+  
+
+      sheetCtx.fillStyle = hasEdge ? "rgba(52,211,153,0.95)" : "rgba(251,191,36,0.95)";
+      sheetCtx.font = "900 11px 'JetBrains Mono'";
+      sheetCtx.fillText(hasEdge ? "EDGE LOCKED" : "SCANNING...", lx + 10, ly + 34);
+
+      // ✅ detection overlay (show candidates even while scanning)
+      if (edgePts) {
+        drawDetectionRedLine(edgePts, detStats, roiX, roiY, roiW, roiH, stdY);
+      }
+
+      sheetCtx.restore();
+    }
+
+    // invert เฉพาะ plot ในกราฟ (ไม่แตะ logic)
+    function drawProfile(dyArr, stdPxToMm, mode, invertDisplay, baseActualMm) {
+      const w = profileCanvas.width;
+      const h = profileCanvas.height;
+      profileCtx.clearRect(0,0,w,h);
+      if (!dyArr || dyArr.length < 8) return;
+
+      profileCtx.fillStyle = "rgba(2, 6, 23, 1)";
+      profileCtx.fillRect(0,0,w,h);
+
+      const padX = 14;
+      const padY = 14;
+
+      const sign = invertDisplay ? -1 : 1;
+      baseActualMm = Number.isFinite(baseActualMm) ? baseActualMm : 0;
+      const mmArr = dyArr.map(v => v * stdPxToMm * sign);
+
+      let maxAbs = 0;
+      for (const v of mmArr) maxAbs = Math.max(maxAbs, Math.abs(v));
+      maxAbs = Math.max(2.5, maxAbs);
+
+      profileCtx.strokeStyle = "rgba(255,255,255,0.08)";
+      profileCtx.lineWidth = 1;
+      for (let i=0;i<=4;i++){
+        const yy = padY + (i/4)*(h-2*padY);
+        profileCtx.beginPath();
+        profileCtx.moveTo(padX, yy);
+        profileCtx.lineTo(w-padX, yy);
+        profileCtx.stroke();
+      }
+
+      const y0 = padY + 0.5*(h-2*padY);
+      profileCtx.strokeStyle = "rgba(255,255,255,0.22)";
+      profileCtx.setLineDash([6,6]);
+      profileCtx.beginPath();
+      profileCtx.moveTo(padX, y0);
+      profileCtx.lineTo(w-padX, y0);
+      profileCtx.stroke();
+      profileCtx.setLineDash([]);
+
+      const mapX = (i) => padX + (i/(mmArr.length-1))*(w-2*padX);
+      const mapY = (mm) => {
+        const t = (mm / (2*maxAbs)) + 0.5;
+        return padY + (1 - t) * (h-2*padY);
+      };
+
+      let stroke = "#3b82f6";
+      if (mode === "pass") stroke = "#34d399";
+      else if (mode === "warn") stroke = "#fbbf24";
+      else if (mode === "fail") stroke = "#22c55e";
+
+      profileCtx.beginPath();
+      profileCtx.lineWidth = 2.5;
+      profileCtx.strokeStyle = stroke;
+      for (let i=0;i<mmArr.length;i++){
+        const x = mapX(i);
+        const y = mapY(mmArr[i]);
+        if (i===0) profileCtx.moveTo(x,y);
+        else profileCtx.lineTo(x,y);
+      }
+      profileCtx.stroke();
+
+      profileCtx.save();
+      profileCtx.globalAlpha = 0.22;
+      profileCtx.fillStyle = stroke;
+      profileCtx.beginPath();
+      profileCtx.moveTo(mapX(0), mapY(0));
+      for (let i=0;i<mmArr.length;i++){
+        profileCtx.lineTo(mapX(i), mapY(mmArr[i]));
+      }
+      profileCtx.lineTo(mapX(mmArr.length-1), mapY(0));
+      profileCtx.closePath();
+      profileCtx.fill();
+      profileCtx.restore();
+
+      profileCtx.fillStyle = "rgba(255,255,255,0.55)";
+      profileCtx.font = "800 10px Inter";
+      profileCtx.textAlign = "left";
+      profileCtx.textAlign = "right";
+      profileCtx.fillText(`${baseActualMm.toFixed(1)} mm`, w - padX, y0 - 6);
+    }
+
+    
+function processWarpFrame() {
+      if (frozen) return;
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+      const m = getCoverMetrics();
+      if (!m) return;
+
+      const dw = sheetCanvas.width;
+      const dh = sheetCanvas.height;
+      if (!dw || !dh) return;
+
+      // ROI in display space (keep UI logic)
+      const roiW_disp = Math.round(dw * ROI_W_RATIO);
+      const roiH_disp = Math.round(dh * ROI_H_RATIO);
+      const roiX_disp = Math.round((dw - roiW_disp) / 2);
+
+      let roiY_disp = Math.round((dh - roiH_disp) / 2 + dh * ROI_Y_SHIFT);
+      roiY_disp = clamp(roiY_disp, 0, dh - roiH_disp);
+
+      // Standard line in display space (keep)
+      const stdY_disp = Math.round(roiY_disp + roiH_disp * STANDARD_Y_RATIO);
+      const stdX0_disp = roiX_disp + 10;
+      const stdX1_disp = roiX_disp + roiW_disp - 10;
+
+      // Convert ROI to video space
+      const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
+      const roiW_v = Math.max(1, Math.round(roiV.w));
+      const roiH_v = Math.max(1, Math.round(roiV.h));
+      const roiX_v = Math.round(roiV.x);
+      const roiY_v = Math.round(roiV.y);
+
+      if (procCanvas.width !== roiW_v || procCanvas.height !== roiH_v) {
+        procCanvas.width = roiW_v; procCanvas.height = roiH_v;
+      }
+
+      // draw ROI region from video into procCanvas for processing
+      procCtx.drawImage(video, roiX_v, roiY_v, roiW_v, roiH_v, 0, 0, roiW_v, roiH_v);
+      const img = procCtx.getImageData(0, 0, roiW_v, roiH_v);
+
+      // auto light estimation (keep behavior)
+      if (lightAuto) {
+        const data = img.data;
+        const bandLeft = Math.floor(roiW_v * 0.20);
+        const bandRight = Math.floor(roiW_v * 0.80);
+        const bandTop = Math.floor(roiH_v * 0.20);
+        const bandBot = Math.floor(roiH_v * 0.80);
+
+        let minL = 255, sumL = 0, cnt = 0;
+        for (let y = bandTop; y < bandBot; y += 6) {
+          const row = y * roiW_v * 4;
+          for (let x = bandLeft; x < bandRight; x += 6) {
+            const i = row + x * 4;
+            const l = lumaAt(data, i);
+            sumL += l; cnt++;
+            if (l < minL) minL = l;
+          }
+        }
+        const meanL = cnt ? (sumL / cnt) : 160;
+        const contrast = Math.max(0, meanL - minL);
+
+        const target = 35;
+        const raw = clamp((target - contrast) * 0.7, LIGHT_BIAS_MIN, LIGHT_BIAS_MAX);
+        lightBiasEma = lerp(lightBiasEma, raw, LIGHT_AUTO_EMA);
+        const valEl = document.getElementById("light-val");
+        if (valEl) valEl.textContent = String(Math.round(lightBiasEma));
+      }
+
+      // ====== NEW: detect candidate straight lines (left/right) from ROI image ======
+      const gray = toGrayLuma(img);
+      const mag = sobelMag(gray, roiW_v, roiH_v);
+      const edgePts = collectEdgePoints(mag, roiW_v, roiH_v);
+
+      // Fit multiple candidate lines (RANSAC peel)
+      const cands = extractCandidateLines(edgePts);
+
+      
+      const candsPar = cands.filter(isParallelToStandard);
+// Pick best left/right from candidates
+      const stdY_v = clamp(((stdY_disp - roiY_disp) / Math.max(1, roiH_disp)) * roiH_v, 0, roiH_v - 1);
+      const picked = pickBestLeftRightFromCandidates(candsPar, roiW_v, roiH_v, stdY_v);
+      const leftRaw = picked.left;
+      const rightRaw = picked.right;
+
+      const leftExt = extendLineInRect(leftRaw, roiW_v, roiH_v);
+      const rightExt = extendLineInRect(rightRaw, roiW_v, roiH_v);
+
+      // ✅ GREEN ONLY: choose ONE best line for display (still keep both internally for distance)
+      const bestRaw = (leftRaw && rightRaw)
+        ? (((leftRaw.score ?? 0) >= (rightRaw.score ?? 0)) ? leftRaw : rightRaw)
+        : (leftRaw || rightRaw);
+      const bestExt = bestRaw ? extendLineInRect(bestRaw, roiW_v, roiH_v) : null;
+
+
+      const hasLines = !!(leftExt && rightExt);
+
+      // Build width profile in px (sample along Y inside ROI trapezoid)
+      const widthProfPx = hasLines ? buildWidthProfile(leftRaw, rightRaw, roiW_v, roiH_v) : null;
+
+      // Smooth profile
+      if (widthProfPx) {
+        if (!dyEma || dyEma.length !== widthProfPx.length) {
+          dyEma = widthProfPx;
+        } else {
+          for (let i = 0; i < widthProfPx.length; i++) {
+            dyEma[i] = lerp(dyEma[i], widthProfPx[i], EMA_PROFILE);
+          }
+        }
+      } else {
+        // decay towards null
+        if (dyEma) {
+          for (let i = 0; i < dyEma.length; i++) dyEma[i] = lerp(dyEma[i], 0, 0.05);
+        }
+      }
+
+      // Metrics: max/avg distance in mm (using existing PX_TO_MM)
+      let maxPx = 0, sumPx = 0, cntPx = 0;
+      if (dyEma && hasLines) {
+        for (let i = 0; i < dyEma.length; i++) {
+          const v = dyEma[i];
+          if (!Number.isFinite(v)) continue;
+          if (v > maxPx) maxPx = v;
+          sumPx += v; cntPx++;
+        }
+      }
+
+      const avgPx = cntPx ? (sumPx / cntPx) : 0;
+      const maxMm = maxPx * PX_TO_MM;
+      const avgMm = avgPx * PX_TO_MM;
+
+      // Confidence: based on edge points count + candidate strength
+      const ptsScore = clamp((edgePts.length / MAX_EDGE_POINTS) * 70, 0, 70);
+      const candScore = clamp(((leftRaw ? leftRaw.score : 0) + (rightRaw ? rightRaw.score : 0)) / (2 * (MIN_INLIERS || 1)) * 30, 0, 30);
+      let conf = hasLines ? (ptsScore + candScore) : (ptsScore * 0.35);
+      conf = clamp(conf, 0, 100);
+
+      maxMmEma = lerp(maxMmEma, maxMm, EMA_METRIC);
+      avgMmEma = lerp(avgMmEma, avgMm, EMA_METRIC);
+      confEma  = lerp(confEma,  conf, EMA_METRIC);
+
+      const dir = hasLines ? computeWidthDirection(dyEma) : "--";
+
+      // Status logic (keep UI style)
+      let mode = "neutral";
+      if (confEma < 35 || !hasLines) mode = "neutral";
+      else mode = "pass";
+
+      if (confEma < 35 || !hasLines) {
+        setStatus("SCANNING", "neutral");
+        document.getElementById("warp-hint").textContent = " ";
+      } else {
+        setStatus("FOUND", "pass");
+        document.getElementById("warp-hint").textContent = " ";
+      }
+
+      const fmtMm = (v) => (confEma < 35 || !hasLines ? "--" : v.toFixed(2));
+      const fmtConf = (v) => (v <= 0 ? "--" : Math.round(v).toString());
+
+      const angle = hasLines ? angleToStandardDeg(bestExt) : null;
+      const angleStr = (confEma < 35 || !hasLines || angle == null ? "--" : (angle.toFixed(1) + "°"));
+
+
+// Actual (for UI + overlay): perpendicular distance between GREEN line and BLUE standard at mid X
+let actualMmMid = 0;
+if (hasLines && bestExt) {
+  const xMid = roiW_v * 0.5;
+  const dx = (bestExt.x2 - bestExt.x1);
+  const t = (Math.abs(dx) < 1e-6) ? 0.5 : ((xMid - bestExt.x1) / dx);
+  const yGreen = bestExt.y1 + (bestExt.y2 - bestExt.y1) * t;
+  const distPx = Math.abs(yGreen - stdY_v);
+  actualMmMid = distPx * PX_TO_MM;
+  actualMmEma = lerp(actualMmEma, actualMmMid, EMA_METRIC);
+      // Keep max/avg aligned with Actual (single source of truth)
+      maxMmEma = actualMmEma;
+      avgMmEma = actualMmEma;
+} else {
+  // decay to 0 when no line
+  actualMmEma = lerp(actualMmEma, 0, 0.08);
+      maxMmEma = actualMmEma;
+      avgMmEma = actualMmEma;
+}
+
+      // 1) max-warp = Actual (ใช้ค่าเฉลี่ยที่วัดได้จากกล้อง)
+      // 2) avg-warp = Max (คงไว้เพื่อดู range)
+      // 3) direction = องศาของเส้นเขียวเทียบเส้นน้ำเงิน
+      setSummary(fmtMm(actualMmEma), fmtMm(actualMmEma), angleStr, fmtConf(confEma));
+      document.getElementById("chart-meta").textContent =
+        (confEma < 35 || !hasLines ? "--" : `max=${actualMmEma.toFixed(2)}  avg=${actualMmEma.toFixed(2)}  conf=${Math.round(confEma)}`);
+// Build overlay payload in display space (GREEN ONLY)
+      const overlay = {
+        type: "lanes",
+        srcW: roiW_v,
+        srcH: roiH_v,
+        best: bestExt,
+        stats: { edges: edgePts.length, cands: candsPar.length, bestScore: Math.round(bestRaw?.score ?? 0), hasLines: hasLines }
+      };
+
+
+      drawOverlayROIandStandard(
+        roiX_disp, roiY_disp, roiW_disp, roiH_disp,
+        stdY_disp, stdX0_disp, stdX1_disp,
+        (confEma >= 35 && hasLines),
+        "rgba(59, 130, 246, 0.95)",
+        overlay,
+        overlay.stats
+      );
+
+      // Reuse chart: draw width profile (px->mm)
+      drawProfile(dyEma, PX_TO_MM, (confEma < 35 || !hasLines ? "neutral" : "pass"), isChartInverted(), actualMmEma);
+
+      // Update the hint card text (non-UI changing)
+      const hintEl = document.querySelector(".hint-txt");
+      if (hintEl) {
+        hintEl.textContent = hasLines
+          ? "Detected two edges. Keep them inside ROI; press camera to freeze if needed."
+          : "Scanning... Keep both edges inside the green ROI for line detection.";
+      }
+
+      lucide.createIcons();
+    }
+    async function initCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "environment", width: { ideal: 1280 }, height: { ideal: 720 } },
+        });
+        video.srcObject = stream;
+        videoTrack = stream.getVideoTracks?.()[0] || null;
+
+        try {
+          const caps = videoTrack?.getCapabilities?.();
+          torchSupported = !!caps?.torch;
+        } catch (e) { torchSupported = false; }
+
+        updateTorchUI();
+
+        video.onloadedmetadata = () => {
+          applyAutoFitLayout();
+          isRunning = true;
+          resetAll();
+          requestAnimationFrame(loop);
+          syncLightUI();
+        };
+      } catch (err) {
+        alert("Camera Error: " + err);
+      }
+    }
+
+    function loop() {
+      if (!isRunning) return;
+      syncSheetCanvasToDisplay();
+      processWarpFrame();
+      requestAnimationFrame(loop);
+    }
+
+
+    initLimitInputs();
+    initCamera();
+  </script>
+</body>
+</html>
