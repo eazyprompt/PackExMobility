@@ -2458,46 +2458,182 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
       lucide.createIcons();
     }
 
-    function buildOcrCanvasFromVideo() {
-      const r = getOcrRoiRects();
-      if (!r) return null;
-
-      const scale = Math.max(1, Math.min(3, Math.round(1100 / Math.max(1, r.roiW_v))));
+    function makeCanvasLike(w, h) {
       const c = document.createElement("canvas");
-      c.width = Math.max(1, r.roiW_v * scale);
-      c.height = Math.max(1, r.roiH_v * scale);
-
-      const ctx = c.getContext("2d", { willReadFrequently: true });
-      ctx.imageSmoothingEnabled = true;
-      ctx.drawImage(video, r.roiX_v, r.roiY_v, r.roiW_v, r.roiH_v, 0, 0, c.width, c.height);
-
-      const img = ctx.getImageData(0, 0, c.width, c.height);
-      const d = img.data;
-      let sum = 0;
-      const n = Math.max(1, d.length / 4);
-      for (let i = 0; i < d.length; i += 4) {
-        sum += d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
-      }
-      const mean = sum / n;
-      const invert = mean < 118; // if background is dark, invert to black text on white background
-      const threshold = clamp(mean * 0.92, 70, 190);
-
-      for (let i = 0; i < d.length; i += 4) {
-        let g = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
-        g = clamp((g - 128) * 1.85 + 128, 0, 255);
-        let bw = (g > threshold) ? 255 : 0;
-        if (invert) bw = 255 - bw;
-        d[i] = d[i+1] = d[i+2] = bw;
-        d[i+3] = 255;
-      }
-      ctx.putImageData(img, 0, 0);
+      c.width = Math.max(1, Math.round(w));
+      c.height = Math.max(1, Math.round(h));
       return c;
     }
 
+    function getMaskBBox(img, predicate, step = 1) {
+      const d = img.data;
+      const w = img.width;
+      const h = img.height;
+      let minX = w, minY = h, maxX = -1, maxY = -1, count = 0;
+
+      for (let y = 0; y < h; y += step) {
+        for (let x = 0; x < w; x += step) {
+          const i = (y * w + x) * 4;
+          const r = d[i], g = d[i+1], b = d[i+2];
+          if (predicate(r, g, b, x, y)) {
+            if (x < minX) minX = x;
+            if (y < minY) minY = y;
+            if (x > maxX) maxX = x;
+            if (y > maxY) maxY = y;
+            count++;
+          }
+        }
+      }
+
+      if (maxX < 0 || maxY < 0) return null;
+      return { x: minX, y: minY, w: maxX - minX + 1, h: maxY - minY + 1, count };
+    }
+
+    function expandBBox(b, pad, maxW, maxH) {
+      const x = clamp(Math.floor(b.x - pad), 0, maxW - 1);
+      const y = clamp(Math.floor(b.y - pad), 0, maxH - 1);
+      const x2 = clamp(Math.ceil(b.x + b.w + pad), 1, maxW);
+      const y2 = clamp(Math.ceil(b.y + b.h + pad), 1, maxH);
+      return { x, y, w: Math.max(1, x2 - x), h: Math.max(1, y2 - y), count: b.count || 0 };
+    }
+
+    function makeOcrCandidateFromCanvas(srcCanvas, bbox, name, psm = "13", extraScale = 3) {
+      const safe = expandBBox(bbox, Math.max(10, Math.round(Math.min(srcCanvas.width, srcCanvas.height) * 0.035)), srcCanvas.width, srcCanvas.height);
+      const scale = clamp(extraScale || 3, 2, 6);
+      const pad = Math.max(22, Math.round(8 * scale));
+      const c = makeCanvasLike(safe.w * scale + pad * 2, safe.h * scale + pad * 2);
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+
+      // White margin helps Tesseract separate the number from dark dashboard background.
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, c.width, c.height);
+      ctx.imageSmoothingEnabled = true;
+      try { ctx.filter = "contrast(185%) saturate(145%) brightness(112%)"; } catch(e) { /* compatible fallback */ }
+      ctx.drawImage(srcCanvas, safe.x, safe.y, safe.w, safe.h, pad, pad, safe.w * scale, safe.h * scale);
+      try { ctx.filter = "none"; } catch(e) { /* compatible fallback */ }
+
+      return { name, canvas: c, psm, bbox: safe };
+    }
+
+    function buildOcrCandidatesFromVideo() {
+      const r = getOcrRoiRects();
+      if (!r) return [];
+
+      const baseScale = Math.max(1, Math.min(3, Math.round(1300 / Math.max(1, r.roiW_v))));
+      const base = makeCanvasLike(r.roiW_v * baseScale, r.roiH_v * baseScale);
+      const bctx = base.getContext("2d", { willReadFrequently: true });
+      bctx.imageSmoothingEnabled = true;
+      bctx.drawImage(video, r.roiX_v, r.roiY_v, r.roiW_v, r.roiH_v, 0, 0, base.width, base.height);
+
+      const img = bctx.getImageData(0, 0, base.width, base.height);
+      const area = base.width * base.height;
+      const candidates = [];
+
+      // Priority 1: green/yellow numeric display (common in PackEx dashboards; fixes 0.97 being read as 09).
+      const greenYellowBox = getMaskBBox(img, (rr, gg, bb) => {
+        const green = gg > 75 && gg > rr * 1.18 && gg > bb * 1.18 && (gg - rr) > 18 && (gg - bb) > 18;
+        const yellow = rr > 110 && gg > 100 && bb < 120 && Math.abs(rr - gg) < 90;
+        return green || yellow;
+      });
+      if (greenYellowBox && greenYellowBox.count > area * 0.0007 && greenYellowBox.w > base.width * 0.08 && greenYellowBox.h > base.height * 0.06) {
+        candidates.push(makeOcrCandidateFromCanvas(base, greenYellowBox, "highlight-number", "13", 4));
+      }
+
+      // Priority 2: red/cyan/bright colored number fallback.
+      const saturatedBox = getMaskBBox(img, (rr, gg, bb) => {
+        const mx = Math.max(rr, gg, bb), mn = Math.min(rr, gg, bb);
+        const sat = mx - mn;
+        const tooDark = mx < 85;
+        const likelyBorderCyan = gg > 130 && bb > 130 && rr < 90; // avoid OCR guide frame if it leaks into video screenshots
+        return !tooDark && sat > 55 && !likelyBorderCyan;
+      });
+      if (saturatedBox && saturatedBox.count > area * 0.0010 && saturatedBox.w > base.width * 0.06 && saturatedBox.h > base.height * 0.05) {
+        const duplicate = candidates.some(c => {
+          const a = c.bbox, b = saturatedBox;
+          return Math.abs(a.x - b.x) < base.width * 0.05 && Math.abs(a.y - b.y) < base.height * 0.05;
+        });
+        if (!duplicate) candidates.push(makeOcrCandidateFromCanvas(base, saturatedBox, "saturated-number", "13", 4));
+      }
+
+      // Priority 3: center-left band, because many machine screens put the main value there.
+      const band = {
+        x: Math.round(base.width * 0.06),
+        y: Math.round(base.height * 0.24),
+        w: Math.round(base.width * 0.62),
+        h: Math.round(base.height * 0.38),
+        count: 1
+      };
+      candidates.push(makeOcrCandidateFromCanvas(base, band, "main-value-band", "13", 3));
+
+      // Priority 4: full ROI fallback. Keep it last because labels often confuse OCR.
+      candidates.push(makeOcrCandidateFromCanvas(base, { x: 0, y: 0, w: base.width, h: base.height, count: 1 }, "full-ocr-area", "6", 2));
+
+      return candidates;
+    }
+
+    function buildOcrCanvasFromVideo() {
+      const candidates = buildOcrCandidatesFromVideo();
+      return candidates.length ? candidates[0].canvas : null;
+    }
+
+    function normalizeOcrNumberToken(token) {
+      let t = String(token || "").trim();
+      t = t.replace(/,/g, ".");
+      t = t.replace(/[Oo]/g, "0");
+      t = t.replace(/[Il|]/g, "1");
+      t = t.replace(/[S]/g, "5");
+      t = t.replace(/[^0-9.\-]/g, "");
+
+      // Keep only the first minus sign and first decimal point.
+      t = t.replace(/(?!^)-/g, "");
+      const firstDot = t.indexOf(".");
+      if (firstDot >= 0) {
+        t = t.slice(0, firstDot + 1) + t.slice(firstDot + 1).replace(/\./g, "");
+      }
+      if (!/\d/.test(t)) return "";
+      return t;
+    }
+
     function extractNumericTokensFromOcrText(text) {
-      const raw = String(text || "").replace(/,/g, ".");
-      const matches = raw.match(/-?\d+(?:\.\d+)?/g) || [];
-      return matches.map(x => x.trim()).filter(Boolean);
+      const raw = String(text || "")
+        .replace(/,/g, ".")
+        .replace(/[Oo]/g, "0")
+        .replace(/[Il|]/g, "1");
+
+      // Prefer real decimal values first: 0.97, 12.5, -3.20
+      const decimalMatches = raw.match(/-?\d+\s*[.]\s*\d+/g) || [];
+      let tokens = decimalMatches.map(x => normalizeOcrNumberToken(x)).filter(Boolean);
+
+      // Fallback to integer values only when no decimal is available.
+      if (!tokens.length) {
+        const integerMatches = raw.match(/-?\d+/g) || [];
+        tokens = integerMatches.map(x => normalizeOcrNumberToken(x)).filter(Boolean);
+      }
+
+      // Remove obvious duplicates while preserving order.
+      const seen = new Set();
+      return tokens.filter(t => {
+        if (seen.has(t)) return false;
+        seen.add(t);
+        return true;
+      });
+    }
+
+    function scoreOcrCandidate(tokens, rawText, confidence, candidateName) {
+      const text = String(rawText || "");
+      const bestToken = (tokens && tokens[0]) ? String(tokens[0]) : "";
+      if (!bestToken) return -9999;
+
+      let score = Number(confidence || 0);
+      if (bestToken.includes(".")) score += 60;
+      if (/^\d$/.test(bestToken)) score -= 45;
+      if (/^\d{2}$/.test(bestToken) && !bestToken.includes(".")) score -= 25;
+      if (bestToken.length >= 3) score += 12;
+      if (/hrs?|hour/i.test(text)) score += 18;
+      if (candidateName === "highlight-number") score += 35;
+      if (candidateName === "saturated-number") score += 20;
+      if (candidateName === "full-ocr-area") score -= 20;
+      return score;
     }
 
     async function getNumericOcrWorker() {
@@ -2511,8 +2647,8 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
           });
           try {
             await worker.setParameters({
-              tessedit_char_whitelist: "0123456789.-",
-              tessedit_pageseg_mode: "6",
+              tessedit_pageseg_mode: "13",
+              preserve_interword_spaces: "1"
             });
           } catch (e) { /* compatible fallback */ }
           return worker;
@@ -2602,18 +2738,41 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
       processNumericOcrPreviewFrame();
 
       try {
-        const previewCanvas = buildOcrCanvasFromVideo();
-        if (!previewCanvas) throw new Error("Cannot build OCR image");
+        const candidates = buildOcrCandidatesFromVideo();
+        if (!candidates.length) throw new Error("Cannot build OCR image");
 
         const worker = await getNumericOcrWorker();
-        const out = await worker.recognize(previewCanvas);
-        const text = out?.data?.text || "";
-        const confidence = Number(out?.data?.confidence || 0);
-        const tokens = extractNumericTokensFromOcrText(text);
+        let best = null;
 
-        renderOcrResult(tokens, text, confidence, previewCanvas);
-        if (!tokens.length) {
+        // Read the tight numeric crop first. Full ROI is only a fallback because labels can confuse OCR.
+        for (const cand of candidates) {
+          try {
+            await worker.setParameters({
+              tessedit_pageseg_mode: cand.psm || "13",
+              preserve_interword_spaces: "1"
+            });
+          } catch(e) { /* compatible fallback */ }
+
+          const out = await worker.recognize(cand.canvas);
+          const text = out?.data?.text || "";
+          const confidence = Number(out?.data?.confidence || 0);
+          const tokens = extractNumericTokensFromOcrText(text);
+          const score = scoreOcrCandidate(tokens, text, confidence, cand.name);
+
+          const item = { cand, text, confidence, tokens, score };
+          if (!best || item.score > best.score) best = item;
+
+          // Strong early exit: decimal found from highlighted number crop.
+          if (cand.name === "highlight-number" && tokens.length && tokens[0].includes(".")) break;
+        }
+
+        if (!best) throw new Error("OCR returned no result");
+
+        renderOcrResult(best.tokens, best.text, best.confidence, best.cand.canvas);
+        if (!best.tokens.length) {
           ggToast("OCR did not find any number. Please align the number inside the OCR area and try again.", "warn", 3400);
+        } else if (best.score < 35) {
+          ggToast("OCR result may be low confidence. Move the camera closer and keep only the number inside the OCR area.", "warn", 3000);
         }
       } catch (e) {
         ggToast("OCR Error: " + (e?.message || e), "error", 4200);
