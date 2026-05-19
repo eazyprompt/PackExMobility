@@ -27,6 +27,7 @@
     rel="stylesheet"
   />
   <script src="https://cdn.jsdelivr.net/npm/lucide@0.321.0/dist/umd/lucide.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js"></script>
 
   <style>
     :root {
@@ -1132,15 +1133,15 @@
               <div class="glue-summary-area">
                 <div class="sum-item">
                   <div class="sum-val" id="sum-total">0</div>
-                  <div class="sum-lbl">Box Found</div>
+                  <div class="sum-lbl">OCR Found</div>
                 </div>
                 <div class="sum-item">
                   <div class="sum-val text-ok" id="sum-gap">0</div>
-                  <div class="sum-lbl">NORMAL GAP</div>
+                  <div class="sum-lbl">OCR NUMBER</div>
                 </div>
                 <div class="sum-item">
                   <div class="sum-val text-ng" id="sum-red">0</div>
-                  <div class="sum-lbl">WARNING GAP</div>
+                  <div class="sum-lbl">CONFIDENCE</div>
                 </div>
               </div>
             </div>
@@ -1338,10 +1339,24 @@
     let sheetCapStep = 1;
     let frontGapCapture = [];
     let tailGapCapture = [];
+
+    // =========================================================
+    // ✅ NUMERIC OCR MODE
+    // - Replaces the Glue Gap capture flow with OCR reading.
+    // - Keep legacy Glue Gap logic below untouched for rollback.
+    // =========================================================
+    const ENABLE_NUMERIC_OCR_MODE = true;
+    let ocrBusy = false;
+    let ocrWorkerPromise = null;
+    let lastOcrTokens = [];
+    let lastOcrConfidence = 0;
+    let lastOcrRawText = "";
     // ==============================
     // ✅ SHEET CAPTURE STEP INDICATOR
     // ==============================
     function sheetCapStepMeta() {
+      if (ENABLE_NUMERIC_OCR_MODE) return { key: "preview", icon: "scan-text", text: "OCR" };
+
       // 1: capture Front, 2: capture Tail, 3: preview modal, 4: modal open (save/cancel)
       const hasFront = Array.isArray(frontGapCapture) && frontGapCapture.length > 0;
       const hasTail  = Array.isArray(tailGapCapture)  && tailGapCapture.length  > 0;
@@ -1369,12 +1384,12 @@
       // set label + icon
       el.innerHTML = `<i data-lucide="${m.icon}"></i> ${m.text}`;
 
-      // Sync capture button icon: camera for FRONT/TAIL, document for PREVIEW
+      // Sync capture button icon: OCR mode uses scan-text; legacy mode keeps camera/file-text.
       const btn = document.getElementById("btn-sheet-cap");
       if (btn) {
-        btn.innerHTML = (m.key === "preview")
-          ? `<i data-lucide="file-text"></i>`
-          : `<i data-lucide="camera"></i>`;
+        btn.innerHTML = ENABLE_NUMERIC_OCR_MODE
+          ? `<i data-lucide="scan-text"></i>`
+          : ((m.key === "preview") ? `<i data-lucide="file-text"></i>` : `<i data-lucide="camera"></i>`);
       }
 
       // set color class
@@ -2366,10 +2381,259 @@ function paintLargestBlobOverlay_(ctx, data, w, h, x0, y0, x1, y1, lightBias, ro
 }
 
     // =========================================================
+    // NUMERIC OCR HELPERS
+    // =========================================================
+    function getOcrRoiRects() {
+      const m = getCoverMetrics();
+      if (!m) return null;
+
+      const dw = sheetCanvas.width;
+      const dh = sheetCanvas.height;
+      if (!dw || !dh) return null;
+
+      // Wider and shorter than the old glue-gap ROI because OCR normally reads printed numbers.
+      const roiW_disp = Math.round(dw * 0.78);
+      const roiH_disp = Math.round(dh * 0.38);
+      const roiX_disp = Math.round((dw - roiW_disp) / 2);
+      const roiY_disp = Math.round((dh - roiH_disp) / 2);
+
+      const roiV = dispRectToVideoRect(roiX_disp, roiY_disp, roiW_disp, roiH_disp, m);
+      return {
+        m,
+        dw, dh,
+        roiX_disp, roiY_disp, roiW_disp, roiH_disp,
+        roiX_v: Math.round(roiV.x),
+        roiY_v: Math.round(roiV.y),
+        roiW_v: Math.max(1, Math.round(roiV.w)),
+        roiH_v: Math.max(1, Math.round(roiV.h)),
+      };
+    }
+
+    function processNumericOcrPreviewFrame() {
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
+
+      const r = getOcrRoiRects();
+      if (!r) return;
+
+      sheetCtx.clearRect(0, 0, r.dw, r.dh);
+      sheetCtx.save();
+      sheetCtx.fillStyle = "rgba(2, 6, 23, 0.56)";
+      sheetCtx.fillRect(0, 0, r.dw, r.dh);
+      sheetCtx.clearRect(r.roiX_disp, r.roiY_disp, r.roiW_disp, r.roiH_disp);
+
+      sheetCtx.strokeStyle = ocrBusy ? "rgba(251, 191, 36, 0.90)" : "rgba(34, 211, 238, 0.85)";
+      sheetCtx.lineWidth = 3;
+      sheetCtx.setLineDash([12, 8]);
+      sheetCtx.strokeRect(r.roiX_disp, r.roiY_disp, r.roiW_disp, r.roiH_disp);
+      sheetCtx.setLineDash([]);
+
+      sheetCtx.fillStyle = ocrBusy ? "#fbbf24" : "#22d3ee";
+      sheetCtx.font = "bold 13px 'JetBrains Mono'";
+      sheetCtx.fillText(ocrBusy ? "OCR READING..." : "OCR AREA", r.roiX_disp + 8, r.roiY_disp + 18);
+
+      const cx = r.roiX_disp + r.roiW_disp / 2;
+      const cy = r.roiY_disp + r.roiH_disp / 2;
+      sheetCtx.strokeStyle = "rgba(255,255,255,0.35)";
+      sheetCtx.lineWidth = 1;
+      sheetCtx.beginPath();
+      sheetCtx.moveTo(cx - 18, cy); sheetCtx.lineTo(cx + 18, cy);
+      sheetCtx.moveTo(cx, cy - 18); sheetCtx.lineTo(cx, cy + 18);
+      sheetCtx.stroke();
+      sheetCtx.restore();
+
+      const statusGroup = document.getElementById("header-status-group");
+      const header = document.getElementById("glue-header");
+      if (statusGroup && header) {
+        const hasResult = lastOcrTokens.length > 0;
+        const badge = ocrBusy
+          ? `<div class="gc-status-badge" style="color:#fbbf24; background:rgba(251,191,36,0.14); border-color:rgba(251,191,36,0.28)"><i data-lucide="loader"></i> OCR...</div>`
+          : (hasResult
+              ? `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> OCR OK</div>`
+              : `<div class="gc-status-badge"><i data-lucide="scan-text"></i> READY</div>`);
+        statusGroup.innerHTML = badge + sheetCapStepBadgeHTML();
+        header.className = hasResult ? "glue-compact-header status-pass" : "glue-compact-header";
+      }
+
+      setSheetCapButtonEnabled(!ocrBusy);
+      lucide.createIcons();
+    }
+
+    function buildOcrCanvasFromVideo() {
+      const r = getOcrRoiRects();
+      if (!r) return null;
+
+      const scale = Math.max(1, Math.min(3, Math.round(1100 / Math.max(1, r.roiW_v))));
+      const c = document.createElement("canvas");
+      c.width = Math.max(1, r.roiW_v * scale);
+      c.height = Math.max(1, r.roiH_v * scale);
+
+      const ctx = c.getContext("2d", { willReadFrequently: true });
+      ctx.imageSmoothingEnabled = true;
+      ctx.drawImage(video, r.roiX_v, r.roiY_v, r.roiW_v, r.roiH_v, 0, 0, c.width, c.height);
+
+      const img = ctx.getImageData(0, 0, c.width, c.height);
+      const d = img.data;
+      let sum = 0;
+      const n = Math.max(1, d.length / 4);
+      for (let i = 0; i < d.length; i += 4) {
+        sum += d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+      }
+      const mean = sum / n;
+      const invert = mean < 118; // if background is dark, invert to black text on white background
+      const threshold = clamp(mean * 0.92, 70, 190);
+
+      for (let i = 0; i < d.length; i += 4) {
+        let g = d[i] * 0.299 + d[i+1] * 0.587 + d[i+2] * 0.114;
+        g = clamp((g - 128) * 1.85 + 128, 0, 255);
+        let bw = (g > threshold) ? 255 : 0;
+        if (invert) bw = 255 - bw;
+        d[i] = d[i+1] = d[i+2] = bw;
+        d[i+3] = 255;
+      }
+      ctx.putImageData(img, 0, 0);
+      return c;
+    }
+
+    function extractNumericTokensFromOcrText(text) {
+      const raw = String(text || "").replace(/,/g, ".");
+      const matches = raw.match(/-?\d+(?:\.\d+)?/g) || [];
+      return matches.map(x => x.trim()).filter(Boolean);
+    }
+
+    async function getNumericOcrWorker() {
+      if (!window.Tesseract) {
+        throw new Error("Tesseract.js is not loaded");
+      }
+      if (!ocrWorkerPromise) {
+        ocrWorkerPromise = (async () => {
+          const worker = await Tesseract.createWorker("eng", 1, {
+            logger: () => {}
+          });
+          try {
+            await worker.setParameters({
+              tessedit_char_whitelist: "0123456789.-",
+              tessedit_pageseg_mode: "6",
+            });
+          } catch (e) { /* compatible fallback */ }
+          return worker;
+        })();
+      }
+      return ocrWorkerPromise;
+    }
+
+    function renderOcrResult(tokens, rawText, confidence, previewCanvas) {
+      lastOcrTokens = Array.isArray(tokens) ? tokens : [];
+      lastOcrRawText = String(rawText || "").trim();
+      lastOcrConfidence = Number(confidence || 0);
+
+      const resultText = lastOcrTokens.length ? lastOcrTokens.join(" / ") : "--";
+      const confText = lastOcrTokens.length ? `${Math.round(lastOcrConfidence)}%` : "0%";
+
+      const totalEl = document.getElementById("sum-total");
+      const resultEl = document.getElementById("sum-gap");
+      const confEl = document.getElementById("sum-red");
+      if (totalEl) totalEl.innerText = String(lastOcrTokens.length);
+      if (resultEl) {
+        resultEl.innerText = resultText;
+        resultEl.style.fontSize = resultText.length > 10 ? "0.92rem" : "1.4rem";
+        resultEl.style.wordBreak = "break-all";
+      }
+      if (confEl) {
+        confEl.innerText = confText;
+        confEl.classList.remove("text-ok", "text-ng");
+        confEl.classList.add(lastOcrConfidence >= 70 ? "text-ok" : "text-ng");
+      }
+
+      const statsHeader = document.getElementById("stats-header");
+      if (statsHeader) {
+        statsHeader.style.display = "grid";
+        statsHeader.innerHTML = `
+          <div class="stat-box">
+            <div class="stat-title">OCR Result</div>
+            <div class="stat-val" style="font-size:${resultText.length > 10 ? '0.95rem' : '1.1rem'}; word-break:break-all;">${resultText}</div>
+          </div>
+          <div class="stat-box">
+            <div class="stat-title">Confidence</div>
+            <div class="stat-val" style="color:${lastOcrConfidence >= 70 ? '#34d399' : '#fbbf24'}">${confText}</div>
+          </div>
+        `;
+      }
+
+      const emptyMsg = document.getElementById("empty-scan-msg");
+      if (emptyMsg) emptyMsg.style.display = "none";
+
+      // Show the exact preprocessed OCR image in the lower canvas for debugging/verification.
+      if (previewCanvas && distCanvas.width && distCanvas.height) {
+        distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
+        const pad = 12;
+        const scale = Math.min((distCanvas.width - pad*2) / previewCanvas.width, (distCanvas.height - pad*2) / previewCanvas.height);
+        const w = Math.max(1, previewCanvas.width * scale);
+        const h = Math.max(1, previewCanvas.height * scale);
+        const x = (distCanvas.width - w) / 2;
+        const y = (distCanvas.height - h) / 2;
+        distCtx.fillStyle = "rgba(255,255,255,0.06)";
+        distCtx.fillRect(0, 0, distCanvas.width, distCanvas.height);
+        distCtx.drawImage(previewCanvas, x, y, w, h);
+      }
+
+      const statusGroup = document.getElementById("header-status-group");
+      const header = document.getElementById("glue-header");
+      if (statusGroup && header) {
+        if (lastOcrTokens.length) {
+          statusGroup.innerHTML = `<div class="gc-status-badge"><i data-lucide="check-circle-2" style="color:#34d399"></i> OCR OK</div>` + sheetCapStepBadgeHTML();
+          header.className = "glue-compact-header status-pass";
+        } else {
+          statusGroup.innerHTML = `<div class="gc-status-badge" style="color:#fbbf24; background:rgba(251,191,36,0.14); border-color:rgba(251,191,36,0.28)"><i data-lucide="alert-circle"></i> NO NUMBER</div>` + sheetCapStepBadgeHTML();
+          header.className = "glue-compact-header";
+        }
+      }
+      lucide.createIcons();
+    }
+
+    async function runNumericOCRCapture() {
+      if (ocrBusy) return;
+      if (video.readyState !== video.HAVE_ENOUGH_DATA) {
+        ggToast("Camera is not ready yet", "warn");
+        return;
+      }
+
+      ocrBusy = true;
+      setSheetCapButtonEnabled(false);
+      processNumericOcrPreviewFrame();
+
+      try {
+        const previewCanvas = buildOcrCanvasFromVideo();
+        if (!previewCanvas) throw new Error("Cannot build OCR image");
+
+        const worker = await getNumericOcrWorker();
+        const out = await worker.recognize(previewCanvas);
+        const text = out?.data?.text || "";
+        const confidence = Number(out?.data?.confidence || 0);
+        const tokens = extractNumericTokensFromOcrText(text);
+
+        renderOcrResult(tokens, text, confidence, previewCanvas);
+        if (!tokens.length) {
+          ggToast("OCR did not find any number. Please align the number inside the OCR area and try again.", "warn", 3400);
+        }
+      } catch (e) {
+        ggToast("OCR Error: " + (e?.message || e), "error", 4200);
+      } finally {
+        ocrBusy = false;
+        setSheetCapButtonEnabled(true);
+        processNumericOcrPreviewFrame();
+      }
+    }
+
+    // =========================================================
     // GLUE GAP DETECTION (stabilized)
     // ✅ RED only when gapMM is out of [2..10]
     // =========================================================
     function processSheetFrame() {
+      if (ENABLE_NUMERIC_OCR_MODE) {
+        processNumericOcrPreviewFrame();
+        return;
+      }
+
       if (sheetFrozen) return;
       if (video.readyState !== video.HAVE_ENOUGH_DATA) return;
 
@@ -3025,8 +3289,8 @@ document.getElementById('sum-total').innerText = expected;
 
       const btn = document.getElementById("btn-sheet-cap");
       if (btn) {
-        // keep original visual language: camera icon
-        btn.innerHTML = '<i data-lucide="camera"></i>';
+        // keep original visual language: camera icon; OCR mode uses scan-text icon.
+        btn.innerHTML = ENABLE_NUMERIC_OCR_MODE ? '<i data-lucide="scan-text"></i>' : '<i data-lucide="camera"></i>';
         btn.classList.remove("frozen");
        setSheetCapButtonEnabled(true);
       }
@@ -3034,12 +3298,16 @@ document.getElementById('sum-total').innerText = expected;
       updateSheetCapStepIndicator();
     }
 
-    function toggleSheetCapture() {
+    async function toggleSheetCapture() {
       const btn = document.getElementById("btn-sheet-cap"); 
 
-      // If system is SCANNING (button disabled), ignore taps
+      // If system is busy/disabled, ignore taps
       if (btn && btn.disabled) { return; }
 
+      if (ENABLE_NUMERIC_OCR_MODE) {
+        await runNumericOCRCapture();
+        return;
+      }
 
       // STEP 1: capture Front Gap
       if (sheetCapStep === 1) {
@@ -3112,9 +3380,15 @@ document.getElementById('sum-total').innerText = expected;
       sheetCtx.clearRect(0, 0, sheetCanvas.width, sheetCanvas.height);
       distCtx.clearRect(0, 0, distCanvas.width, distCanvas.height);
 
+      lastOcrTokens = [];
+      lastOcrConfidence = 0;
+      lastOcrRawText = "";
       document.getElementById('sum-total').innerText = "0";
-      document.getElementById('sum-gap').innerText = "0";
-      document.getElementById('sum-red').innerText = "0";
+      document.getElementById('sum-gap').innerText = ENABLE_NUMERIC_OCR_MODE ? "--" : "0";
+      document.getElementById('sum-gap').style.fontSize = "1.4rem";
+      document.getElementById('sum-red').innerText = ENABLE_NUMERIC_OCR_MODE ? "0%" : "0";
+      document.getElementById('sum-red').classList.remove("text-ok", "text-ng");
+      document.getElementById('sum-red').classList.add(ENABLE_NUMERIC_OCR_MODE ? "text-ng" : "text-ng");
 
       const header = document.getElementById("glue-header");
       header.className = "glue-compact-header";
@@ -3125,7 +3399,7 @@ document.getElementById('sum-total').innerText = expected;
       document.getElementById("empty-scan-msg").style.display = "flex";
 
       const btn = document.getElementById("btn-sheet-cap");
-      btn.innerHTML = '<i data-lucide="camera"></i>';
+      btn.innerHTML = ENABLE_NUMERIC_OCR_MODE ? '<i data-lucide="scan-text"></i>' : '<i data-lucide="camera"></i>';
       btn.classList.remove("frozen");
       setSheetCapButtonEnabled(true);
 
